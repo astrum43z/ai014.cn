@@ -12,7 +12,26 @@ function announce(text){$('#announcement').textContent=text;}
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';$('#status').textContent=paused?'已暂停':'运行中';$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
 function reset(){t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};if(mode==='orbit'){bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
 function changeMode(next,sharedValues=null){mode=next;preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=c.challenge;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;$('#learn').href=c.learn;canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML=presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':'前进一步 +';$('#clear').hidden=mode!=='life';$('#share-link').hidden=true;$('#sliders').innerHTML=c.sliders.map(([id,label,min,max,initial,unit])=>{const value=values[id];return `<label class="slider"><span>${label}<output id="out-${id}" for="${id}">${value}${unit}</output></span><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"></label>`;}).join('');c.sliders.forEach(([id,,min,max,v,unit])=>$('#'+id).addEventListener('input',e=>{values[id]=+e.target.value;$('#out-'+id).textContent=values[id]+unit;draw();updateAddress();}));updatePause();reset();updateAddress();}
-function updateAddress(){history.replaceState(null,'','?'+serializeSettings(mode,values)+(location.hash==='#lab'?'#lab':''));}
+function updateAddress(){
+  history.replaceState(history.state,'','?'+serializeSettings(mode,values)+(location.hash==='#lab'?'#lab':''));
+  refreshShareLink();
+}
+function refreshShareLink(){const input=$('#share-link');if(!input.hidden)input.value=location.href;}
+function addressSettings(){
+  if(location.search)return parseSettings(location.search,configs);
+  const next=Object.hasOwn(configs,location.hash.slice(1))?location.hash.slice(1):'orbit';
+  return parseSettings('?experiment='+next,configs);
+}
+function restoreAddress(){
+  const shared=addressSettings();
+  // Anchor-only Back/Forward must not discard a drawing or simulation progress.
+  if(mode===shared.mode&&Object.keys(shared.values).every(id=>values[id]===shared.values[id])){
+    refreshShareLink();
+    return;
+  }
+  changeMode(shared.mode,shared.values);
+}
+addEventListener('popstate',restoreAddress);
 function fit(){const rect=canvas.getBoundingClientRect();width=rect.width;height=rect.height;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
 function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)/r.width*width,y:(event.clientY-r.top)/r.height*height};}
 canvas.addEventListener('click',e=>{if(mode==='life'&&wasDragging){wasDragging=false;return;}const p=coordinates(e);if(mode==='life'){const x=Math.min(47,Math.floor(p.x/width*48)),y=Math.min(31,Math.floor(p.y/height*32));cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(`第 ${x+1} 列，第 ${y+1} 行：${cells[y*48+x]?'生':'灭'}`);}if(mode==='wave'){const scale=Math.min(width,height)/280;probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('测量探针已移动');}if(mode==='orbit'){if(bodies.length>=24){announce('最多放入 24 颗行星，请重置后重试');return;}const scale=Math.min(width,height)/450,x=(p.x-width/2)/scale,y=(p.y-height/2)/scale,r=Math.hypot(x,y);if(r<22){announce('请在恒星外侧放入行星');return;}const speed=Math.sqrt(values.gravity*1000/r)*values.speed/100;bodies.push({x,y,vx:-y/r*speed,vy:x/r*speed,trail:[],color:palette[bodies.length%palette.length]});draw();announce('已添加行星');}});
@@ -31,7 +50,7 @@ let painting=false,lastPaint=-1,wasDragging=false;
 canvas.addEventListener('pointerdown',e=>{if(mode!=='life')return;painting=true;wasDragging=false;paused=true;updatePause();lastPaint=-1;canvas.setPointerCapture(e.pointerId);});
 canvas.addEventListener('pointermove',e=>{if(!painting||mode!=='life')return;const p=coordinates(e);const x=Math.min(47,Math.max(0,Math.floor(p.x/width*48))),y=Math.min(31,Math.max(0,Math.floor(p.y/height*32))),i=y*48+x;if(i!==lastPaint){wasDragging=true;lifeHistory=[];cells[i]=1;lastPaint=i;draw();}});
 canvas.addEventListener('pointerup',()=>{painting=false;});canvas.addEventListener('pointercancel',()=>{painting=false;});
-document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>changeMode(tab.dataset.mode));tab.addEventListener('keydown',e=>{const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%3;if(e.key==='ArrowLeft')n=(i+2)%3;if(e.key==='Home')n=0;if(e.key==='End')n=2;if(n!==undefined){e.preventDefault();changeMode(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=parseSettings(location.search,configs);const initialMode=location.search?shared.mode:Object.hasOwn(configs,location.hash.slice(1))?location.hash.slice(1):'orbit';changeMode(initialMode,location.search?shared.values:null);new ResizeObserver(fit).observe(canvas);
+document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>changeMode(tab.dataset.mode));tab.addEventListener('keydown',e=>{const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%3;if(e.key==='ArrowLeft')n=(i+2)%3;if(e.key==='Home')n=0;if(e.key==='End')n=2;if(n!==undefined){e.preventDefault();changeMode(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();changeMode(shared.mode,shared.values);new ResizeObserver(fit).observe(canvas);
 animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>!paused&&!document.hidden&&stageVisible});
 document.addEventListener('visibilitychange',()=>animation.sync());
 if(typeof IntersectionObserver!=='undefined')new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;animation.sync();}).observe(canvas);

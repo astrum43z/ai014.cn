@@ -18,6 +18,10 @@ The animation loop stops while paused, when the document is hidden, or when the 
 
 Optional Chromium regression checks: `node tests/browser-check.cjs` and `node tests/performance-check.cjs` while the local server is running. These scripts use the Playwright and Chromium paths configured in their headers.
 
+## Parameter links
+
+Share links contain the experiment and validated slider values, not canvas drawings, presets, or running progress. A visible link stays current as parameters change. Back/Forward restores changed experiment settings while preserving the paused state; anchor-only navigation keeps the current simulation intact.
+
 ## Deploy
 
 GitHub Pages: Settings → Pages → Deploy from a branch → main → / (root). The website uses only static files. Configure ai014.cn as the custom domain after Pages is active, then update the domain DNS. No existing sites need to change.
