@@ -26,6 +26,10 @@ Life drawing tracks one primary pointer. Pointer cancellation, capture loss, cle
 
 Share links contain the experiment and validated slider values, not canvas drawings, presets, or running progress. A visible link stays current as parameters change. Back/Forward restores changed experiment settings while preserving the paused state; anchor-only navigation keeps the current simulation intact.
 
+## Guided experiments
+
+Each “try this” card provides a reproducible, paused starting point and specific observations: change gravity while retaining orbital velocity, discover a Life blinker’s two-generation period, and compare a half-wavelength wave path difference with the central axis. Loading clearly replaces the current canvas and settings, resets progress, synchronizes controls and parameter links, and never overrides reduced-motion with autoplay. Share links still contain parameters only, not the guide’s pattern or probe.
+
 ## PNG snapshots
 
 Saving captures the current canvas and experiment filename together. The save control waits for encoding before accepting another request. Encoding or download-start failures show a retry message and restore the control; download success text only confirms that a download was started. Temporary links and object URLs are cleaned up.
