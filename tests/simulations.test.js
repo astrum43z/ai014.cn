@@ -11,3 +11,7 @@ const config={orbit:{sliders:[['gravity','g',30,160,80],['speed','s',30,150,100]
 test('URL settings round trip',()=>{const state=parseSettings('?'+serializeSettings('orbit',{gravity:120,speed:70}),config);assert.deepEqual(state,{mode:'orbit',values:{gravity:120,speed:70}});});
 test('URL settings clamp untrusted values',()=>{assert.deepEqual(parseSettings('?experiment=orbit&gravity=9000&speed=NaN',config),{mode:'orbit',values:{gravity:160,speed:100}});});
 test('URL unknown mode falls back safely',()=>{assert.equal(parseSettings('?experiment=unknown',config).mode,'orbit');});
+import {population,repeatPeriod,wavePathDifference} from '../simulations.js';
+test('population and exact-state period detection',()=>{const c=Uint8Array.from([0,1,1,0]);assert.equal(population(c),2);assert.equal(repeatPeriod([{generation:2,key:'0110'}],c,4),2);assert.equal(repeatPeriod([{generation:4,key:'0110'}],c,4),null);assert.equal(repeatPeriod([{generation:2,key:'1001'}],c,4),null);});
+test('wave central axis constructive',()=>{const p=wavePathDifference(0,80,100,32);assert.equal(p.difference,0);assert.equal(p.kind,'constructive');assert.equal(p.envelope,1);});
+test('wave half wavelength cancels',()=>{const p=wavePathDifference(8,0,100,32);assert.equal(p.cycles,.5);assert.equal(p.kind,'destructive');assert.ok(p.envelope<1e-10);});
