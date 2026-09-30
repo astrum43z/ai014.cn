@@ -14,4 +14,13 @@ intersect([{isIntersecting:true}]);assert.equal(frames.size,1);
 el('pause').handlers.click();assert.equal(frames.size,0);
 intersect([{isIntersecting:false}]);intersect([{isIntersecting:true}]);assert.equal(frames.size,0,'scrolling must not override manual pause');
 el('step').handlers.click();assert.equal(drawCount,resumed+1,'manual step still draws while paused');
+// Snapshot callbacks may finish after an experiment switch.
+let encoded;
+el('canvas').toBlob=callback=>{encoded=callback;};
+el('save').handlers.click();assert.equal(el('save').disabled,true);
+tabs[2].handlers.click();encoded(new Blob(['png']));
+assert.equal(el('generated').download,'small-worlds-life.png');
+assert.equal(el('save').disabled,false);
+assert.match(el('announcement').textContent,/已发起图片下载/);
+
 });

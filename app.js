@@ -1,3 +1,4 @@
+import {createSnapshotSaver} from './snapshot.js';
 import {createAnimationLoop} from './animation.js';
 import {lifeStep,orbitStep,waveValue,population,repeatPeriod,wavePathDifference,parseSettings,serializeSettings} from './simulations.js';
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
@@ -45,7 +46,8 @@ $('#preset').addEventListener('click',()=>{preset=(preset+1)%presets[mode].lengt
 $('#step').addEventListener('click',()=>{paused=true;updatePause();if(mode==='life'){cells=lifeStep(cells,48,32);generation++;}else{t+=.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce(mode==='life'?`第 ${generation} 代`:'模拟前进一步');});
 $('#clear').addEventListener('click',()=>{cancelPainting();paused=true;updatePause();cells=new Uint8Array(48*32);generation=0;lifeHistory=[];draw();announce('画布已清空，可以播种');});
 $('#share').addEventListener('click',async()=>{updateAddress();const input=$('#share-link');input.hidden=false;input.value=location.href;input.focus();input.select();try{await navigator.clipboard.writeText(input.value);announce('参数链接已复制；分享当前实验与参数，不包含画布图案或运行进度');}catch{announce('请复制下方参数链接；不包含画布图案或运行进度');}});
-$('#save').addEventListener('click',()=>{canvas.toBlob(blob=>{if(!blob){announce('图片生成失败，请重试');return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.download=`small-worlds-${mode}.png`;a.href=url;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);announce('已发起图片下载，请查看浏览器下载列表');},'image/png');});
+const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),announce,document});
+$('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`));
 // A stroke belongs to one pointer and cannot survive interrupted capture.
 let paintingPointer=null,cancelledClickPointer=null,lastPaint=-1,wasDragging=false;
 function cancelPainting(){
