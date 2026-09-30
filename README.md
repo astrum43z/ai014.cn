@@ -18,6 +18,10 @@ The animation loop stops while paused, when the document is hidden, or when the 
 
 Optional Chromium regression checks: `node tests/browser-check.cjs` and `node tests/performance-check.cjs` while the local server is running. These scripts use the Playwright and Chromium paths configured in their headers.
 
+## Touch drawing
+
+Life drawing tracks one primary pointer. Pointer cancellation, capture loss, clearing, resetting, or switching experiments ends the active stroke, so later hover/move events cannot accidentally keep painting. Taps still toggle cells; the click following a drag does not erase the painted cell. These paths have simulated event regression tests; they are not a substitute for real-device touch checks.
+
 ## Parameter links
 
 Share links contain the experiment and validated slider values, not canvas drawings, presets, or running progress. A visible link stays current as parameters change. Back/Forward restores changed experiment settings while preserving the paused state; anchor-only navigation keeps the current simulation intact.
