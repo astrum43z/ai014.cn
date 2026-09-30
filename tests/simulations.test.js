@@ -6,3 +6,8 @@ test('life toroidal boundary wraps',()=>{const c=new Uint8Array(25);[10,14,11].f
 test('orbit remains bounded near circular orbit',()=>{const b={x:100,y:0,vx:0,vy:Math.sqrt(80000/100)};for(let i=0;i<10000;i++)orbitStep(b,80000,.005);assert.ok(Math.abs(Math.hypot(b.x,b.y)-100)<.3);});
 test('orbit origin is finite',()=>{const b=orbitStep({x:0,y:0,vx:0,vy:0},80000,.1);assert.ok(Number.isFinite(b.x)&&Number.isFinite(b.y));});
 test('waves are symmetric and bounded',()=>{for(let x=-100;x<100;x+=4)for(let y=-100;y<100;y+=4){const a=waveValue(x,y,1,80,32);assert.ok(Math.abs(a)<=1);assert.ok(Math.abs(a-waveValue(-x,y,1,80,32))<1e-10);}});
+import {parseSettings,serializeSettings} from '../simulations.js';
+const config={orbit:{sliders:[['gravity','g',30,160,80],['speed','s',30,150,100]]},life:{sliders:[['rate','r',1,20,8]]}};
+test('URL settings round trip',()=>{const state=parseSettings('?'+serializeSettings('orbit',{gravity:120,speed:70}),config);assert.deepEqual(state,{mode:'orbit',values:{gravity:120,speed:70}});});
+test('URL settings clamp untrusted values',()=>{assert.deepEqual(parseSettings('?experiment=orbit&gravity=9000&speed=NaN',config),{mode:'orbit',values:{gravity:160,speed:100}});});
+test('URL unknown mode falls back safely',()=>{assert.equal(parseSettings('?experiment=unknown',config).mode,'orbit');});
