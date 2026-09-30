@@ -1,0 +1,1 @@
+{"name":"small-worlds-ai014-cn","private":true,"type":"module","scripts":{"test":"node --test tests/*.test.js","start":"python3 -m http.server 8140"}}
