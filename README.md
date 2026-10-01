@@ -188,3 +188,10 @@ The preview uses a temporary copy of the launch state and exactly 1,000 steps of
 ## Life: one cell toggle per key press
 
 Holding Enter or Space now toggles the selected cell only once, so the key-repeat delay cannot accidentally erase a deliberate drawing. Release and press again to toggle it back. Held arrow keys still move across the board and wrap at its edges. The first toggle pauses as before; repeated toggle events do not redraw, announce, or invalidate a challenge comparison. Space repeats still prevent page scrolling. No simulation, pointer, sharing, or layout behavior changes.
+
+
+## Easier parameter-slider targeting
+
+All ten parameter sliders keep their native range controls and now have a 44px-high input box on desktop, touch laptops, and narrow layouts. The top margin shrinks from 15px to 1px so the track stays at the same distance below its label; the hit area expands above and below it. Native dragging, keyboard arrows/Home/End, value ranges, focus outlines and experiment behavior are unchanged. This does not enlarge the track or thumb artwork, or add extra controls, event handlers, dependencies or saved state.
+
+`tests/slider-targets.test.js` guards the global input size, unchanged track center and native semantics. Browser QA also checks computed geometry and keyboard behavior at desktop and narrow widths; narrow browser zoom is not a physical touch-device test.
