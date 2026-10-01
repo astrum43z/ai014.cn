@@ -165,3 +165,10 @@ When the viewport is at least 480 CSS pixels tall, this compact row remains at t
 ## Mobile reading scale
 
 At widths up to 720 CSS pixels, the existing lesson paragraphs and stage measurements use a 14px reading scale with 1.7–1.8 line spacing. Supporting instructions, model boundaries, sharing limits and reading links use 13px rather than 9–11px. The five compact tabs and simulation controls retain their layout; longer text grows in normal document flow. Wave labels can wrap beside signed values, and the numeric column accommodates five monospaced characters. Desktop styling, model calculations, state, sharing, content and the contact footer are unchanged. `tests/mobile-reading.test.js` guards the mobile-only scope, coverage and wrapping rules; actual layout must also be checked in a browser.
+
+
+## Optional Life construction challenge
+
+Open “动手挑战 · 4 格，能一直不变吗？” in the Life exhibit. Draw four live cells on the existing board, then test one actual generation. The test uses the same toroidal B3/S23 stepper as ordinary play and compares every cell, including new births. Equal population is not treated as success: a valid solution has exactly four live cells and no changed positions (both blocks and tubs work, including wrapped arrangements). Because this deterministic state is a fixed point, an unchanged generation remains unchanged thereafter unless edited.
+
+The main board shows the tested next generation. Orange crosses mark deaths, blue outlines mark births, and quiet text reports both counts. Return to edit restores the exact pre-test board, generation, focus and recent history. Repeated test clicks do not advance repeatedly; editing, stepping, running, clearing, resets, presets and guide/history loads discard stale comparisons. Ordinary tab switches retain the bounded trial along with the rest of the Life session. Inspecting cells, resizing, reading anchors and parameter-only sharing do not alter the trial. The optional blank start explicitly discloses that it replaces the board and always pauses. No account, grading history, additional simulation loop, persistent storage or sharing-format change is introduced.

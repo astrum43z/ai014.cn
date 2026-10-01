@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const css=await readFile(new URL('../style.css',import.meta.url),'utf8');
-const mobile=css.slice(css.indexOf('/* Phone-sized lessons'));
+const mobile=css.slice(css.indexOf('/* Phone-sized lessons'),css.indexOf('/* A folded, optional'));
 const rules=[...mobile.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([,selectors,body])=>({selectors:selectors.trim().split(/,\s*/),body}));
 function rule(selector){const found=rules.filter(r=>r.selectors.includes(selector));assert.ok(found.length,`mobile rule for ${selector}`);return found.map(r=>r.body).join('');}
 

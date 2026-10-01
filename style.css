@@ -146,3 +146,18 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
  .life-inspector-body{grid-template-columns:60px minmax(0,1fr)}
  .readings output,.stage p,.stage small{overflow-wrap:anywhere}
 }
+
+/* A folded, optional building challenge keeps the normal lab uncluttered. */
+.life-challenge{padding:0 18px;background:#244136;border-top:1px solid #4a6655;color:#e7eee1}
+.life-challenge summary{cursor:pointer;min-height:48px;padding:14px 0;font-size:13px;line-height:1.6}
+.life-challenge summary:focus-visible{outline:3px solid #ec8867;outline-offset:2px}
+.life-challenge-body{padding:0 0 14px}.life-challenge p{font-size:12px;line-height:1.8;margin:0 0 12px}
+.life-challenge-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.life-challenge-actions button{background:#e6ecd8;border-color:#acbca4;font-size:12px;min-height:44px}
+.life-challenge-actions button:disabled{opacity:.55;cursor:default}
+.life-challenge #life-test-result{border-left:2px solid #91b085;padding-left:10px;font-variant-numeric:tabular-nums}
+.life-challenge #life-test-result[data-solved="true"]{border-color:var(--lime);color:var(--lime)}
+.life-challenge #life-trial-legend,.life-challenge small{display:block;font-size:11px;line-height:1.7;color:#b8cdbb}
+.life-challenge-hint{border-top:1px solid #4a6655;margin-top:10px}.life-challenge-hint summary{font-size:11px;padding:12px 0}
+.life-challenge-hint p{color:#b8cdbb;margin-bottom:0}
+@media(max-width:720px){.life-challenge{padding:0 12px}.life-challenge summary,.life-challenge p{font-size:14px}.life-challenge small,.life-challenge #life-trial-legend,.life-challenge-hint summary{font-size:13px}.life-challenge-actions button{flex:1;min-width:100px}}
