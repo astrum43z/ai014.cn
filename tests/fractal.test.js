@@ -87,3 +87,21 @@ test('fractal share link stays current and snapshot keeps its experiment name',a
  h.el('save').handlers.click();h.tabs[0].handlers.click();encoded(new Blob(['png']));
  assert.equal(h.el('generated').download,'small-worlds-fractal.png');
 });
+
+test('next preset advances from the manually selected preset in every experiment',async()=>{
+ const h=await setup('?experiment=fractal');
+ for(const [mode,last,first,second] of [
+  ['fractal','islands','half','overlap'],
+  ['orbit','escape','circular','elliptic'],
+  ['life','random','glider','blinker'],
+  ['wave','close','ripple','wide']
+ ]){
+  h.el('tab-'+mode).handlers.click();
+  h.el('preset-select').value=last;
+  h.el('preset-select').handlers.change({target:{value:last}});
+  h.el('preset').handlers.click();
+  assert.equal(h.el('preset-select').value,first,mode+' wraps after a manual selection');
+  h.el('preset').handlers.click();
+  assert.equal(h.el('preset-select').value,second,mode+' continues in display order');
+ }
+});
