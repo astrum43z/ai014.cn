@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 let instance=0;
-async function setup(search='',hash=''){
-let drawCount=0,frameId=0,intersect;const frames=new Map(),documentHandlers={};const tick=now=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(now);};const els=new Map();const noop=()=>{};const ctx=new Proxy({clearRect:()=>drawCount++,createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>({width:600,height:414,left:0,top:0}),getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id)}const tabs=['orbit','life','wave','fractal','walk'].map(m=>{const t=el('tab-'+m);t.dataset.mode=m;return t});globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:(name,callback)=>documentHandlers[name]=callback};const motion={matches:true,addEventListener:(name,handler)=>motion.change=handler};globalThis.matchMedia=()=>motion;const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=1;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{observe(){}};globalThis.setTimeout=noop;
+async function setup(search='',hash='',motionMatches=true){
+let drawCount=0,frameId=0,intersect;const frames=new Map(),documentHandlers={};const tick=now=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(now);};const els=new Map();const noop=()=>{};const ctx=new Proxy({clearRect:()=>drawCount++,createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>({width:600,height:414,left:0,top:0}),getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id)}const tabs=['orbit','life','wave','fractal','walk'].map(m=>{const t=el('tab-'+m);t.dataset.mode=m;return t});globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:(name,callback)=>documentHandlers[name]=callback};const motion={matches:motionMatches,addEventListener:(name,handler)=>motion.change=handler};globalThis.matchMedia=()=>motion;const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=1;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{observe(){}};globalThis.setTimeout=noop;
 await import('../app.js?url='+instance++);
-return {el,tabs,frames,motion,windowHandlers,writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
+return {el,tabs,frames,motion,windowHandlers,tick,writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
 }
 
 test('Back/Forward restores the experiment, sliders and canvas from its URL',async()=>{
@@ -88,7 +88,7 @@ test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=contact-footer-1"'));
- assert.ok(html.includes('src="app.js?v=preserve-active-tab-1"'));
+ assert.ok(html.includes('src="app.js?v=observation-links-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
@@ -146,4 +146,88 @@ test('tab navigation still changes worlds, while Reset and guided starts intenti
  h.tabs[4].handlers.keydown({key:'Home',preventDefault(){}});
  assert.match(h.el('stage-title').textContent,/引力/);
  h.tabs[1].handlers.click();assert.match(h.el('stage-title').textContent,/生命/);
+});
+
+test('sharing wave cancellation restores the exact probe and phase, paused even without reduced motion',async()=>{
+ let h=await setup('?experiment=wave&wavelength=32&separation=100','#canvas',false);
+ h.el('guide-start').handlers.click();h.el('step').handlers.click();h.key('ArrowDown');
+ const ids=['metrics','observation-a','observation-b','observation-c','wave-value-left','wave-value-right','wave-value-combined','wave-envelope'];
+ const expected=ids.map(id=>h.el(id).textContent);
+ await h.el('share').handlers.click();const url=new URL(h.el('share-link').value);
+ assert.ok(url.searchParams.has('at'));assert.equal(url.hash,'#canvas');
+ assert.equal(h.el('status').textContent,'已暂停');assert.equal(h.frames.size,0);
+ h=await setup(url.search,url.hash,false);
+ assert.deepEqual(ids.map(id=>h.el(id).textContent),expected);
+ assert.equal(h.el('status').textContent,'已暂停');assert.equal(h.frames.size,0);
+ assert.equal(location.href,url.href);assert.match(h.el('announcement').textContent,/复现/);
+ h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/t \+ 0.2 s/);
+});
+test('seeded exhibit links restore non-default progress and readings and can continue identically',async()=>{
+ for(const [mode,search,steps] of [['fractal','jump=65&seed=23',9],['walk','bias=25&seed=99',5]]){
+  let h=await setup('?experiment='+mode+'&'+search,'',false);
+  for(let n=0;n<steps;n++)h.el('step').handlers.click();
+  const ids=['metrics','observation-a','observation-b','observation-c','observation-detail'];
+  const expected=ids.map(id=>h.el(id).textContent);
+  await h.el('share').handlers.click();const url=new URL(h.el('share-link').value);
+  h.el('step').handlers.click();const next=ids.map(id=>h.el(id).textContent);
+  assert.equal(h.el('share-link').value,url.href,'saved link remains a fixed checkpoint while exploring');
+  h=await setup(url.search,'',false);
+  assert.deepEqual(ids.map(id=>h.el(id).textContent),expected,mode);
+  assert.equal(h.frames.size,0);h.el('step').handlers.click();
+  assert.deepEqual(ids.map(id=>h.el(id).textContent),next,mode+' resumes seeded sequence');
+ }
+});
+test('same-parameter history restores different checkpoints while anchor navigation preserves newer work',async()=>{
+ const h=await setup('?experiment=walk&bias=25&seed=14&at=v1,64');
+ h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/80 步/);
+ h.navigate(location.search+'#observation-title');h.navigate(location.search+'#canvas');
+ assert.match(h.el('metrics').textContent,/80 步/);
+ h.navigate('?experiment=walk&bias=25&seed=14&at=v1,128#canvas');assert.match(h.el('metrics').textContent,/128 步/);
+ h.navigate('?experiment=walk&bias=25&seed=14&at=v1,64#canvas');assert.match(h.el('metrics').textContent,/64 步/);
+ h.navigate('?experiment=walk&bias=25&seed=14');assert.match(h.el('metrics').textContent,/16 步/);
+ assert.equal(h.frames.size,0);
+});
+test('sharing a running seeded exhibit pauses it; parameter edits discard obsolete checkpoint links',async()=>{
+ const h=await setup('?experiment=fractal','',false);
+ assert.equal(h.frames.size,1);h.tick(0);h.tick(50);h.tick(100);
+ assert.match(h.el('metrics').textContent,/400 个点/);
+ await h.el('share').handlers.click();assert.equal(h.frames.size,0);
+ assert.equal(new URL(h.el('share-link').value).searchParams.get('at'),'v1,400');
+ h.el('jump').handlers.input({target:{value:'65'}});
+ assert.equal(new URL(location.href).searchParams.has('at'),false);assert.equal(h.el('share-link').hidden,true);
+ assert.match(h.el('metrics').textContent,/300 个点/);
+ await h.el('share').handlers.click();assert.equal(new URL(h.el('share-link').value).searchParams.get('at'),'v1,300');
+ assert.match(h.el('share-link').value,/jump=65/);
+});
+test('legacy parameter links preserve their startup behavior and explicitly exclude drawings',async()=>{
+ for(const mode of ['orbit','life']){
+  const h=await setup('?experiment='+mode,'',false);
+  assert.equal(h.frames.size,1);await h.el('share').handlers.click();
+  assert.equal(new URL(h.el('share-link').value).searchParams.has('at'),false);
+  assert.equal(h.frames.size,1,'parameter-only sharing does not pause '+mode);
+  assert.match(h.el('share-note').textContent,/不含画布/);
+ }
+ for(const mode of ['wave','fractal','walk']){
+  const h=await setup('?experiment='+mode,'',false);
+  assert.equal(h.frames.size,1,mode+' old links continue as before');
+ }
+});
+test('malformed checkpoint falls back to bounded parameter state without carrying the bad payload',async()=>{
+ for(const [mode,at,metric] of [['walk','v1,999999999','16 步'],['fractal','v1,Infinity','300 个点'],['wave','v1,NaN,0,0','t + 0.0 s']]){
+  const h=await setup('?experiment='+mode+'&at='+encodeURIComponent(at));
+  assert.ok(h.el('metrics').textContent.includes(metric));assert.equal(location.search.includes('at='),false);
+ }
+});
+test('copy fallback remains selectable and a late clipboard response cannot announce for a different exhibit',async()=>{
+ const original=Object.getOwnPropertyDescriptor(globalThis,'navigator');let resolve;
+ Object.defineProperty(globalThis,'navigator',{configurable:true,value:{clipboard:{writeText:()=>new Promise(r=>resolve=r)}}});
+ try{
+  const h=await setup('?experiment=walk&at=v1,64');
+  const pending=h.el('share').handlers.click();assert.equal(h.el('share-link').hidden,false);
+  h.tabs[1].handlers.click();const notice=h.el('announcement').textContent;
+  resolve();await pending;assert.equal(h.el('announcement').textContent,notice);
+  globalThis.navigator.clipboard.writeText=async()=>{throw Error('clipboard unavailable');};
+  h.tabs[2].handlers.click();await h.el('share').handlers.click();
+  assert.match(h.el('announcement').textContent,/请复制下方观测链接/);assert.equal(h.el('share-link').hidden,false);
+ }finally{if(original)Object.defineProperty(globalThis,'navigator',original);else delete globalThis.navigator;}
 });
