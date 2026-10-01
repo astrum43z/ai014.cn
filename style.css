@@ -18,3 +18,7 @@
 .walk-comparison{margin:18px 0 8px;padding:12px;background:#eaf0dc}.walk-comparison>span{font-size:11px}.walk-comparison .button-row{margin-top:10px}.walk-comparison small{display:block;font-size:9px;line-height:1.7;color:#526451;margin-top:8px}
 @media(max-width:1000px) and (min-width:721px){.tab strong{font-size:14px}.tab{padding:14px 9px}}
 @media(max-width:720px){.tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.tab{padding:12px 10px;min-height:90px}.tab strong{font-size:14px;margin:8px 0 4px}.tab:last-child{grid-column:1/-1;min-height:70px;display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:14px}.tab:last-child span{grid-row:1/3}.tab:last-child strong{margin:0}.walk-comparison{grid-column:1/-1}.walk-legend{padding:12px 14px;font-size:9px}}
+
+/* Keep the random-walk comparison in view beside the longer teaching controls. */
+.stage-screen{display:flex;flex-direction:column;flex:1;width:100%;min-width:0}
+@media(min-width:721px){.workbench[data-experiment="walk"] .stage{display:block}.workbench[data-experiment="walk"] .stage-screen{position:sticky;top:16px}.workbench[data-experiment="walk"] canvas{height:clamp(320px,55vh,520px);flex:none}}
