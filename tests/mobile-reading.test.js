@@ -32,7 +32,8 @@ test('all five stage explanations and readings share a legible mobile scale',()=
 test('larger stage labels can wrap while signed readings retain space',()=>{
  assert.match(rule('.wave-components-heading'),/flex-wrap:wrap/);
  assert.match(rule('.wave-component>span'),/overflow-wrap:anywhere/);
- assert.match(rule('.wave-component'),/grid-template-columns:minmax\(0,1fr\) minmax\(35px,1fr\) 5ch/);
+ assert.match(rule('.wave-component output'),/min-width:5ch/,'character width is measured in the numeric font');
+ assert.match(rule('.wave-component'),/grid-template-columns:minmax\(0,1fr\) minmax\(35px,1fr\) max-content/);
  assert.match(rule('.stage p'),/overflow-wrap:anywhere/);
  assert.ok(rules.some(r=>r.selectors.includes('.stage-top')&&/flex-wrap:wrap/.test(r.body)));
 });

@@ -140,7 +140,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
   font-size:13px;line-height:1.7
  }
  .wave-components-heading{flex-wrap:wrap}
- .wave-component{grid-template-columns:minmax(0,1fr) minmax(35px,1fr) 5ch;gap:8px}
+ .wave-component{grid-template-columns:minmax(0,1fr) minmax(35px,1fr) max-content;gap:8px}
+ .wave-component output{min-width:5ch}
  .wave-component>span{overflow-wrap:anywhere}
  .life-inspector-body{grid-template-columns:60px minmax(0,1fr)}
  .readings output,.stage p,.stage small{overflow-wrap:anywhere}
