@@ -54,7 +54,7 @@ test('Life keyboard navigation and edits pause first, wrap, and announce positio
   h.key('ArrowRight',{ctrlKey:true});
   h.key('Tab');
   assert.equal(h.frames.size,1,'modified shortcuts and Tab remain untouched');
-  h.tabs[0].handlers.click();
+  h.tabs[3].handlers.click();
   h.key('ArrowLeft');
   assert.equal(h.frames.size,1,'Life editing behavior is scoped to Life');
 });

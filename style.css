@@ -64,3 +64,10 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .life-inspector p{margin:3px 0;font-size:11px;line-height:1.6}.life-inspector #life-cell-next{font-weight:700;color:var(--lime)}
 .life-inspector #life-cell-reason{color:#b8cdbb;font-size:10px}.life-inspector small{display:block;margin-top:10px;font-size:10px;line-height:1.7;color:#a9bfab}
 @media(max-width:720px){.life-inspector{padding:12px}.life-inspector-body{gap:12px}}
+
+/* Position and velocity previews make keyboard launch placement tangible. */
+.orbit-launch{padding:12px 18px;background:#1b3931;border-top:1px solid #345046;color:#d9e4cf}
+.orbit-launch h4{font-size:11px;font-weight:500;margin:0 0 9px}.orbit-launch p{font-size:11px;line-height:1.7;margin:4px 0;font-variant-numeric:tabular-nums}
+.orbit-launch #orbit-position{color:#ffac86}.orbit-launch #orbit-speed{color:var(--lime)}
+.orbit-launch #orbit-launch-note,.orbit-launch small{font-size:10px;color:#a9bfab;line-height:1.7}.orbit-launch small{display:block;margin-top:8px}
+@media(max-width:720px){.orbit-launch{padding:12px}}
