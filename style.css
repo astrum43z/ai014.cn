@@ -113,3 +113,35 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
  html{scroll-padding-top:76px}
  .tabs{position:sticky;top:0;z-index:3;box-shadow:0 1px 0 var(--line)}
 }
+
+/* Phone-sized lessons should not require zooming to read the instructions.
+   Keep the compact navigation; let longer explanations grow in normal flow. */
+@media(max-width:720px){
+ .section-head>p,.journey-entry b,.journey-entry span>small,.question-strip p,
+ .controls>#description,.controls .note>span,.controls .note p,
+ #observation-detail,.explain,.discovery dd,.next-discovery p:not(.eyebrow),.about>div p{
+  font-size:14px;line-height:1.8
+ }
+ .journey-entry>small,.next-discovery small,
+ .reading-nav a,.return-to-canvas,.explain a,.discovery dt{
+  font-size:13px;line-height:1.7
+ }
+ .controls .model-note,.controls .share-note{font-size:13px!important;line-height:1.8!important}
+ .stage-top,.stage-bottom,.walk-legend{font-size:12px;line-height:1.7}
+ .stage-top,.stage-bottom{flex-wrap:wrap}
+ .orbit-launch h4,.life-inspector h4,.fractal-jump h4,.walk-distance h4,.wave-components h4,
+ .orbit-launch p,.life-inspector p,.fractal-jump p,.walk-distance #walk-cancellation,.wave-components p,
+ .readings output{font-size:14px;line-height:1.7}
+ .orbit-launch #orbit-launch-note,.orbit-launch small,.life-inspector #life-cell-reason,.life-inspector small,
+ .fractal-jump #fractal-jump-note,.fractal-jump small,
+ .walk-distance #walk-distance-note,.walk-distance small,.walk-distance-readings span,
+ .wave-components small,.wave-component,.wave-component output,.wave-components-heading>span,
+ .life-inspector-heading>span,.stage .walk-comparison>span,.stage .walk-comparison small{
+  font-size:13px;line-height:1.7
+ }
+ .wave-components-heading{flex-wrap:wrap}
+ .wave-component{grid-template-columns:minmax(0,1fr) minmax(35px,1fr) 5ch;gap:8px}
+ .wave-component>span{overflow-wrap:anywhere}
+ .life-inspector-body{grid-template-columns:60px minmax(0,1fr)}
+ .readings output,.stage p,.stage small{overflow-wrap:anywhere}
+}
