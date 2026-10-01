@@ -88,5 +88,62 @@ test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=contact-footer-1"'));
- assert.ok(html.includes('src="app.js?v=wave-components-1"'));
+ assert.ok(html.includes('src="app.js?v=preserve-active-tab-1"'));
+});
+
+test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
+ for(const [i,mode] of ['orbit','life','wave','fractal','walk'].entries()){
+  const h=await setup('?experiment='+mode);
+  h.el('guide-start').handlers.click();
+  h.el('step').handlers.click();
+  const slider={orbit:'gravity',life:'rate',wave:'wavelength',fractal:'jump',walk:'bias'}[mode];
+  h.el(slider).handlers.input({target:{value:{orbit:'120',life:'4',wave:'45',fractal:'60',walk:'20'}[mode]}});
+  h.el('step').handlers.click();
+  if(mode==='life')h.key('Enter');
+  if(mode==='wave')h.key('ArrowDown');
+  await h.el('share').handlers.click();
+  const readings=['metrics','observation-a','observation-b','observation-c','status','announcement','wave-value-left','wave-value-right','wave-value-combined'];
+  const snapshot=readings.map(id=>h.el(id).textContent);
+  const url=location.href,writes=h.writes(),sliders=h.el('sliders').innerHTML;
+  for(let repeat=0;repeat<3;repeat++)h.tabs[i].handlers.click();
+  assert.deepEqual(readings.map(id=>h.el(id).textContent),snapshot,mode);
+  assert.equal(location.href,url,mode+' retains parameter URL');
+  assert.equal(h.writes(),writes,mode+' does not rewrite history');
+  assert.equal(h.el('sliders').innerHTML,sliders,mode+' retains controls');
+  assert.equal(h.el('share-link').hidden,false,mode+' keeps its visible share link');
+  assert.equal(h.el('share-link').value,url);
+  assert.equal(h.frames.size,0,mode+' stays paused');
+  h.el('pause').handlers.click();
+  h.tabs[i].handlers.click();
+  assert.equal(h.frames.size,1,mode+' keeps running when already running');
+ }
+});
+
+test('Home/End on the selected boundary tab preserve progress and still focus the tab',async()=>{
+ for(const [mode,key,i] of [['orbit','Home',0],['walk','End',4]]){
+  const h=await setup('?experiment='+mode);h.el('step').handlers.click();
+  const before=h.el('metrics').textContent,writes=h.writes();let focused=0,prevented=0;
+  h.tabs[i].focus=()=>focused++;
+  for(let repeat=0;repeat<3;repeat++)h.tabs[i].handlers.keydown({key,preventDefault(){prevented++;}});
+  assert.equal(h.el('metrics').textContent,before);
+  assert.equal(h.writes(),writes);
+  assert.equal(focused,3);assert.equal(prevented,3);
+  assert.equal(h.frames.size,0);
+ }
+});
+
+test('tab navigation still changes worlds, while Reset and guided starts intentionally reset',async()=>{
+ const h=await setup('?experiment=orbit');
+ h.tabs[0].handlers.keydown({key:'ArrowLeft',preventDefault(){}});
+ assert.match(h.el('stage-title').textContent,/漫步/);
+ h.tabs[4].handlers.keydown({key:'ArrowRight',preventDefault(){}});
+ assert.match(h.el('stage-title').textContent,/引力/);
+ h.tabs[0].handlers.keydown({key:'End',preventDefault(){}});
+ h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/32 步/);
+ h.el('reset').handlers.click();assert.match(h.el('metrics').textContent,/16 步/);
+ h.el('step').handlers.click();h.el('guide-start').handlers.click();
+ assert.match(h.el('metrics').textContent,/16 步/);
+ h.tabs[4].handlers.keydown({key:'Home',preventDefault(){}});
+ assert.match(h.el('stage-title').textContent,/引力/);
+ h.tabs[1].handlers.click();assert.match(h.el('stage-title').textContent,/生命/);
 });

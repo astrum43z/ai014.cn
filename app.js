@@ -134,7 +134,9 @@ canvas.addEventListener('pointermove',e=>{
   if(i!==lastPaint){wasDragging=true;lifeHistory=[];cells[i]=1;lastPaint=i;draw();}
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endPainting);
-document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>changeMode(tab.dataset.mode));tab.addEventListener('keydown',e=>{const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();changeMode(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();changeMode(shared.mode,shared.values);new ResizeObserver(fit).observe(canvas);
+// Re-selecting the active tab must not discard a drawing or simulation progress.
+function selectTab(next){if(next!==mode)changeMode(next);}
+document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>selectTab(tab.dataset.mode));tab.addEventListener('keydown',e=>{const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();selectTab(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();changeMode(shared.mode,shared.values);new ResizeObserver(fit).observe(canvas);
 animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>!paused&&!document.hidden&&stageVisible});
 document.addEventListener('visibilitychange',()=>animation.sync());
 if(typeof IntersectionObserver!=='undefined')new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;animation.sync();}).observe(canvas);
