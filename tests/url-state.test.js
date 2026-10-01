@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 let instance=0;
 async function setup(search='',hash='',motionMatches=true){
-let drawCount=0,frameId=0,intersect;const frames=new Map(),documentHandlers={};const tick=now=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(now);};const els=new Map();const noop=()=>{};const ctx=new Proxy({clearRect:()=>drawCount++,createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>({width:600,height:414,left:0,top:0}),getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id)}const tabs=['orbit','life','wave','fractal','walk'].map(m=>{const t=el('tab-'+m);t.dataset.mode=m;return t});globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:(name,callback)=>documentHandlers[name]=callback};const motion={matches:motionMatches,addEventListener:(name,handler)=>motion.change=handler};globalThis.matchMedia=()=>motion;const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=1;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{observe(){}};globalThis.setTimeout=noop;
+let drawCount=0,frameId=0,intersect,resize,lastProbe;let rect={width:600,height:414,left:0,top:0};const frames=new Map(),documentHandlers={};const tick=now=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(now);};const els=new Map();const noop=()=>{};const ctx=new Proxy({clearRect:()=>drawCount++,arc:(x,y,r)=>{if(r===9)lastProbe={x,y,r};},createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>rect,getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id)}const tabs=['orbit','life','wave','fractal','walk'].map(m=>{const t=el('tab-'+m);t.dataset.mode=m;return t});globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:(name,callback)=>documentHandlers[name]=callback};const motion={matches:motionMatches,addEventListener:(name,handler)=>motion.change=handler};globalThis.matchMedia=()=>motion;const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=1;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{constructor(callback){resize=callback;}observe(){}};globalThis.setTimeout=noop;
 await import('../app.js?url='+instance++);
-return {el,tabs,frames,motion,windowHandlers,tick,writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
+return {el,tabs,frames,motion,windowHandlers,tick,probe:()=>lastProbe,resize(width,height){rect={width,height,left:0,top:0};resize();},writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
 }
 
 test('Back/Forward restores the experiment, sliders and canvas from its URL',async()=>{
@@ -88,7 +88,7 @@ test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=contact-footer-1"'));
- assert.ok(html.includes('src="app.js?v=observation-links-1"'));
+ assert.ok(html.includes('src="app.js?v=observation-links-2"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
@@ -230,4 +230,19 @@ test('copy fallback remains selectable and a late clipboard response cannot anno
   h.tabs[2].handlers.click();await h.el('share').handlers.click();
   assert.match(h.el('announcement').textContent,/请复制下方观测链接/);assert.equal(h.el('share-link').hidden,false);
  }finally{if(original)Object.defineProperty(globalThis,'navigator',original);else delete globalThis.navigator;}
+});
+
+
+test('saved wave probe stays fully visible after narrow resizing without changing the observation',async()=>{
+ const h=await setup('?experiment=wave&wavelength=32&separation=100&at=v1,300,-130,0.2');
+ const ids=['wave-value-left','wave-value-right','wave-value-combined','observation-a','observation-b'];
+ const readings=ids.map(id=>h.el(id).textContent);
+ for(const [width,height] of [[1200,414],[393,300],[295,240],[600,414]]){
+  h.resize(width,height);const probe=h.probe();
+  assert.ok(probe.x>=18&&probe.x<=width-18+1e-8,'probe horizontal crosshair stays visible');
+  assert.ok(probe.y>=18&&probe.y<=height-18+1e-8,'probe vertical crosshair stays visible');
+  assert.deepEqual(ids.map(id=>h.el(id).textContent),readings);
+ }
+ h.key('Home');assert.match(h.el('observation-b').textContent,/0.00/);
+ h.key('ArrowRight');assert.match(h.el('announcement').textContent,/x 2.0，y 0.0/);
 });
