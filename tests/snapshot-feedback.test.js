@@ -14,8 +14,8 @@ test('PNG feedback is visible, quiet, associated with Save, and full-width on mo
   assert.match(status,/hidden/,'no empty status row before the first save');
   assert.doesNotMatch(status,/sr-only|role="(?:status|alert)"/,'only the existing action region announces');
   assert.match(html,/<button id="share"[^>]*>[^<]*<\/button><p id="save-status"/,'status follows the save/share control group');
-  assert.match(css,/\.controls \.save-status\{[^}]*grid-column:1\/-1/);
-  assert.match(css,/\.controls \.save-status\{[^}]*font-size:13px/);
+  assert.match(css,/\.controls>p\.save-status\{[^}]*grid-column:1\/-1/);
+  assert.match(css,/\.controls>p\.save-status\{[^}]*font-size:13px/);
 });
 
 test('Save reports each captured experiment without changing simulation or observation state',async()=>{
