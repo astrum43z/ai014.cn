@@ -74,3 +74,29 @@ test('guide cancels an active drawing stroke and mode changes replace its instru
  assert.match(h.el('guide-title').textContent,/引力改变/);
  assert.equal(h.frames.size,0);
 });
+
+test('question entrance loads a reproducible paused fractal and repeated entry resets it',async()=>{
+ const h=await setup('?experiment=life');
+ h.el('journey-start').handlers.click();
+ assert.match(h.el('stage-title').textContent,/随机长出秩序/);
+ assert.match(h.el('metrics').textContent,/300 个点/);
+ assert.match(h.el('discovery-question').textContent,/每一步都随机/);
+ assert.equal(h.frames.size,0);
+ h.el('step').handlers.click();
+ h.el('journey-start').handlers.click();
+ assert.match(h.el('metrics').textContent,/300 个点/);
+ assert.equal(h.frames.size,0);
+});
+test('connected discovery route cycles every experiment without autoplay and synchronizes questions',async()=>{
+ const h=await setup('?experiment=fractal');
+ for(const [mode,question] of [['orbit','一直向中心'],['wave','两个波加在一起'],['life','数量一直是三个'],['fractal','每一步都随机']]){
+  h.el('discovery-next').handlers.click();
+  assert.match(location.search,new RegExp('experiment='+mode));
+  assert.match(h.el('discovery-question').textContent,new RegExp(question));
+  assert.equal(h.el('status').textContent,'已暂停');
+  assert.equal(h.frames.size,0);
+ }
+ h.navigate('?experiment=wave&wavelength=32&separation=100');
+ assert.match(h.el('discovery-question').textContent,/两个波/);
+ assert.match(h.el('next-question').textContent,/格子/);
+});

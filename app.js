@@ -1,3 +1,4 @@
+import {discoveries} from './journeys.js';
 import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js';
 import {experimentGuides} from './guides.js';
 import {createSnapshotSaver} from './snapshot.js';
@@ -17,7 +18,7 @@ const palette=['#d3f35b','#f59c80','#e7eee1','#87c2b1','#c7b1e8'];
 function announce(text){$('#announcement').textContent=text;}
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';$('#status').textContent=paused?'已暂停':'运行中';$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
 function reset(){cancelPainting();t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};if(mode==='orbit'){bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
-function changeMode(next,sharedValues=null){mode=next;preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;$('#learn').href=c.learn;canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML=presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':'前进一步 +';$('#clear').hidden=mode!=='life';$('#share-link').hidden=true;$('#sliders').innerHTML=c.sliders.map(([id,label,min,max,initial,unit])=>{const value=values[id];return `<label class="slider"><span>${label}<output id="out-${id}" for="${id}">${value}${unit}</output></span><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"></label>`;}).join('');c.sliders.forEach(([id,,min,max,v,unit])=>$('#'+id).addEventListener('input',e=>{values[id]=+e.target.value;$('#out-'+id).textContent=values[id]+unit;if(mode==='fractal')reset();else draw();updateAddress();}));updatePause();reset();updateAddress();}
+function changeMode(next,sharedValues=null){mode=next;renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;$('#learn').href=c.learn;canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML=presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':'前进一步 +';$('#clear').hidden=mode!=='life';$('#share-link').hidden=true;$('#sliders').innerHTML=c.sliders.map(([id,label,min,max,initial,unit])=>{const value=values[id];return `<label class="slider"><span>${label}<output id="out-${id}" for="${id}">${value}${unit}</output></span><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"></label>`;}).join('');c.sliders.forEach(([id,,min,max,v,unit])=>$('#'+id).addEventListener('input',e=>{values[id]=+e.target.value;$('#out-'+id).textContent=values[id]+unit;if(mode==='fractal')reset();else draw();updateAddress();}));updatePause();reset();updateAddress();}
 function updateAddress(){
   history.replaceState(history.state,'','?'+serializeSettings(mode,values)+(location.hash==='#lab'?'#lab':''));
   refreshShareLink();
@@ -47,7 +48,8 @@ function draw(){ctx.clearRect(0,0,width,height);ctx.fillStyle='#122e29';ctx.fill
 function advance(dt){t+=dt;if(mode==='fractal'){acc+=dt;if(acc<.1)return;acc%=.1;growFractal();draw();return;}if(mode==='orbit'){bodies.forEach(b=>{for(let i=0;i<4;i++)orbitStep(b,values.gravity*1000,dt/4);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}if(mode==='life'){acc+=dt;let changed=false;while(acc>=1/values.rate){cells=lifeStep(cells,48,32);generation++;acc-=1/values.rate;changed=true;}if(!changed)return;}draw();}
 $('#pause').addEventListener('click',()=>{if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；请重置或改变参数后继续');return;}paused=!paused;updatePause();announce(paused?'模拟已暂停':'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){preset=presets[mode].findIndex(([,value])=>value===name);$('#preset-select').value=name;if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
 // Guided starts are explicit, repeatable resets; they never begin animation.
-$('#guide-start').addEventListener('click',()=>{
+function startGuide(next=mode){
+  if(next!==mode){paused=true;changeMode(next);}
   const guide=experimentGuides[mode];
   paused=true;
   changeMode(mode,{...guide.values});
@@ -57,7 +59,18 @@ $('#guide-start').addEventListener('click',()=>{
   if(guide.probe)probe={...guide.probe};
   draw();
   announce('已载入并暂停：'+guide.title+'。'+guide.instructions);
-});
+}
+$('#guide-start').addEventListener('click',()=>startGuide());
+function enterDiscovery(next){startGuide(next);$('#panel').scrollIntoView?.({block:'start'});canvas.focus({preventScroll:true});}
+$('#journey-start').addEventListener('click',()=>enterDiscovery('fractal'));
+$('#discovery-next').addEventListener('click',()=>enterDiscovery(discoveries[mode].next));
+function renderDiscovery(){
+ const d=discoveries[mode];
+ for(const key of ['question','invitation','notice','idea','boundary'])$('#discovery-'+key).textContent=d[key];
+ $('#next-question').textContent=d.nextQuestion;
+ $('#next-connection').textContent=d.connection;
+ $('#discovery-next').textContent='去看看 · '+configs[d.next].title+' ↗';
+}
 $('#preset-select').addEventListener('change',e=>applyPreset(e.target.value));
 $('#preset').addEventListener('click',()=>{preset=(preset+1)%presets[mode].length;$('#preset-select').value=presets[mode][preset][1];applyPreset(presets[mode][preset][1]);});
 $('#step').addEventListener('click',()=>{paused=true;updatePause();if(mode==='life'){cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else{t+=.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce(mode==='life'?`第 ${generation} 代`:'模拟前进一步');});
