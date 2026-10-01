@@ -9,3 +9,11 @@ export function serializeSettings(mode, values){const params=new URLSearchParams
 export function population(cells){return cells.reduce((a,b)=>a+b,0);}
 export function repeatPeriod(history,cells,generation){const key=Array.from(cells).join('');for(let i=history.length-1;i>=0;i--){if(history[i].generation<generation&&history[i].key===key)return generation-history[i].generation;}return null;}
 export function wavePathDifference(x,y,separation,wavelength){const difference=Math.abs(Math.hypot(x-separation/2,y)-Math.hypot(x+separation/2,y));const cycles=difference/wavelength;const fraction=cycles-Math.floor(cycles);return {difference,cycles,envelope:Math.abs(Math.cos(Math.PI*cycles)),kind:Math.min(fraction,1-fraction)<.1?'constructive':Math.abs(fraction-.5)<.1?'destructive':'mixed'};}
+
+// Unit-amplitude contributions at the probe. The field uses their average
+// solely to keep the display range within [-1, 1], not to change superposition.
+export function waveComponents(x,y,phase,separation,wavelength){
+ const left=Math.sin(Math.hypot(x+separation/2,y)/wavelength*2*Math.PI-phase);
+ const right=Math.sin(Math.hypot(x-separation/2,y)/wavelength*2*Math.PI-phase);
+ return {left,right,combined:(left+right)/2,envelope:wavePathDifference(x,y,separation,wavelength).envelope};
+}

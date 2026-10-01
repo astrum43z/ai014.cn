@@ -105,3 +105,38 @@ test('connected discovery route cycles every experiment without autoplay and syn
  assert.match(h.el('discovery-question').textContent,/两个波/);
  assert.match(h.el('next-question').textContent,/格子/);
 });
+
+
+test('wave components show persistent cancellation and refresh after every probe or parameter change',async()=>{
+ const h=await setup('?experiment=wave');
+ assert.equal(h.el('wave-components').hidden,false);
+ h.el('guide-start').handlers.click();
+ const firstLeft=h.el('wave-value-left').textContent;
+ for(let i=0;i<24;i++){
+  assert.equal(h.el('wave-value-combined').textContent,'0.00');
+  assert.ok(Math.abs(Number(h.el('wave-value-left').textContent)+Number(h.el('wave-value-right').textContent))<.001);
+  assert.match(h.el('wave-envelope').textContent,/0.00$/);
+  h.el('step').handlers.click();
+ }
+ assert.notEqual(h.el('wave-value-left').textContent,firstLeft);
+ assert.match(h.el('announcement').textContent,/左源 A.*右源 B.*画面合成 0.00/);
+ assert.equal(h.frames.size,0);
+ h.key('Home');
+ assert.equal(h.el('wave-value-left').textContent,h.el('wave-value-right').textContent);
+ assert.equal(h.el('wave-value-left').textContent,h.el('wave-value-combined').textContent);
+ assert.match(h.el('wave-envelope').textContent,/1.00$/);
+ h.el('guide-start').handlers.click();
+ h.el('wavelength').handlers.input({target:{value:'64'}});
+ assert.match(h.el('wave-envelope').textContent,/0.71$/);
+ assert.notEqual(h.el('wave-value-combined').textContent,'0.00');
+ h.el('reset').handlers.click();
+ assert.match(h.el('wave-envelope').textContent,/1.00$/);
+ h.el('guide-start').handlers.click();
+ assert.equal(h.el('wave-value-left').textContent,firstLeft);
+ h.tabs[1].handlers.click();
+ assert.equal(h.el('wave-components').hidden,true);
+ h.navigate('?experiment=wave&wavelength=32&separation=100');
+ assert.equal(h.el('wave-components').hidden,false);
+ assert.match(h.el('wave-envelope').textContent,/1.00$/);
+ assert.equal(h.frames.size,0);
+});

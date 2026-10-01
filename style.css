@@ -35,3 +35,14 @@ canvas{height:clamp(240px,42vh,420px);min-height:240px;flex:none}
  .stage-controls{padding:12px;gap:7px}.stage-controls button{min-width:84px;padding:12px 8px}
  .stage .walk-comparison{padding:12px}.stage .walk-comparison .button-row{display:flex;margin:8px 0 0}.stage .walk-comparison small{display:block;margin:7px 0 0}
 }
+
+/* A signed probe readout makes persistent cancellation distinct from a dark instant. */
+.wave-components{padding:12px 18px;border-top:1px solid #345046;background:#1b3931;color:#d9e4cf}
+.wave-components-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.wave-components h4{margin:0;font-size:11px;font-weight:500}.wave-components-heading>span{font-size:9px;color:#a9bfab}
+.wave-component{display:grid;grid-template-columns:100px minmax(40px,1fr) 44px;align-items:center;gap:12px;margin:5px 0;font-size:10px}
+.wave-component svg{width:100%;height:14px}.wave-component path{stroke:#638576;stroke-width:1;fill:none}.wave-component rect{fill:#c7b1e8}
+.wave-component:nth-of-type(3) rect{fill:#f59c80}.wave-component:nth-of-type(4) rect{fill:#d3f35b}
+.wave-component output{text-align:right;font:11px ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wave-components p{font:10px ui-monospace,monospace;margin:9px 0 5px;color:#d3f35b}.wave-components small{display:block;font-size:10px;line-height:1.6;color:#a9bfab}
+@media(max-width:720px){.wave-components{padding:12px}.wave-component{grid-template-columns:94px minmax(35px,1fr) 40px;gap:8px}.wave-components-heading{gap:6px}}

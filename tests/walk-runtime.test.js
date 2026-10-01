@@ -55,5 +55,5 @@ test('walk snapshot keeps captured name across a switch and anchors preserve pro
 
 test('walk dependency URLs invalidate cached guide and journey modules',async()=>{
  const {readFile}=await import('node:fs/promises');const app=await readFile(new URL('../app.js',import.meta.url),'utf8');
- assert.ok(app.includes("./guides.js?v=random-walk-1"));assert.ok(app.includes("./journeys.js?v=random-walk-1"));
+ assert.ok(app.includes("./guides.js?v=wave-components-1"));assert.ok(app.includes("./journeys.js?v=random-walk-1"));
 });
