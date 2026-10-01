@@ -2,7 +2,7 @@
 
 An independent, Chinese-language interactive science playground for ai014.cn.
 
-Three original browser experiments: a softened central-gravity orbital model, Conway's toroidal Game of Life, and ideal two-source wave interference. Responsive, keyboard-operable controls, reduced-motion support, PNG snapshots, no accounts, trackers, external fonts, API keys, network dependencies, or build step.
+Four original browser experiments: a softened central-gravity orbital model, Conway's toroidal Game of Life, ideal two-source wave interference, and a seeded triangle chaos game. Responsive, keyboard-operable controls, reduced-motion support, PNG snapshots, no accounts, trackers, external fonts, API keys, network dependencies, or build step.
 
 ## Run
 
@@ -41,3 +41,9 @@ GitHub Pages: Settings → Pages → Deploy from a branch → main → / (root).
 ## Model limits
 
 Orbital simulation fixes the central body, omits mutual forces, and softens gravity inside 18 model units. The cellular automaton wraps at every boundary. Waves are ideal in-phase equal-frequency point sources with no attenuation or reflection. These are educational visualizations, not scientific measurement tools.
+
+## Randomness and fractals
+
+The fourth experiment starts with 300 points and adds 100 per manual step or at most once per 100 ms during animation. Storage is fixed at 12,000 points, then the animation pauses automatically. Changing jump percentage or seed regenerates the initial 300 points. The same seed, percentage, and point count reproduce identical coordinates regardless of batching. Sharing includes the seed and jump percentage, not the current point count. Reduced motion, visibility suspension, history restoration and PNG export use the existing controls. Four keyboard-accessible tabs wrap dynamically; small screens use a two-column tab grid.
+
+At 50% movement toward uniformly selected triangle vertices, the ideal limit is the Sierpiński triangle with dimension log(3)/log(2). Other movement percentages intentionally explore different attractors; the dimension is not claimed for them. The screen shows a finite pseudorandom approximation, not a measurement. Reference: https://mathworld.wolfram.com/ChaosGame.html

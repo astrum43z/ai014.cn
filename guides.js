@@ -1,5 +1,11 @@
 // Activities describe this site's models, not physical measurements.
 export const experimentGuides={
+  fractal:{
+    title:'试试看 · 随机为什么留下空白？',
+    values:{jump:50,seed:14},
+    preset:'half',
+    instructions:'从 300 点开始，点几次“增加 100 点”，或继续运行。中央的空三角形会被填满吗？再把种子从 14 改为 15，比较相同点数：具体落点不同，空隙的结构相似。最后把前进比例改成 65%，观察空隙怎样扩大。'
+  },
   orbit:{
     title:'试试看 · 引力改变后，距离会怎样？',
     values:{gravity:80,speed:100},
