@@ -44,3 +44,41 @@ test('history restoration validates malformed values before rendering',async()=>
  assert.ok(h.el('sliders').innerHTML.includes('id="out-separation" for="separation">180</output>'));
  assert.equal(location.search,'?experiment=wave&wavelength=32&separation=180');
 });
+
+test('reading links preserve each experiment through repeated anchor-only Back/Forward',async()=>{
+ for(const mode of ['orbit','life','wave','fractal']){
+  const h=await setup('?experiment='+mode);
+  h.el('guide-start').handlers.click();
+  h.el('step').handlers.click();
+  if(mode==='life')h.key('Enter');
+  if(mode==='wave')h.key('ArrowDown');
+  const snapshot=['metrics','observation-a','observation-b','observation-c','status'].map(id=>h.el(id).textContent);
+  const writes=h.writes();
+  for(const hash of ['#canvas','#observation-title','#discovery-title','#canvas','#discovery-title','#observation-title']){
+   h.navigate(location.search+hash);
+   assert.deepEqual(['metrics','observation-a','observation-b','observation-c','status'].map(id=>h.el(id).textContent),snapshot,mode+hash);
+   assert.equal(h.frames.size,0,'reading navigation does not resume animation');
+  }
+  assert.equal(h.writes(),writes,'anchor traversal never rewrites simulation settings');
+ }
+});
+test('section deep links survive initialization, parameter edits and sharing',async()=>{
+ for(const hash of ['#lab','#about','#canvas','#observation-title','#discovery-title']){
+  const h=await setup('?experiment=wave&wavelength=32&separation=100',hash);
+  assert.equal(location.hash,hash);
+  h.el('wavelength').handlers.input({target:{value:'40'}});
+  assert.equal(location.hash,hash);
+  await h.el('share').handlers.click();
+  assert.equal(h.el('share-link').value,location.href);
+  assert.match(h.el('share-link').value,/wavelength=40/);
+  assert.equal(new URL(h.el('share-link').value).hash,hash);
+ }
+});
+test('reading navigation has native links, reachable focus targets and visible return paths',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ const nav=html.match(/<nav class="reading-nav"[^>]*>(.*?)<\/nav>/)[1];
+ for(const id of ['canvas','observation-title','discovery-title'])assert.ok(nav.includes('href="#'+id+'"'));
+ for(const id of ['observation-title','discovery-title'])assert.ok(html.includes('id="'+id+'" tabindex="-1"'));
+ assert.equal((html.match(/class="return-to-canvas" href="#canvas"/g)||[]).length,2);
+});
