@@ -51,7 +51,7 @@ test('wave readout is bounded, labeled, silent during animation and uses cache-r
  assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="wave-components"'),'existing controls stay directly under the canvas');
  assert.ok(html.includes('单源振幅各为 1'));
  assert.ok(html.includes('画面 (A+B)/2'));
- assert.ok(app.includes('./simulations.js?v=wave-components-1'));
- assert.ok(app.includes('./guides.js?v=wave-components-1'));
+ assert.ok(app.includes('./simulations.js?v=life-inspector-1'));
+ assert.ok(app.includes('./guides.js?v=life-inspector-1'));
  assert.ok(css.includes('minmax(35px,1fr)'));
 });

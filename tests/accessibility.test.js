@@ -156,3 +156,13 @@ test('manual steps give measurements, Life period, and fractal limit without aut
     }
   }
 });
+
+test('Life inspector animation is silent until the existing Pause action requests a reading',async()=>{
+ const h=await setup(true);h.tabs[1].handlers.click();h.el('guide-start').handlers.click();
+ h.el('pause').handlers.click();const message=h.el('announcement').textContent;
+ h.tick(1000);for(let i=1;i<=24;i++)h.tick(1000+i*50);
+ assert.match(h.el('metrics').textContent,/第 2 代/);
+ assert.equal(h.el('announcement').textContent,message);
+ h.el('pause').handlers.click();assert.equal(h.frames.size,0);
+ assert.match(h.el('announcement').textContent,/第 2 代.*活邻居 1 \/ 8.*下一代：消失/);
+});

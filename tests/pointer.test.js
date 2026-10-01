@@ -86,3 +86,18 @@ test('invalid coordinates and collapsed bounds never enter line interpolation',a
  at(h,'pointerdown',2,1,1);h.el('canvas').getBoundingClientRect=()=>({left:0,top:0,width:0,height:0});
  pointer(h,'pointermove',2,0,0);pointer(h,'pointerup',2,0,0);count(h,0);
 });
+
+test('tap, stroke, Enter and wrapped keyboard selection keep the Life inspector current',async()=>{
+ const h=await life();
+ at(h,'pointerdown',1,0,0);at(h,'pointerup',1,0,0);at(h,'click',1,0,0);
+ assert.equal(h.el('life-cell-position').textContent,'第 1 列，第 1 行');
+ assert.match(h.el('life-cell-state').textContent,/当前：活格 · 活邻居 0 \/ 8/);
+ assert.equal(h.el('life-cell-next').textContent,'下一代：消失');
+ h.key('ArrowLeft');assert.equal(h.el('life-cell-position').textContent,'第 48 列，第 1 行');
+ assert.match(h.el('life-cell-state').textContent,/当前：空格 · 活邻居 1 \/ 8/);
+ h.key('Enter');assert.match(h.el('life-cell-state').textContent,/当前：活格 · 活邻居 1 \/ 8/);
+ h.el('clear').handlers.click();stroke(h,2,[2,4],[6,4]);
+ assert.equal(h.el('life-cell-position').textContent,'第 7 列，第 5 行');
+ assert.match(h.el('life-cell-state').textContent,/当前：活格 · 活邻居 1 \/ 8/);
+ assert.match(h.el('announcement').textContent,/绘制完成.*下一代：消失/);
+});

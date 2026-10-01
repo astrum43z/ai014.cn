@@ -140,3 +140,31 @@ test('wave components show persistent cancellation and refresh after every probe
  assert.match(h.el('wave-envelope').textContent,/1.00$/);
  assert.equal(h.frames.size,0);
 });
+
+test('Life guided prediction explains the selected endpoint and stays aligned after repeated steps',async()=>{
+ const h=await setup('?experiment=life');h.el('guide-start').handlers.click();
+ assert.equal(h.el('life-inspector').hidden,false);
+ assert.equal(h.el('life-cell-position').textContent,'第 23 列，第 15 行');
+ assert.match(h.el('life-cell-state').textContent,/当前：活格 · 活邻居 1 \/ 8/);
+ assert.equal(h.el('life-cell-next').textContent,'下一代：消失');
+ h.el('step').handlers.click();
+ assert.match(h.el('life-cell-state').textContent,/当前：空格 · 活邻居 3 \/ 8/);
+ assert.equal(h.el('life-cell-next').textContent,'下一代：诞生');
+ assert.match(h.el('announcement').textContent,/第 1 代.*第 23 列，第 15 行.*下一代：诞生/);
+ h.el('step').handlers.click();
+ assert.equal(h.el('life-cell-next').textContent,'下一代：消失');
+ const metrics=h.el('metrics').textContent;
+ h.el('canvas').handlers.keydown({key:'ArrowRight',preventDefault(){}});
+ assert.equal(h.el('metrics').textContent,metrics,'moving selection does not edit or advance');
+ assert.equal(h.el('life-cell-position').textContent,'第 24 列，第 15 行');
+ assert.equal(h.el('life-cell-next').textContent,'下一代：存活');
+ assert.match(h.el('announcement').textContent,/活邻居 2 \/ 8.*下一代：存活/);
+ h.el('clear').handlers.click();
+ assert.match(h.el('life-cell-state').textContent,/当前：空格 · 活邻居 0 \/ 8/);
+ assert.equal(h.el('life-cell-next').textContent,'下一代：仍空');
+ h.tabs[2].handlers.click();assert.equal(h.el('life-inspector').hidden,true);
+ h.tabs[1].handlers.click();h.el('guide-start').handlers.click();
+ assert.equal(h.el('life-cell-position').textContent,'第 23 列，第 15 行');
+ assert.equal(h.el('life-cell-next').textContent,'下一代：消失');
+ assert.equal(h.frames.size,0);
+});

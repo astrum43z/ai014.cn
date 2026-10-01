@@ -52,3 +52,15 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .contact-address{display:flex;align-items:center;flex-wrap:wrap;min-width:0}.contact-address label{white-space:nowrap}.contact-address input{width:16ch;max-width:100%;min-height:44px;padding:4px 0;border:0;border-radius:0;background:transparent;color:var(--ink);font:16px ui-monospace,SFMono-Regular,Consolas,monospace;user-select:all}
 #copy-wechat{min-width:64px;min-height:44px;padding:10px 16px;background:var(--white);border:1px solid var(--line);color:var(--ink);font-size:12px}#copy-wechat:hover{background:var(--lime)}#copy-wechat:disabled{cursor:wait;opacity:.65}
 #contact-status{flex-basis:100%;min-height:1.5em;color:#526451;font-size:11px;line-height:1.5}
+
+/* Inspect one Life rule at a time, without another control or live region. */
+.life-inspector{padding:12px 18px;background:#1b3931;border-top:1px solid #345046;color:#d9e4cf}
+.life-inspector-heading{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:5px 12px;margin-bottom:10px}
+.life-inspector h4{font-size:11px;font-weight:500;margin:0}.life-inspector-heading>span{font-size:10px;color:#ffac86}
+.life-inspector-body{display:grid;grid-template-columns:60px minmax(0,1fr);gap:14px;align-items:center}
+.life-neighborhood{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:60px;height:60px;padding:2px}
+.life-neighborhood span{border:1px solid #719181;min-width:0}.life-neighborhood span[data-alive="1"]{background:var(--lime);border-color:var(--lime)}
+.life-neighborhood .selected{outline:2px solid #ffac86;outline-offset:1px}
+.life-inspector p{margin:3px 0;font-size:11px;line-height:1.6}.life-inspector #life-cell-next{font-weight:700;color:var(--lime)}
+.life-inspector #life-cell-reason{color:#b8cdbb;font-size:10px}.life-inspector small{display:block;margin-top:10px;font-size:10px;line-height:1.7;color:#a9bfab}
+@media(max-width:720px){.life-inspector{padding:12px}.life-inspector-body{gap:12px}}
