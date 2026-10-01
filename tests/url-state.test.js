@@ -82,3 +82,11 @@ test('reading navigation has native links, reachable focus targets and visible r
  for(const id of ['observation-title','discovery-title'])assert.ok(html.includes('id="'+id+'" tabindex="-1"'));
  assert.equal((html.match(/class="return-to-canvas" href="#canvas"/g)||[]).length,2);
 });
+
+
+test('updated reading assets have explicit matching cache versions',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ assert.ok(html.includes('href="style.css?v=reading-nav-1"'));
+ assert.ok(html.includes('src="app.js?v=reading-nav-1"'));
+});
