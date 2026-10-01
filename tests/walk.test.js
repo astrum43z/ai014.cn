@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createWalk,advanceWalk,walkStats,WALK_COUNT,WALK_LIMIT} from '../walk.js';
+import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} from '../walk.js';
 
 test('walk starts at origin and every first step has unit length',()=>{
  const a=createWalk();assert.equal(a.steps,0);assert.equal(walkStats(a).spread,0);
@@ -42,4 +42,29 @@ test('invalid public model inputs do not allocate or run unbounded work',()=>{
  assert.equal(createWalk(NaN,Infinity).seed,14);assert.equal(createWalk(NaN,Infinity).bias,0);
  assert.equal(createWalk(999,-10).seed,99);assert.equal(createWalk(0,99).bias,25);
  const a=createWalk();for(const n of [-1,NaN,Infinity])advanceWalk(a,n);assert.equal(a.steps,0);
+});
+
+
+test('path distance includes retraced steps while opposite directions cancel',()=>{
+ const state=createWalk();
+ assert.deepEqual(walkPathStats(state),{right:0,left:0,up:0,down:0,x:0,y:0,distance:0,length:0});
+ // Right, right, up, left, down, left: six unit steps return to the origin.
+ state.path.set([0,0,1,0,2,0,2,1,1,1,1,0,0,0]);state.steps=6;
+ const before=structuredClone(state);
+ assert.deepEqual(walkPathStats(state),{right:2,left:2,up:1,down:1,x:0,y:0,distance:0,length:6});
+ assert.deepEqual(state,before,'reading never mutates the seeded state');
+ state.steps=3;assert.equal(walkPathStats(state).distance,Math.sqrt(5));
+});
+test('path counts agree with every recorded unit step and endpoint across seeds and biases',()=>{
+ for(let seed=1;seed<=99;seed++)for(const bias of [0,13,25]){
+  const state=createWalk(seed,bias);
+  for(const n of [16,48,16,432]){
+   advanceWalk(state,n);const before=state.rng,stats=walkPathStats(state);
+   assert.equal(stats.length,state.steps);assert.equal(stats.right+stats.left+stats.up+stats.down,state.steps);
+   assert.equal(stats.right-stats.left,state.positions[0]);assert.equal(stats.up-stats.down,state.positions[1]);
+   assert.equal(stats.x,state.positions[0]);assert.equal(stats.y,state.positions[1]);
+   assert.equal(stats.distance,Math.hypot(state.positions[0],state.positions[1]));assert.ok(stats.distance<=stats.length);
+   assert.equal(state.rng,before);
+  }
+ }
 });

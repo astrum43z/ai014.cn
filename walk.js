@@ -32,3 +32,17 @@ export function walkStats(state){
  const meanX=sumX/WALK_COUNT,meanY=sumY/WALK_COUNT,n=state.steps,mu=state.bias/100;
  return {meanX,meanY,rmsDistance:Math.sqrt(sumR2/WALK_COUNT),spread:Math.sqrt(Math.max(0,sumR2/WALK_COUNT-meanX*meanX-meanY*meanY)),expectedX:n*mu,expectedRms:Math.sqrt(n+n*(n-1)*mu*mu),expectedSpread:Math.sqrt(n*(1-mu*mu))};
 }
+
+// Read the already recorded representative path; do not consume randomness or
+// alter the ensemble. Positive y points upward in this exhibit.
+export function walkPathStats(state){
+ let right=0,left=0,up=0,down=0;
+ for(let i=1;i<=state.steps;i++){
+  const dx=state.path[i*2]-state.path[(i-1)*2];
+  const dy=state.path[i*2+1]-state.path[(i-1)*2+1];
+  if(dx>0)right++;else if(dx<0)left++;
+  if(dy>0)up++;else if(dy<0)down++;
+ }
+ const x=state.path[state.steps*2],y=state.path[state.steps*2+1];
+ return {right,left,up,down,x,y,distance:Math.hypot(x,y),length:state.steps};
+}
