@@ -88,7 +88,7 @@ function startGuide(next=mode){
   draw();
   announce('已载入并暂停：'+guide.title+'。'+guide.instructions);
 }
-$('#guide-start').addEventListener('click',()=>startGuide());
+$('#guide-start').addEventListener('click',()=>enterDiscovery(mode));
 function enterDiscovery(next){startGuide(next);$('#panel').scrollIntoView?.({block:'start'});canvas.focus({preventScroll:true});}
 $('#journey-start').addEventListener('click',()=>enterDiscovery('fractal'));
 $('#discovery-next').addEventListener('click',()=>enterDiscovery(discoveries[mode].next));

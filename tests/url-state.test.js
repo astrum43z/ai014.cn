@@ -87,6 +87,6 @@ test('reading navigation has native links, reachable focus targets and visible r
 test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('href="style.css?v=random-walk-2"'));
- assert.ok(html.includes('src="app.js?v=random-walk-2"'));
+ assert.ok(html.includes('href="style.css?v=stage-controls-1"'));
+ assert.ok(html.includes('src="app.js?v=stage-controls-1"'));
 });

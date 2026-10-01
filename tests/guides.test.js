@@ -10,10 +10,15 @@ return {el,tabs,frames,motion,windowHandlers,writes:()=>writes,navigate(url){glo
 
 test('guided orbit start resets parameters, pauses, and retains velocity when gravity changes',async()=>{
  const h=await setup('?experiment=orbit&gravity=140&speed=30');
+ let scrolled=0,focused=0;
+ h.el('panel').scrollIntoView=options=>{assert.equal(options.block,'start');scrolled++;};
+ h.el('canvas').focus=options=>{assert.equal(options.preventScroll,true);focused++;};
  h.el('pause').handlers.click();
  h.el('guide-start').handlers.click();
  assert.equal(h.frames.size,0);
  assert.equal(h.el('preset-select').value,'circular');
+ assert.equal(scrolled,1,'loading a guide brings its canvas back into view');
+ assert.equal(focused,1,'keyboard focus follows the paused canvas');
  assert.equal(location.search,'?experiment=orbit&gravity=80&speed=100');
  assert.match(h.el('observation-a').textContent,/75.0/);
  const speed=h.el('observation-b').textContent;
