@@ -92,3 +92,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .walk-distance #walk-distance-note,.walk-distance small{font-size:10px;line-height:1.7;color:#a9bfab}
 .walk-distance #walk-distance-note{margin:5px 0}.walk-distance small{display:block;margin-top:7px}
 @media(max-width:720px){.walk-distance{padding:12px}.walk-distance-readings p{padding:7px 8px}.walk-distance-readings strong{font-size:17px}}
+
+/* Geometry stays beside the existing signed wave contributions, without extra controls. */
+.wave-path-reading{border-top:1px solid #345046;margin-top:10px;padding-top:3px}
+.wave-path-reading p{color:#e7eee1;font-size:10px;line-height:1.6;overflow-wrap:anywhere}
