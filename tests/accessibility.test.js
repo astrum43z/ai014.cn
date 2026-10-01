@@ -57,3 +57,39 @@ test('Life keyboard navigation and edits pause first, wrap, and announce positio
   h.key('ArrowLeft');
   assert.equal(h.frames.size,1,'Life editing behavior is scoped to Life');
 });
+
+
+test('wave probe keyboard completes the guided comparison and announces measurements',async()=>{
+  const h=await setup();
+  h.tabs[2].handlers.click();
+  h.el('guide-start').handlers.click();
+  assert.match(h.el('observation-b').textContent,/0.50/);
+  h.el('pause').handlers.click();
+  h.key('Home');
+  assert.equal(h.frames.size,0,'probe navigation pauses the simulation');
+  assert.match(h.el('announcement').textContent,/已暂停；探针 x 0.0，y 0.0/);
+  assert.match(h.el('announcement').textContent,/0.00；相遇方式 · 接近加强/);
+  for(let i=0;i<4;i++)h.key('ArrowRight');
+  assert.match(h.el('announcement').textContent,/x 8.0，y 0.0/);
+  assert.match(h.el('announcement').textContent,/0.50；相遇方式 · 接近抵消/);
+  h.key('ArrowDown');
+  assert.match(h.el('announcement').textContent,/x 8.0，y 2.0/);
+  h.key('ArrowUp');h.key('ArrowLeft');
+  assert.match(h.el('announcement').textContent,/x 6.0，y 0.0/);
+  h.key('Home');h.key('Home');
+  assert.match(h.el('observation-b').textContent,/0.00/);
+  assert.equal(h.frames.size,0,'repeated navigation never resumes animation');
+});
+test('wave probe stays on the canvas and leaves modified keys and Tab alone',async()=>{
+  const h=await setup();h.tabs[2].handlers.click();
+  for(const [key,extra] of [['Home',{ctrlKey:true}],['ArrowRight',{altKey:true}],['ArrowUp',{metaKey:true}],['ArrowDown',{shiftKey:true}],['Tab',{}]])h.key(key,extra);
+  assert.equal(h.frames.size,1);
+  for(let i=0;i<200;i++)h.key('ArrowRight');
+  assert.match(h.el('announcement').textContent,/x 202.9，y 0.0/);
+  for(let i=0;i<200;i++)h.key('ArrowDown');
+  assert.match(h.el('announcement').textContent,/y 140.0/);
+  for(let i=0;i<400;i++){h.key('ArrowLeft');h.key('ArrowUp');}
+  assert.match(h.el('announcement').textContent,/x -202.9，y -140.0/);
+  h.el('reset').handlers.click();h.key('ArrowRight');
+  assert.match(h.el('announcement').textContent,/x 2.0，y 0.0/);
+});

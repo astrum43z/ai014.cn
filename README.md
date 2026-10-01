@@ -51,3 +51,5 @@ At 50% movement toward uniformly selected triangle vertices, the ideal limit is 
 ## Connected discovery route
 
 A compact question-led entrance starts the fractal guide, paused. Each experiment has a prediction prompt, a specific thing to notice, a short explanation and a model boundary. Related discoveries form a cycle (fractal → orbit → wave → Life → fractal) while the four experiment tabs remain freely accessible. Entry and next-discovery buttons explicitly disclose that they replace the current canvas and parameters. They reuse the reproducible guides, move focus to the canvas, and never autoplay. No progress tracking, external assets, or additional animation loop is introduced.
+
+Wave probes can also be moved with unmodified arrow keys (2 model units per press) while the canvas has keyboard focus. Home returns to the center. These actions pause the simulation, clamp the probe to the canvas, and announce its position, path difference in wavelengths, and interference classification. Tab and modified shortcuts are left to the browser.
