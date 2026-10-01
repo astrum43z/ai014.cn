@@ -94,14 +94,14 @@ test('pointer and keyboard share launch coordinates and velocity without changin
  h.el('pause').handlers.click();h.el('canvas').handlers.click({clientX:100,clientY:200});
  assert.equal(h.frames.size,1,'pointer launch preserves the existing running state');
 });
-test('modified keys and unrelated keys remain available; mode changes hide and reset the launcher',async()=>{
+test('modified keys and unrelated keys remain available; mode changes hide and retain the launcher',async()=>{
  const h=await setup();const before=h.el('orbit-position').textContent;
  for(const key of ['ArrowLeft','ArrowRight','Home','Enter',' '])for(const modifier of ['altKey','ctrlKey','metaKey','shiftKey'])h.key(key,{[modifier]:true,preventDefault(){assert.fail('modified shortcut intercepted');}});
  h.key('Tab',{preventDefault(){assert.fail('Tab intercepted');}});
  assert.equal(h.frames.size,1);assert.equal(h.el('orbit-position').textContent,before);assert.match(h.el('metrics').textContent,/3 颗行星/);
  h.key('ArrowDown');
  for(const mode of ['life','wave','fractal','walk']){h.el('tab-'+mode).handlers.click();assert.equal(h.el('orbit-launch').hidden,true);h.el('step').handlers.click();}
- h.el('tab-orbit').handlers.click();assert.equal(h.el('orbit-launch').hidden,false);assert.match(h.el('orbit-position').textContent,/x 140.0，y 0.0/);
+ h.el('tab-orbit').handlers.click();assert.equal(h.el('orbit-launch').hidden,false);assert.match(h.el('orbit-position').textContent,/x 140.0，y 5.0/);
  assert.equal(h.frames.size,0);
 });
 test('launcher is a quiet labeled reading with direction, units and keyboard guidance',async()=>{

@@ -20,6 +20,8 @@ const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let mode='orbit', values={},paused=reducedMotion.matches,t=0,acc=0,generation=0,bodies=[],cells=new Uint8Array(48*32),preset=0,focusCell={x:24,y:16},canvasFocused=false,width=600,height=414;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0};
 let animation, stageVisible=true, addressObservation='';
+// At most one bounded model per inactive experiment; no persistent storage.
+const experimentSessions=new Map();
 const palette=['#d3f35b','#f59c80','#e7eee1','#87c2b1','#c7b1e8'];
 function announce(text){$('#announcement').textContent=text;}
 // Continuous readings remain available in the document without becoming a
@@ -33,7 +35,41 @@ function observationReading(){
 
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';$('#status').textContent=paused?'已暂停':'运行中';$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
 function reset(){cancelPainting();t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitPoint={x:140,y:0};bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
-function changeMode(next,sharedValues=null){mode=next;renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;$('#learn').href=c.learn;canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML=presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':'前进一步 +';$('#clear').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();$('#sliders').innerHTML=c.sliders.map(([id,label,min,max,initial,unit])=>{const value=values[id];return `<label class="slider"><span>${label}<output id="out-${id}" for="${id}">${value}${unit}</output></span><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"></label>`;}).join('');c.sliders.forEach(([id,,min,max,v,unit])=>$('#'+id).addEventListener('input',e=>{values[id]=+e.target.value;$('#out-'+id).textContent=values[id]+unit;if(mode==='fractal'||mode==='walk')reset();else draw();updateAddress();}));updatePause();reset();updateAddress();}
+function rememberExperiment(){
+ const state={values,paused,t,acc,preset,addressObservation,shareVisible:!$('#share-link').hidden};
+ if(mode==='orbit')Object.assign(state,{bodies,orbitPoint});
+ if(mode==='life')Object.assign(state,{cells,generation,lifeHistory,focusCell});
+ if(mode==='wave')Object.assign(state,{probe,waveView});
+ if(mode==='fractal')state.fractal=fractal;
+ if(mode==='walk')state.walk=walk;
+ experimentSessions.set(mode,state);
+}
+function restoreExperiment(state){
+ ({values,paused,t,acc,preset}=state);
+ if(mode==='orbit'){({bodies,orbitPoint}=state);orbitPoint=clampOrbitPoint(orbitPoint,width,height);}
+ if(mode==='life')({cells,generation,lifeHistory,focusCell}=state);
+ if(mode==='wave'){({probe,waveView}=state);waveView=waveView||{...probe};}
+ if(mode==='fractal')fractal=state.fractal;
+ if(mode==='walk')walk=state.walk;
+}
+function changeMode(next,sharedValues=null,saved=null){
+ // Stop a running frame chain before replacing the model. Returning later must
+ // not include elapsed time from another experiment, even if both were running.
+ const previousPause=paused;
+ cancelPainting();
+ if(next!==mode&&Object.keys(values).length)rememberExperiment();
+ experimentSessions.delete(next);
+ paused=true;animation?.sync();
+ mode=next;paused=previousPause;
+ renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;$('#learn').href=c.learn;canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML=presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':'前进一步 +';$('#clear').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();$('#sliders').innerHTML=c.sliders.map(([id,label,min,max,initial,unit])=>{const value=values[id];return `<label class="slider"><span>${label}<output id="out-${id}" for="${id}">${value}${unit}</output></span><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"></label>`;}).join('');c.sliders.forEach(([id,,min,max,v,unit])=>$('#'+id).addEventListener('input',e=>{values[id]=+e.target.value;$('#out-'+id).textContent=values[id]+unit;if(mode==='fractal'||mode==='walk')reset();else draw();updateAddress();}));
+ if(saved){
+  restoreExperiment(saved);
+  $('#preset-select').value=presets[mode][preset][1];
+  updatePause();draw();updateAddress(readObservation(saved.addressObservation,mode));
+  $('#share-link').hidden=!saved.shareVisible;refreshShareLink();
+  announce('已回到'+configs[mode].title+'，保留离开时的画布与参数；'+(paused?'已暂停':'继续运行'));
+ }else{updatePause();reset();updateAddress();}
+}
 function updateAddress(observation=null){
   addressObservation=writeObservation(mode,observation);
   history.replaceState(history.state,'','?'+serializeSettings(mode,values)+(addressObservation?'&'+addressObservation:'')+(['#lab','#about','#canvas','#observation-title','#discovery-title'].includes(location.hash)?location.hash:''));
@@ -62,10 +98,9 @@ function addressSettings(){
 }
 function loadAddress(shared){
   const observation=readObservation(shared.search,shared.mode);
-  if(observation)paused=true;
   changeMode(shared.mode,shared.values);
   if(!observation)return;
-  acc=0;
+  paused=true;acc=0;
   if(mode==='wave'){probe={x:observation.x,y:observation.y};waveView={...probe};t=observation.time;}
   if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),observation.count);
   if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),observation.count);
@@ -185,7 +220,7 @@ function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;gr
 $('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；请重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；请重置或改变参数后继续');return;}paused=!paused;updatePause();if(mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){preset=presets[mode].findIndex(([,value])=>value===name);$('#preset-select').value=name;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
 // Guided starts are explicit, repeatable resets; they never begin animation.
 function startGuide(next=mode){
-  if(next!==mode){paused=true;changeMode(next);}
+  if(next!==mode)changeMode(next);
   const guide=experimentGuides[mode];
   paused=true;
   changeMode(mode,{...guide.values});
@@ -266,7 +301,7 @@ canvas.addEventListener('pointermove',e=>{
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endPainting);
 // Re-selecting the active tab must not discard a drawing or simulation progress.
-function selectTab(next){if(next!==mode)changeMode(next);}
+function selectTab(next){if(next===mode)return;const saved=experimentSessions.get(next);changeMode(next,saved?.values||null,saved);}
 document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>selectTab(tab.dataset.mode));tab.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();selectTab(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();loadAddress(shared);new ResizeObserver(fit).observe(canvas);
 animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>!paused&&!document.hidden&&stageVisible});
 document.addEventListener('visibilitychange',()=>animation.sync());
@@ -277,6 +312,7 @@ animation.sync();
 // overrides an intentional pause. The Continue button remains an explicit opt-in.
 reducedMotion.addEventListener?.('change',event=>{
   if(!event.matches)return;
+  for(const state of experimentSessions.values())state.paused=true;
   paused=true;
   updatePause();
   if(mode==='fractal'||mode==='walk'||mode==='wave')draw();
