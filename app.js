@@ -1,3 +1,4 @@
+import {paintLifeLine} from './painting.js';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
 import {createWalk,advanceWalk,walkStats,WALK_COUNT,WALK_LIMIT} from './walk.js';
 import {discoveries} from './journeys.js?v=random-walk-1';
@@ -155,31 +156,46 @@ $('#share').addEventListener('click',async()=>{
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),announce,document});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`));
 // A stroke belongs to one pointer and cannot survive interrupted capture.
-let paintingPointer=null,cancelledClickPointer=null,lastPaint=-1,wasDragging=false;
+let paintingPointer=null,cancelledClickPointer=null,lastPaint=null,wasDragging=false;
 function cancelPainting(){
   const id=paintingPointer;
   if(id!==null)cancelledClickPointer=id;
-  paintingPointer=null;lastPaint=-1;wasDragging=false;
+  paintingPointer=null;lastPaint=null;wasDragging=false;
   if(id!==null&&canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);
 }
 function endPainting(e){
   if(paintingPointer===null||e.pointerId!==paintingPointer)return;
-  if(e.type==='pointercancel'||e.type==='lostpointercapture')cancelledClickPointer=e.pointerId;
-  paintingPointer=null;lastPaint=-1;
+  if(e.type==='pointerup'){
+    paintTo(e);
+    if(wasDragging)announce('已暂停；绘制完成；'+observationReading());
+  }else cancelledClickPointer=e.pointerId;
+  paintingPointer=null;lastPaint=null;
   // Preserve click suppression after a normal drag and its implicit capture loss.
 }
 canvas.addEventListener('pointerdown',e=>{
   if(paintingPointer!==null||e.isPrimary===false||e.button!==0)return;
   cancelledClickPointer=null;
   if(mode!=='life')return;
-  paintingPointer=e.pointerId;wasDragging=false;paused=true;updatePause();lastPaint=-1;
+  paintingPointer=e.pointerId;wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e);
   canvas.setPointerCapture(e.pointerId);
 });
+function lifeCell(event){
+  if(!Number.isFinite(event.clientX)||!Number.isFinite(event.clientY)||width<=0||height<=0)return null;
+  const p=coordinates(event);
+  if(!Number.isFinite(p.x)||!Number.isFinite(p.y))return null;
+  return {x:Math.min(47,Math.max(0,Math.floor(p.x/width*48))),y:Math.min(31,Math.max(0,Math.floor(p.y/height*32)))};
+}
+function paintTo(event){
+  const next=lifeCell(event);
+  // A little movement inside the same cell is still a tap. Once the pointer
+  // crosses a cell boundary, join samples so fast mouse/touch strokes stay solid.
+  if(!next||!lastPaint||(next.x===lastPaint.x&&next.y===lastPaint.y))return;
+  paintLifeLine(cells,48,lastPaint,next);
+  wasDragging=true;lifeHistory=[];lastPaint=next;focusCell={...next};draw();
+}
 canvas.addEventListener('pointermove',e=>{
   if(paintingPointer===null||e.pointerId!==paintingPointer||mode!=='life')return;
-  const p=coordinates(e);
-  const x=Math.min(47,Math.max(0,Math.floor(p.x/width*48))),y=Math.min(31,Math.max(0,Math.floor(p.y/height*32))),i=y*48+x;
-  if(i!==lastPaint){wasDragging=true;lifeHistory=[];cells[i]=1;lastPaint=i;draw();}
+  paintTo(e);
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endPainting);
 // Re-selecting the active tab must not discard a drawing or simulation progress.

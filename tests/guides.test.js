@@ -68,7 +68,7 @@ test('wave guide contrasts half-wavelength cancellation with central-axis reinfo
 });
 test('guide cancels an active drawing stroke and mode changes replace its instructions',async()=>{
  const h=await setup('?experiment=life');
- h.el('canvas').handlers.pointerdown({pointerId:1,button:0});
+ h.el('canvas').handlers.pointerdown({pointerId:1,button:0,clientX:1,clientY:1});
  h.el('canvas').handlers.pointermove({pointerId:1,clientX:20,clientY:20});
  h.el('guide-start').handlers.click();
  h.el('canvas').handlers.pointermove({pointerId:1,clientX:50,clientY:50});

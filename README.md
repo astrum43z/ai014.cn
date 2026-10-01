@@ -20,7 +20,7 @@ Optional Chromium regression checks: `node tests/browser-check.cjs` and `node te
 
 ## Touch drawing
 
-Life drawing tracks one primary pointer. Pointer cancellation, capture loss, clearing, resetting, or switching experiments ends the active stroke, so later hover/move events cannot accidentally keep painting. Taps still toggle cells; the click following a drag does not erase the painted cell. These paths have simulated event regression tests; they are not a substitute for real-device touch checks.
+Life drawing tracks one primary pointer. Crossing into another cell paints a continuous, one-cell-wide line between event samples, including the initial contact and the final release cell, so fast mouse and touch strokes do not leave gaps. Segments are clamped to the board rather than wrapped. Small movements within one cell remain a tap and toggle that cell once; drawing back over a stroke keeps it alive. Pointer cancellation, capture loss, clearing, resetting, or switching experiments ends the active stroke, so later hover/move events cannot accidentally keep painting. The click following a drag does not erase the painted cell. Drawing pauses the simulation; normal stroke completion announces the current measurements once. These paths have simulated event regression tests; they are not a substitute for real-device touch checks.
 
 ## Parameter links
 
