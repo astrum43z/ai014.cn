@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 let instance=0;
 async function setup(search='',hash=''){
-let drawCount=0,frameId=0,intersect;const frames=new Map(),documentHandlers={};const tick=now=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(now);};const els=new Map();const noop=()=>{};const ctx=new Proxy({clearRect:()=>drawCount++,createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>({width:600,height:414,left:0,top:0}),getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id)}const tabs=['orbit','life','wave','fractal','walk'].map(m=>{const t=el('tab-'+m);t.dataset.mode=m;return t});globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:(name,callback)=>documentHandlers[name]=callback};const motion={matches:true,addEventListener:(name,handler)=>motion.change=handler};globalThis.matchMedia=()=>motion;const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=1;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{observe(){}};globalThis.setTimeout=noop;
+let drawCount=0,frameId=0,intersect,arcs=[];const frames=new Map(),documentHandlers={};const tick=now=>{const [id,callback]=frames.entries().next().value;frames.delete(id);callback(now);};const els=new Map();const noop=()=>{};const ctx=new Proxy({clearRect:()=>{drawCount++;arcs=[];},arc:(x,y,r)=>arcs.push({x,y,r}),createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>({width:600,height:414,left:0,top:0}),getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id)}const tabs=['orbit','life','wave','fractal','walk'].map(m=>{const t=el('tab-'+m);t.dataset.mode=m;return t});globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:(name,callback)=>documentHandlers[name]=callback};const motion={matches:true,addEventListener:(name,handler)=>motion.change=handler};globalThis.matchMedia=()=>motion;const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=1;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{observe(){}};globalThis.setTimeout=noop;
 await import('../app.js?fractal='+instance++);
-return {el,tabs,frames,motion,windowHandlers,tick,documentHandlers,setVisible(value){intersect([{isIntersecting:value}]);},writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
+return {el,tabs,frames,motion,windowHandlers,tick,documentHandlers,arcs:()=>arcs,setVisible(value){intersect([{isIntersecting:value}]);},writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
 }
 
 
@@ -104,4 +104,101 @@ test('next preset advances from the manually selected preset in every experiment
   h.el('preset').handlers.click();
   assert.equal(h.el('preset-select').value,second,mode+' continues in display order');
  }
+});
+
+
+test('last jump retains exact preceding coordinates and the seeded sequence is unchanged',()=>{
+ for(const seed of [1,14,99])for(const jump of [35,50,70]){
+  const state=createFractal(seed,jump),legacy={rng:seed,x:0,y:-1};
+  for(let i=0;i<12000;i++){
+   const {x,y}=state;
+   addFractalPoints(state,1);
+   assert.equal(state.previousX,x);assert.equal(state.previousY,y);
+   legacy.rng=(Math.imul(1664525,legacy.rng)+1013904223)>>>0;
+   const vertex=Math.floor(legacy.rng/4294967296*3),[vx,vy]=fractalVertices[vertex];
+   legacy.x+=(vx-legacy.x)*jump/100;legacy.y+=(vy-legacy.y)*jump/100;
+   assert.ok(Math.abs(state.x-legacy.x)<1e-14);assert.ok(Math.abs(state.y-legacy.y)<1e-14);
+   assert.equal(state.rng,legacy.rng);assert.equal(state.lastVertex,vertex);
+   const distance=Math.hypot(vx-x,vy-y),traveled=Math.hypot(state.x-x,state.y-y);
+   assert.ok(Math.abs(traveled-distance*jump/100)<1e-14);
+  }
+  const before={...state};addFractalPoints(state,1);assert.deepEqual(state,before);
+ }
+});
+test('one-point control and canvas shortcut pause without replacing the existing batch step',async()=>{
+ const h=await setup('?experiment=fractal');
+ const initial=addFractalPoints(createFractal(14,50),300);
+ assert.match(h.el('fractal-jump-reading').textContent,new RegExp('第 300 点，抽中顶点 '+'ABC'[initial.lastVertex]));
+ h.el('pause').handlers.click();assert.equal(h.frames.size,1);
+ assert.match(h.el('fractal-jump-note').textContent,/运行中暂隐连线/);
+ h.el('fractal-step').handlers.click();assert.equal(h.frames.size,0);
+ assert.match(h.el('metrics').textContent,/301 个点/);
+ assert.match(h.el('announcement').textContent,/已暂停.*第 301 点.*前进 50%，余下 50%/);
+ assert.match(h.el('fractal-jump-note').textContent,/空心圈是出发点/);
+ h.key('ArrowRight');assert.match(h.el('metrics').textContent,/302 个点/);
+ h.key('ArrowRight',{repeat:true});assert.match(h.el('metrics').textContent,/302 个点/);
+ for(const modifier of ['altKey','ctrlKey','metaKey','shiftKey'])h.key('ArrowRight',{[modifier]:true,preventDefault(){assert.fail('modified shortcut intercepted');}});
+ h.key('Home',{preventDefault(){assert.fail('unrelated key intercepted');}});
+ assert.match(h.el('metrics').textContent,/302 个点/);
+ h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/402 个点/);
+ h.el('pause').handlers.click();h.el('pause').handlers.click();
+ assert.match(h.el('fractal-jump-note').textContent,/空心圈是出发点/);
+ assert.match(h.el('announcement').textContent,/第 402 点/);
+});
+test('single-point observations reproduce their last jump and preserve anchor navigation',async()=>{
+ const h=await setup('?experiment=fractal&jump=65&seed=23');
+ h.el('fractal-step').handlers.click();await h.el('share').handlers.click();
+ const url=h.el('share-link').value,reading=h.el('fractal-jump-reading').textContent;
+ assert.equal(new URL(url).searchParams.get('at'),'v1,301');
+ h.el('fractal-step').handlers.click();assert.match(h.el('metrics').textContent,/302 个点/);
+ h.navigate(url+'#observation-title');assert.match(h.el('metrics').textContent,/302 个点/);
+ h.navigate('?experiment=walk');assert.equal(h.el('fractal-jump').hidden,true);
+ const other=h.el('metrics').textContent;h.el('fractal-step').handlers.click();assert.equal(h.el('metrics').textContent,other);
+ h.navigate(url);assert.equal(h.el('fractal-jump').hidden,false);
+ assert.equal(h.el('fractal-jump-reading').textContent,reading);assert.equal(h.frames.size,0);
+ h.el('seed').handlers.input({target:{value:'15'}});
+ assert.match(h.el('fractal-jump-reading').textContent,/第 300 点.*65%，余下 35%/);
+ assert.equal(h.el('share-link').hidden,true);
+ h.el('preset-select').handlers.change({target:{value:'overlap'}});
+ assert.match(h.el('fractal-jump-reading').textContent,/第 300 点.*38%，余下 62%/);
+ h.el('guide-start').handlers.click();assert.match(h.el('fractal-jump-reading').textContent,/第 300 点.*50%，余下 50%/);
+ h.el('fractal-step').handlers.click();h.el('reset').handlers.click();
+ assert.match(h.el('fractal-jump-reading').textContent,/第 300 点/);
+});
+test('single-point limit and reduced-motion pause keep the last jump visible and quiet',async()=>{
+ const h=await setup('?experiment=fractal&at=v1,11999');
+ h.el('fractal-step').handlers.click();const reading=h.el('fractal-jump-reading').textContent;
+ assert.match(reading,/第 12000 点/);assert.match(h.el('announcement').textContent,/已达到上限/);
+ h.el('fractal-step').handlers.click();h.key('ArrowRight');assert.equal(h.el('fractal-jump-reading').textContent,reading);
+ h.el('pause').handlers.click();assert.equal(h.frames.size,0);
+ h.el('reset').handlers.click();h.el('pause').handlers.click();
+ const message=h.el('announcement').textContent;
+ h.tick(0);h.tick(50);h.tick(100);h.tick(150);
+ assert.equal(h.el('announcement').textContent,message,'animation stays silent');
+ assert.match(h.el('fractal-jump-note').textContent,/运行中暂隐连线/);
+ h.motion.change({matches:true});assert.equal(h.frames.size,0);
+ assert.match(h.el('fractal-jump-note').textContent,/空心圈是出发点/);
+});
+test('jump inspection has a quiet text alternative and a labeled, keyboard-operable control',async()=>{
+ const {readFile}=await import('node:fs/promises');const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ const panel=html.match(/<section id="fractal-jump".*?<\/section>/s)?.[0];assert.ok(panel);
+ assert.match(panel,/aria-labelledby="fractal-jump-title"/);assert.doesNotMatch(panel,/aria-live|role="status"/);
+ assert.match(panel,/<button id="fractal-step" aria-describedby="fractal-step-help">只走一步 \+1<\/button>/);
+ assert.match(panel,/可以连续选中同一顶点/);
+});
+
+
+test('paused trace renders the exact final endpoints and selected vertex, then hides immediately on Continue',async()=>{
+ const h=await setup('?experiment=fractal&jump=65&seed=23&at=v1,301');
+ const state=addFractalPoints(createFractal(23,65),301),scale=Math.min(600/2.1,414/1.85),cx=300,cy=207+scale*.25;
+ const [vx,vy]=fractalVertices[state.lastVertex];
+ assert.deepEqual(h.arcs().slice(0,3),[
+  {x:cx+state.previousX*scale,y:cy+state.previousY*scale,r:5},
+  {x:cx+state.x*scale,y:cy+state.y*scale,r:4},
+  {x:cx+vx*scale,y:cy+vy*scale,r:8}
+ ]);
+ h.el('pause').handlers.click();assert.equal(h.arcs().length,3,'only the triangle vertices remain while running');
+ h.el('pause').handlers.click();assert.equal(h.arcs().length,6,'Pause restores the last jump without advancing');
+ assert.match(h.el('metrics').textContent,/301 个点/);
+ h.el('pause').handlers.click();h.motion.change({matches:true});assert.equal(h.arcs().length,6);
 });
