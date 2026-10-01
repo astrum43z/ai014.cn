@@ -32,7 +32,7 @@ Each “try this” card provides a reproducible, paused starting point and spec
 
 ## PNG snapshots
 
-Saving captures the current canvas and experiment filename together. The save control waits for encoding before accepting another request. Encoding or download-start failures show a retry message and restore the control; download success text only confirms that a download was started. Temporary links and object URLs are cleaned up.
+Saving captures the current canvas and experiment filename together. The save control waits for encoding before accepting another request. The controls show a visible pending message and then a download-start or retry result, identifying the experiment captured when Save was clicked. This stays accurate if the visitor switches experiments during encoding; another save replaces the previous result. Encoding or download-start failures restore the control, and success text only confirms that a download was started, not that the file reached disk. The existing polite action announcement speaks the same result once; the visible status is quiet and associated with the Save button. Temporary links and object URLs are cleaned up. Saving does not pause, step, reset, or change the observation URL.
 
 ## Deploy
 

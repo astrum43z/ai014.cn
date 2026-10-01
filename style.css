@@ -161,3 +161,6 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .life-challenge-hint{border-top:1px solid #4a6655;margin-top:10px}.life-challenge-hint summary{font-size:11px;padding:12px 0}
 .life-challenge-hint p{color:#b8cdbb;margin-bottom:0}
 @media(max-width:720px){.life-challenge{padding:0 12px}.life-challenge summary,.life-challenge p{font-size:14px}.life-challenge small,.life-challenge #life-trial-legend,.life-challenge-hint summary{font-size:13px}.life-challenge-actions button{flex:1;min-width:100px}}
+
+/* Visible PNG feedback uses the existing action live region for speech. */
+.controls .save-status{grid-column:1/-1;margin:0 0 8px;color:var(--ink);font-size:13px;line-height:1.8}
