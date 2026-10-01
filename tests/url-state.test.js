@@ -88,7 +88,7 @@ test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=contact-footer-1"'));
- assert.ok(html.includes('src="app.js?v=observation-links-2"'));
+ assert.ok(html.includes('src="app.js?v=tab-shortcuts-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
@@ -245,4 +245,29 @@ test('saved wave probe stays fully visible after narrow resizing without changin
  }
  h.key('Home');assert.match(h.el('observation-b').textContent,/0.00/);
  h.key('ArrowRight');assert.match(h.el('announcement').textContent,/x 2.0，y 0.0/);
+});
+
+test('modified tab shortcuts preserve experiment progress and remain available to the browser',async()=>{
+ for(const [i,mode] of ['orbit','life','wave','fractal','walk'].entries()){
+  const h=await setup('?experiment='+mode);
+  h.el('guide-start').handlers.click();h.el('step').handlers.click();
+  if(mode==='wave')h.key('ArrowDown');
+  await h.el('share').handlers.click();
+  let prevented=0,focused=0;
+  for(const tab of h.tabs)tab.focus=()=>focused++;
+  const ids=['stage-title','metrics','observation-a','observation-b','observation-c','status','announcement'];
+  for(const running of [false,true]){
+   if(running)h.el('pause').handlers.click();
+   const expected=ids.map(id=>h.el(id).textContent),url=location.href,writes=h.writes(),frames=h.frames.size;
+   for(const key of ['ArrowLeft','ArrowRight','Home','End'])for(const modifier of ['altKey','ctrlKey','metaKey','shiftKey']){
+    h.tabs[i].handlers.keydown({key,[modifier]:true,preventDefault(){prevented++;}});
+    assert.deepEqual(ids.map(id=>h.el(id).textContent),expected,mode+' '+modifier+' '+key);
+    assert.equal(location.href,url);assert.equal(h.writes(),writes);
+    assert.equal(h.frames.size,frames);assert.equal(h.el('share-link').hidden,false);
+    assert.equal(h.el('share-link').value,url);
+   }
+  }
+  assert.equal(prevented,0,'browser and assistive shortcuts are not cancelled');
+  assert.equal(focused,0,'modified shortcuts do not move tab focus');
+ }
 });
