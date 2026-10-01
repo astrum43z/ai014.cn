@@ -361,6 +361,10 @@ function cancelPainting(){
   paintingPointer=null;lastPaint=null;wasDragging=false;
   if(id!==null&&canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);
 }
+// A lost window/tab or missed release ends only an active gesture. Keep the
+// following-click guard of an already completed drag intact.
+function interruptPainting(){if(paintingPointer!==null)cancelPainting();}
+addEventListener('blur',interruptPainting);
 function endPainting(e){
   if(paintingPointer===null||e.pointerId!==paintingPointer)return;
   if(e.type==='pointerup'){
@@ -393,6 +397,9 @@ function paintTo(event){
 }
 canvas.addEventListener('pointermove',e=>{
   if(paintingPointer===null||e.pointerId!==paintingPointer||mode!=='life')return;
+  // A hover, or releasing the primary button while another stays held, must
+  // not extend an old stroke when pointerup was not delivered.
+  if(typeof e.buttons==='number'&&(e.buttons&1)===0){interruptPainting();return;}
   paintTo(e);
 });
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endPainting);
@@ -400,7 +407,7 @@ for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.add
 function selectTab(next){if(next===mode)return;const saved=experimentSessions.get(next);changeMode(next,saved?.values||null,saved);}
 document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>selectTab(tab.dataset.mode));tab.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();selectTab(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();loadAddress(shared);new ResizeObserver(fit).observe(canvas);
 animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>!paused&&!document.hidden&&stageVisible});
-document.addEventListener('visibilitychange',()=>animation.sync());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)interruptPainting();animation.sync();});
 if(typeof IntersectionObserver!=='undefined')new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;animation.sync();}).observe(canvas);
 animation.sync();
 

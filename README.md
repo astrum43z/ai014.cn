@@ -202,3 +202,10 @@ All ten parameter sliders keep their native range controls and now have a 44px-h
 The evolution-speed slider now preserves the completed fraction of the next generation when its rate changes. For example, waiting 90% of one generation at 1 generation/second still means 90% at 20/second, rather than treating the old 0.9 seconds as 18 generations to replay immediately. This applies while running or paused, including repeated adjustments and returning from another experiment. Lowering the speed preserves the same fractional progress. Moving the slider never advances the board or resumes a paused simulation.
 
 The B3/S23 rules, current drawing, completed-generation count, manual step, resets, density setting, existing single animation loop, and sharing format remain unchanged. Eight event-driven runtime tests cover acceleration, slowdown, pause/resume, repeated changes, tab returns, density edits and reset/manual-step behavior; five fail against the preceding implementation.
+
+
+## Life: stop interrupted strokes safely
+
+Leaving the browser window or hiding the page now ends any unfinished Life drawing gesture while keeping its already painted cells. Returning cannot extend the old stroke or turn a trailing release into a new tap. A move reporting that the primary button is no longer held also cancels, including multi-button mouse releases where another button remains down. A fresh tap or drag starts normally, even with the same pointer ID.
+
+Completed strokes keep their click-suppression guard, ordinary visibility notifications do not interrupt a visible drawing, and secondary pointers cannot cancel the owning pointer. These safeguards do not reset a board, discard a completed challenge, change simulation timing, or add controls. Six event-driven regression cases cover interruptions, trailing events, repeated interruption, hover, button combinations and recovery; actual device and operating-system event ordering can differ.
