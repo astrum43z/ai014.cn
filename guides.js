@@ -1,5 +1,10 @@
 // Activities describe this site's models, not physical measurements.
 export const experimentGuides={
+  walk:{
+    title:'试试看 · 走四倍的步数，会散开四倍吗？',
+    values:{bias:0,seed:14},preset:'unbiased',
+    instructions:'载入 16 步起点，记下理论散开程度 4。点“比较 64 步”，步数变为四倍，理论值却只变成 8。实测有波动。再把偏向改为 25%，比较同样 64 步：点云中心向右移动，但点云仍然在散开。两个比较按钮都会重建同种子状态并暂停。'
+  },
   fractal:{
     title:'试试看 · 随机为什么留下空白？',
     values:{jump:50,seed:14},
