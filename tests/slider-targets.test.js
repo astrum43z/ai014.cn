@@ -29,3 +29,8 @@ test('every exhibit keeps the existing labeled native range inputs',()=>{
  assert.doesNotMatch(app,/role="slider"|tabindex="-1"[^>]*type="range"/);
  assert.ok(app.includes("c.sliders.forEach"),'existing input handlers remain in place');
 });
+
+test('the expanded focus outline stays inside the slider rather than covering its label',()=>{
+ assert.match(css,/input\[type=range\]:focus-visible\{outline-offset:-3px\}/);
+ assert.match(css,/input:focus-visible[^}]*outline:3px solid #ec8867/);
+});

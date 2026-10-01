@@ -192,6 +192,6 @@ Holding Enter or Space now toggles the selected cell only once, so the key-repea
 
 ## Easier parameter-slider targeting
 
-All ten parameter sliders keep their native range controls and now have a 44px-high input box on desktop, touch laptops, and narrow layouts. The top margin shrinks from 15px to 1px so the track stays at the same distance below its label; the hit area expands above and below it. Native dragging, keyboard arrows/Home/End, value ranges, focus outlines and experiment behavior are unchanged. This does not enlarge the track or thumb artwork, or add extra controls, event handlers, dependencies or saved state.
+All ten parameter sliders keep their native range controls and now have a 44px-high input box on desktop, touch laptops, and narrow layouts. The top margin shrinks from 15px to 1px so the track stays at the same distance below its label; the hit area expands above and below it. The existing focus outline is inset into the expanded input so it does not cover the label. Native dragging, keyboard arrows/Home/End, value ranges and experiment behavior are unchanged. This does not enlarge the track or thumb artwork, or add extra controls, event handlers, dependencies or saved state.
 
 `tests/slider-targets.test.js` guards the global input size, unchanged track center and native semantics. Browser QA also checks computed geometry and keyboard behavior at desktop and narrow widths; narrow browser zoom is not a physical touch-device test.
