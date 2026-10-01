@@ -218,7 +218,12 @@ if(mode==='wave'){
   announce(`已暂停；探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)}；${$('#observation-b').textContent}；${$('#observation-c').textContent}；${waveReading()}`);
   return;
 }
-if(mode!=='life')return;if(e.altKey||e.ctrlKey||e.metaKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){e.preventDefault();paused=true;updatePause();if(e.key==='ArrowLeft')focusCell.x=(focusCell.x+47)%48;if(e.key==='ArrowRight')focusCell.x=(focusCell.x+1)%48;if(e.key==='ArrowUp')focusCell.y=(focusCell.y+31)%32;if(e.key==='ArrowDown')focusCell.y=(focusCell.y+1)%32;if(e.key==='Enter'||e.key===' '){lifeTrial=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}draw();announce('已暂停；'+lifeReading());}});
+if(mode!=='life')return;if(e.altKey||e.ctrlKey||e.metaKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){
+e.preventDefault();
+// A held toggle key must not repeatedly erase and repaint the same cell.
+// Arrow repeats remain useful for moving across the board.
+if(e.repeat&&(e.key==='Enter'||e.key===' '))return;
+paused=true;updatePause();if(e.key==='ArrowLeft')focusCell.x=(focusCell.x+47)%48;if(e.key==='ArrowRight')focusCell.x=(focusCell.x+1)%48;if(e.key==='ArrowUp')focusCell.y=(focusCell.y+31)%32;if(e.key==='ArrowDown')focusCell.y=(focusCell.y+1)%32;if(e.key==='Enter'||e.key===' '){lifeTrial=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}draw();announce('已暂停；'+lifeReading());}});
 
 const lifeOutcomes={
  born:['诞生','空格恰有 3 个活邻居，下一代变活'],
