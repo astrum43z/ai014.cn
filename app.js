@@ -261,7 +261,7 @@ function returnLifeDrawing(){
  if(mode!=='life'||!lifeTrial)return;
  cancelPainting();paused=true;acc=0;updatePause();
  ({cells,generation,lifeHistory,focusCell}=lifeTrial);lifeTrial=null;draw();
- canvas.focus({preventScroll:true});
+ canvas.scrollIntoView?.({block:'center'});canvas.focus({preventScroll:true});
  announce('已回到检验前的图案，可以修改；'+$('#life-test-result').textContent);
 }
 $('#life-test').addEventListener('click',testLifeDrawing);

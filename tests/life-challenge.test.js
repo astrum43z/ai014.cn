@@ -72,6 +72,26 @@ test('challenge is optional native disclosure with quiet results, visible replac
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8'),css=await readFile(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<details id="life-challenge" class="life-challenge" hidden><summary>/);assert.doesNotMatch(html,/<details id="life-challenge"[^>]* open/);
  assert.match(html,/id="life-test-result" aria-live="off"/);assert.match(html,/id="life-challenge-start" aria-describedby="life-challenge-replaces"/);assert.match(html,/会替换画布/);
- assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-challenge"'));assert.ok(html.includes('app.js?v=life-challenge-1'));assert.ok(html.includes('style.css?v=life-challenge-1'));
+ assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-challenge"'));assert.ok(html.includes('app.js?v=life-return-1'));assert.ok(html.includes('style.css?v=life-challenge-1'));
  assert.match(css,/\.life-challenge summary:focus-visible/);assert.match(css,/\.life-challenge-actions\{display:flex;flex-wrap:wrap/);assert.match(css,/\.life-challenge-actions button\{[^}]*min-height:44px/);
+});
+
+test('return to editing reveals the restored canvas before focusing it without extra scroll',async()=>{
+ for(const reducedMotion of [false,true]){
+  const h=await setup('?experiment=life','',reducedMotion);draw(h);
+  click(h,'step');click(h,'step');
+  const before=h.drawing(),metrics=h.el('metrics').textContent,position=h.el('life-cell-position').textContent;
+  click(h,'life-test');
+  const actions=[];
+  h.el('canvas').scrollIntoView=options=>actions.push(['scroll',options,h.el('metrics').textContent]);
+  h.el('canvas').focus=options=>actions.push(['focus',options]);
+  click(h,'life-return');
+  assert.deepEqual(actions,[['scroll',{block:'center'},metrics],['focus',{preventScroll:true}]]);
+  assert.deepEqual(h.drawing(),before);assert.equal(h.el('metrics').textContent,metrics);
+  assert.equal(h.el('life-cell-position').textContent,position);assert.equal(h.frames.size,0);
+  assert.equal(h.el('life-return').hidden,true);assert.equal(h.el('life-test').disabled,false);
+  // A stale/repeated activation must not move the reader or replace a later edit.
+  h.key('Enter');const edited=h.drawing();actions.length=0;click(h,'life-return');
+  assert.deepEqual(actions,[]);assert.deepEqual(h.drawing(),edited);
+ }
 });
