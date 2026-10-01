@@ -177,3 +177,9 @@ The main board shows the tested next generation. Orange crosses mark deaths, blu
 ## Return to Life editing in view
 
 After a challenge test, “返回修改” restores the original drawing and brings the canvas back into view before focusing it. This matters on narrow or zoomed layouts, where the challenge buttons can be a full screen below the drawing. The scroll uses the same centered behavior as the blank start and respects the existing reduced-motion CSS. The paused state, generation, inspected cell, trial history, and invalidation rules are unchanged; repeated or stale return actions do not move the page.
+
+## Orbit: preview before launch
+
+Pausing reveals a dashed 10-second path from the hollow next-launch marker. A square marks the predicted endpoint, and quiet text supplies its coordinates and distance from the center. Existing arrow keys, Home and the speed/gravity sliders update the path before Enter/Space or a tap adds a planet. No new control or autoplay is introduced. The drawing has its own canvas legend so PNG snapshots distinguish the preview from actual planet trails.
+
+The preview uses a temporary copy of the launch state and exactly 1,000 steps of the existing softened-gravity `orbitStep` at 0.01 seconds, matching 100 manual advances. It does not advance time, add a planet, mutate existing bodies, or record a trail. It assumes constant gravity and shows a finite numerical segment, not a complete orbit or an escape classification; an offscreen endpoint is still reported in text. Real-time animation uses its existing frame-dependent integration steps, so it can differ slightly. One cached path of 201 points is reused until launch coordinates, gravity or launch speed changes. Running, invalid center placement and the 24-planet cap hide the preview; pausing, reset, guided starts and returning to the tab restore the appropriate one. Orbit sharing remains parameter-only.

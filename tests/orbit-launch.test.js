@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {orbitLaunchState,clampOrbitPoint} from '../orbit.js';
+import {createOrbitPreview} from '../orbit-preview.js';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-9,`${a} ≈ ${b}`);
 
 test('launch speed is the circular reference times percentage, with a tangential velocity',()=>{
@@ -37,16 +38,16 @@ test('keyboard placement fits the full marker and arrow in desktop and phone can
 
 let instance=0;
 async function setup(reduced=false){
- const frames=new Map(),els=new Map(),noop=()=>{};let frameId=0,arcs=[],resize,width=600,height=414;
- const ctx=new Proxy({clearRect:()=>arcs=[],arc:(x,y,r)=>arcs.push({x,y,r}),createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});
+ const frames=new Map(),els=new Map(),noop=()=>{};let frameId=0,arcs=[],labels=[],resize,motionChange,width=600,height=414;
+ const ctx=new Proxy({clearRect:()=>{arcs=[];labels=[];},fillText:text=>labels.push(text),arc:(x,y,r)=>arcs.push({x,y,r}),createRadialGradient:()=>({addColorStop:noop})},{get:(t,k)=>t[k]||noop,set:(t,k,v)=>(t[k]=v,true)});
  function el(id){if(!els.has(id))els.set(id,{id,value:'',textContent:'',hidden:false,handlers:{},dataset:{},classList:{toggle:noop},setAttribute:noop,focus:noop,select:noop,append:noop,remove:noop,click:noop,addEventListener(n,f){this.handlers[n]=f},getBoundingClientRect:()=>({width,height,left:0,top:0}),getContext:()=>ctx,setPointerCapture:noop,toBlob:f=>f(new Blob(['png']))});return els.get(id);}
  const tabs=['orbit','life','wave','fractal','walk'].map(mode=>{const t=el('tab-'+mode);t.dataset.mode=mode;return t;});
  globalThis.document={querySelector:s=>el(s.slice(1)),querySelectorAll:()=>tabs,createElement:()=>el('generated'),body:{append:noop},hidden:false,addEventListener:noop};
- globalThis.matchMedia=()=>({matches:reduced});globalThis.location={search:'',hash:'',href:'https://example.org/'};globalThis.history={replaceState:noop};globalThis.addEventListener=noop;globalThis.devicePixelRatio=1;
+ globalThis.matchMedia=()=>({matches:reduced,addEventListener:(event,fn)=>motionChange=fn});globalThis.location={search:'',hash:'',href:'https://example.org/'};globalThis.history={replaceState:noop};globalThis.addEventListener=noop;globalThis.devicePixelRatio=1;
  globalThis.requestAnimationFrame=cb=>{frames.set(++frameId,cb);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);
  globalThis.IntersectionObserver=class{observe(){}};globalThis.ResizeObserver=class{constructor(cb){resize=cb;}observe(){}};
  await import('../app.js?orbit-launch-test='+instance++);
- return {el,frames,key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra}),planets:()=>arcs.filter(a=>Math.abs(a.r-4.5/(Math.min(width,height)/450))<1e-8),resize:(w,h)=>{width=w;height=h;resize();}};
+ return {el,frames,previewDrawn:()=>labels.includes('下一颗 · 10 s 预演'),motion:matches=>motionChange({matches}),key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra}),planets:()=>arcs.filter(a=>Math.abs(a.r-4.5/(Math.min(width,height)/450))<1e-8),resize:(w,h)=>{width=w;height=h;resize();}};
 }
 
 test('keyboard chooses a visible paused launch position without adding planets or advancing time',async()=>{
@@ -110,4 +111,70 @@ test('launcher is a quiet labeled reading with direction, units and keyboard gui
  assert.match(panel,/aria-labelledby="orbit-launch-title"/);assert.doesNotMatch(panel,/aria-live|role="status"|<button/);
  for(const id of ['position','speed','launch-note'])assert.ok(panel.includes('id="orbit-'+id+'"'));
  assert.match(panel,/方向键每次移动 5/);assert.match(panel,/Enter 或空格/);assert.match(panel,/模型单位/);
+});
+
+test('pause shows a labeled next-launch preview without advancing time; resume clears it immediately',async()=>{
+ const h=await setup();const metrics=h.el('metrics').textContent,planets=h.planets();
+ assert.equal(h.previewDrawn(),false);assert.equal(h.el('orbit-preview-reading').hidden,true);
+ assert.match(h.el('orbit-launch-note').textContent,/暂停可看/);
+ h.el('pause').handlers.click();assert.equal(h.previewDrawn(),true);
+ assert.equal(h.el('orbit-preview-reading').hidden,false);assert.match(h.el('orbit-preview-reading').textContent,/预演 10 秒后/);
+ assert.match(h.el('announcement').textContent,/预演 10 秒后/);
+ assert.equal(h.el('metrics').textContent,metrics);assert.deepEqual(h.planets(),planets);assert.equal(h.frames.size,0);
+ h.el('pause').handlers.click();assert.equal(h.previewDrawn(),false);assert.equal(h.el('orbit-preview-reading').hidden,true);
+ assert.equal(h.el('orbit-preview-reading').textContent,'');assert.equal(h.frames.size,1);
+ h.motion(true);assert.equal(h.previewDrawn(),true);assert.equal(h.frames.size,0);
+ h.motion(false);assert.equal(h.previewDrawn(),true);assert.equal(h.frames.size,0);
+});
+
+test('preview responds to every launch input while existing planets and time stay fixed',async()=>{
+ const h=await setup(true),planets=h.planets(),metrics=h.el('metrics').textContent;
+ let previous=h.el('orbit-preview-reading').textContent;
+ for(const [id,value] of [['speed','65'],['gravity','120'],['speed','150']]){
+  h.el(id).handlers.input({target:{value}});const next=h.el('orbit-preview-reading').textContent;
+  assert.notEqual(next,previous);previous=next;assert.equal(h.previewDrawn(),true);
+  assert.deepEqual(h.planets(),planets);assert.equal(h.el('metrics').textContent,metrics);
+ }
+ h.key('ArrowDown');assert.notEqual(h.el('orbit-preview-reading').textContent,previous);
+ assert.equal(h.frames.size,0);assert.deepEqual(h.planets(),planets);
+});
+
+test('a real launch lands at the preview endpoint after 100 manual advances',async()=>{
+ const h=await setup(true);h.el('speed').handlers.input({target:{value:'65'}});
+ h.key('ArrowUp');const expected=createOrbitPreview()({x:140,y:-5},80000,65);
+ h.key('Enter');assert.match(h.el('metrics').textContent,/4 颗/);
+ for(let n=0;n<100;n++)h.el('step').handlers.click();
+ const body=h.planets().at(-1);near(body.x,expected.end.x);near(body.y,expected.end.y);
+ assert.equal(h.previewDrawn(),true,'this remains the next launch, not a prediction for the current body');
+ assert.match(h.el('metrics').textContent,/t \+ 10.0 s/);
+});
+
+test('center and cap hide the preview and restarting restores it; repeated actions stay bounded',async()=>{
+ const h=await setup(true);for(let i=0;i<28;i++)h.key('ArrowLeft');
+ assert.equal(h.previewDrawn(),false);assert.equal(h.el('orbit-preview-reading').hidden,true);
+ h.key('Home');assert.equal(h.previewDrawn(),true);
+ for(let i=0;i<24;i++)h.key('Enter');assert.equal(h.previewDrawn(),false);assert.equal(h.el('orbit-preview-reading').hidden,true);
+ h.el('reset').handlers.click();assert.equal(h.previewDrawn(),true);
+ for(let i=0;i<5;i++){h.el('pause').handlers.click();h.el('pause').handlers.click();assert.equal(h.previewDrawn(),true);}
+ assert.match(h.el('metrics').textContent,/3 颗/);assert.equal(h.frames.size,0);
+});
+
+test('preview survives tab returns, resize and guide resets without leaking into other exhibits',async()=>{
+ const h=await setup(true);h.key('ArrowUp');const old=h.el('orbit-preview-reading').textContent;
+ for(const mode of ['life','wave','fractal','walk']){
+  h.el('tab-'+mode).handlers.click();assert.equal(h.previewDrawn(),false);
+ }
+ h.el('tab-orbit').handlers.click();assert.equal(h.previewDrawn(),true);assert.equal(h.el('orbit-preview-reading').textContent,old);
+ h.resize(284,240);assert.equal(h.previewDrawn(),true);assert.equal(h.el('orbit-preview-reading').textContent,old);
+ h.el('guide-start').handlers.click();assert.equal(h.previewDrawn(),true);assert.equal(h.frames.size,0);
+ assert.match(h.el('orbit-position').textContent,/140.0，y 0.0/);
+ for(const name of ['elliptic','escape','circular']){h.el('preset-select').handlers.change({target:{value:name}});assert.equal(h.previewDrawn(),true);}
+});
+
+test('preview remains a quiet reading and makes its finite constant-gravity limit explicit',async()=>{
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ const panel=html.match(/<section id="orbit-launch".*?<\/section>/s)[0];
+ assert.match(panel,/id="orbit-preview-reading" hidden/);assert.match(panel,/预演不添加行星/);
+ assert.doesNotMatch(panel,/aria-live|role="status"|<button/);
+ const h=await setup(true);assert.match(h.el('orbit-launch-note').textContent,/10 秒.*方框.*引力不变.*不代表逃逸/);
 });
