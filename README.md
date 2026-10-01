@@ -26,6 +26,8 @@ Life drawing tracks one primary pointer. Crossing into another cell paints a con
 
 Legacy parameter links still open every experiment with validated sliders. Orbit and Life links remain explicitly parameter-only: they do not include drawings, trajectories, presets, or running progress. Wave, fractal, and random-walk sharing now saves a reproducible observation, as described below. Back/Forward restores changed settings or observation checkpoints; anchor-only navigation keeps current work intact.
 
+Sharing shows a visible copying result beside the selectable link. When clipboard access is unavailable or fails, the same link stays focused and selected with a manual-copy instruction. Pending copies also allow manual recovery. Retrying replaces the result; late callbacks cannot overwrite a newer attempt, changed parameters, or a different/returned tab. Changing the displayed link clears obsolete copy feedback. The existing polite action region speaks each current terminal result without an additional live region. Continuing an observation keeps its shared link as a fixed checkpoint, as before.
+
 ## Guided experiments
 
 Each “try this” card provides a reproducible, paused starting point and specific observations: change gravity while retaining orbital velocity, discover a Life blinker’s two-generation period, and compare a half-wavelength wave path difference with the central axis. Loading clearly replaces the current canvas and settings, resets progress, synchronizes controls and parameter links, and never overrides reduced-motion with autoplay. Wave observations can include the guide’s probe. Life links remain parameter-only and do not include the guide’s pattern.

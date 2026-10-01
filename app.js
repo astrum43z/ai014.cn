@@ -83,6 +83,7 @@ function changeMode(next,sharedValues=null,saved=null){
  }else{updatePause();reset();updateAddress();}
 }
 function updateAddress(observation=null){
+  clearShareStatus();
   addressObservation=writeObservation(mode,observation);
   history.replaceState(history.state,'','?'+serializeSettings(mode,values)+(addressObservation?'&'+addressObservation:'')+(['#lab','#about','#canvas','#observation-title','#discovery-title'].includes(location.hash)?location.hash:''));
   // A parameter edit starts a new exploration; don't leave an old observation
@@ -90,7 +91,16 @@ function updateAddress(observation=null){
   refreshShareLink();
   if(canShareObservation(mode)&&!observation)$('#share-link').hidden=true;
 }
-function refreshShareLink(){const input=$('#share-link');if(!input.hidden)input.value=location.href;}
+function refreshShareLink(){
+ const input=$('#share-link');
+ if(!input.hidden&&input.value!==location.href){clearShareStatus();input.value=location.href;}
+}
+let shareRequest=0;
+function clearShareStatus(){
+ shareRequest++;
+ $('#share-status').hidden=true;$('#share-status').textContent='';
+}
+function showShareStatus(message){$('#share-status').textContent=message;$('#share-status').hidden=false;}
 function renderSharing(){
   const supported=canShareObservation(mode);
   $('#share').textContent=supported?'暂停并分享此刻 ↗':'分享当前参数 ↗';
@@ -347,9 +357,15 @@ $('#share').addEventListener('click',async()=>{
  if(observation){paused=true;updatePause();draw();}
  updateAddress(observation);
  const input=$('#share-link');input.hidden=false;input.value=location.href;input.focus();input.select();
- const url=input.value,description=observation?'观测链接；打开后暂停复现这一刻':'参数链接；不包含画布图案、轨道或运行进度';
- try{await navigator.clipboard.writeText(url);if(mode===sharedMode&&input.value===url)announce('已复制'+description);}
- catch{if(mode===sharedMode&&input.value===url)announce('请复制下方'+description);}
+ const request=++shareRequest,url=input.value,description=observation?'观测链接；打开后暂停复现这一刻':'参数链接；不包含画布图案、轨道或运行进度';
+ showShareStatus('正在复制'+(observation?'观测':'参数')+'链接；也可手动复制下方链接。');
+ const finish=message=>{
+  // Ignore old attempts, including a tab round trip or a retry of the same URL.
+  if(request!==shareRequest||mode!==sharedMode||input.hidden||input.value!==url)return;
+  showShareStatus(message);announce(message);
+ };
+ try{await navigator.clipboard.writeText(url);finish('已复制'+description);}
+ catch{finish('自动复制未完成，请复制下方'+description);}
 });
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));
