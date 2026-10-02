@@ -58,7 +58,7 @@ function restoreExperiment(state){
  ({values,paused,t,acc,preset}=state);
  if(mode==='orbit'){({bodies,orbitPoint}=state);orbitPoint=clampOrbitPoint(orbitPoint,width,height);}
  if(mode==='life')({cells,generation,lifeHistory,focusCell,lifeTrial}=state);
- if(mode==='wave'){({probe,waveView}=state);waveView=waveView||{...probe};}
+ if(mode==='wave'){({probe,waveView}=state);fitWaveProbe();}
  if(mode==='fractal')fractal=state.fractal;
  if(mode==='walk')walk=state.walk;
 }
@@ -192,7 +192,12 @@ function restoreAddress(){
   if(['#home','#lab','#field-notes','#about'].includes(location.hash))$(location.hash).focus({preventScroll:true});
 }
 addEventListener('popstate',restoreAddress);
-function fit(){const rect=canvas.getBoundingClientRect();width=rect.width;height=rect.height;if(mode==='orbit')orbitPoint=clampOrbitPoint(orbitPoint,width,height);const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+function fit(){const rect=canvas.getBoundingClientRect();width=rect.width;height=rect.height;if(mode==='wave')fitWaveProbe();if(mode==='orbit')orbitPoint=clampOrbitPoint(orbitPoint,width,height);const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+// Fit the current measurement after a resize or tab return, without moving it.
+// Keep any wider shared view; normal probe movement must not continuously zoom.
+function fitWaveProbe(){
+ waveView={x:Math.max(Math.abs(waveView?.x||0),Math.abs(probe.x)),y:Math.max(Math.abs(waveView?.y||0),Math.abs(probe.y))};
+}
 function waveScale(){return Math.min(Math.min(width,height)/280,(width/2-18)/Math.max(1,Math.abs(waveView?.x||0)),(height/2-18)/Math.max(1,Math.abs(waveView?.y||0)));}
 function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)/r.width*width,y:(event.clientY-r.top)/r.height*height};}
 canvas.addEventListener('click',e=>{if(cancelledClickPointer!==null&&(e.pointerId===undefined||e.pointerId===cancelledClickPointer)){cancelledClickPointer=null;wasDragging=false;return;}if(mode==='life'&&wasDragging){wasDragging=false;return;}const p=coordinates(e);if(mode==='life'){const x=Math.min(47,Math.floor(p.x/width*48)),y=Math.min(31,Math.floor(p.y/height*32));lifeTrial=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());}if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=Math.min(width,height)/450;orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});

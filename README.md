@@ -315,3 +315,9 @@ The change reuses the existing reset, sampling and rendering path, preserving pa
 Holding Enter on the shared Pause/Continue button now changes motion state only once. Repeated native keydown activation can no longer undo a pause or keep stopping and restarting a continued simulation. Release and press again to toggle intentionally. The initial native activation, Space's release-to-activate behavior, pointer clicks, focus, Tab navigation, per-world pause memory and reduced-motion opt-in remain unchanged. No held-key state, timers or new controls are introduced.
 
 Five event-driven tests exercise both directions across all five worlds, shared checkpoints, reduced-motion changes, seeded progress limits, Life comparisons, fresh presses and tab returns. They model native Enter default activation and fail against the previous implementation. Public-browser keyboard checks are separate from physical-device and screen-reader testing.
+
+## Keep wave measurements visible while resizing
+
+A wave probe selected near a wide canvas edge now stays fully visible when the viewport narrows or the visitor zooms, including a resize while another world is active. The viewport includes the current probe with an 18-pixel margin without moving its model coordinates, advancing phase, changing pause state, rewriting a shared checkpoint, or adding announcements. A wider saved view remains intact; ordinary arrow/button movement still uses a stable field scale and existing bounds. Home, reset and presets release the expanded view as before.
+
+`tests/wave-resize.test.js` covers pointer and precision-selected probes, multiple aspect ratios, running/paused state, tab restoration, fixed shared links, ordinary movement bounds, and recovery to the default scale. These simulated resize tests complement public-browser zoom checks; physical device rotation is not claimed.
