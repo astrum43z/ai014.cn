@@ -422,3 +422,12 @@ A native “回到画布，继续实验” link immediately follows the paramete
 The link moves native focus and navigation to the current canvas. It does not restart, pause, step or change parameters; effects that apply only to the next launch or random sowing still work that way. Existing Back/Forward handling, per-world state and fixed observation checkpoints remain unchanged. No new JavaScript handler, animation, storage or dependency is added.
 
 `tests/parameter-return.test.js` checks native semantics and placement, responsive styling, all five worlds after parameter edits, running-state preservation, fixed checkpoints and Life clear recovery. Public cloud-browser checks cover keyboard/pointer return and Back/Forward at normal and zoomed widths; physical touch, device rotation and screen-reader speech are not claimed.
+
+
+## Read the exploration's current step
+
+Exploration steps now say “当前步骤” or “已完成” in visible text, and exactly the current list item exposes `aria-current="step"`. Visitors can identify progress without relying on bold text, color or a generated checkmark. Idle and upcoming steps retain their original action labels; the existing wrapping layout handles the longer completed/current labels. No extra keyboard stop or live region is added.
+
+The labels follow the existing checked milestones: only an explicit successful check advances a comparison, with Life's cleared starting board already marked complete. Growing a sample or changing a parameter does not claim an unchecked result. Completed steps remain historical after further experimentation, survive tab/anchor returns, and clear when a genuinely different URL starts a new experiment. Restart retains earlier notebook entries. Models, pause behavior, fixed shared observations, and the number of steps are unchanged.
+
+`tests/mission-progress.test.js` covers all five starts, failed/repeated checks, verified comparisons and completion, restarts, tab and history restoration, historical notes, fixed checkpoints, and quiet animation. Public cloud-browser checks cover visible/accessible wording and zoomed wrapping; physical touch, rotation and screen-reader speech remain unverified.

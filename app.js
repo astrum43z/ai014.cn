@@ -517,10 +517,16 @@ function renderMission(){
  $('#mission-state').textContent=complete?'已留下发现':run?'探索中':'可选探索';
  $('#mission-instruction').textContent=complete?activity.finding:run?(run.phase===0?activity.first:activity.second):activity.intro;
  for(let i=0;i<3;i++){
-  const step=$('#mission-step-'+i);step.textContent=activity.steps[i];
+  const step=$('#mission-step-'+i);
   const currentStep=mode==='life'?1:run?.phase||0;
-  step.setAttribute('data-current',String(Boolean(run)&&!complete&&i===currentStep));
-  step.setAttribute('data-done',String(complete||(Boolean(run)&&i<currentStep)));
+  const current=Boolean(run)&&!complete&&i===currentStep;
+  const done=complete||(Boolean(run)&&i<currentStep);
+  // State stays readable without relying on weight, color or generated symbols.
+  // These are checked milestones, not guesses based on the live canvas.
+  step.textContent=activity.steps[i]+(done?' · 已完成':current?' · 当前步骤':'');
+  step.setAttribute('aria-current',current?'step':'false');
+  step.setAttribute('data-current',String(current));
+  step.setAttribute('data-done',String(done));
  }
  $('#mission-start').textContent=run?'重新开始 ↺':'开始这次探索 ↗';
  $('#mission-start').setAttribute('data-restart',String(Boolean(run)));
