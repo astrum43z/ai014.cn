@@ -236,3 +236,6 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 /* Completed notes provide a non-destructive route back to each experiment. */
 .field-notes li button{margin-top:16px;min-height:44px;max-width:100%;padding:10px 14px;white-space:normal;background:#e6ecd8;color:var(--ink);border-color:#acbca4;font-size:13px;line-height:1.5}
+
+/* Keep discoveries beyond this page without storing them in the browser. */
+.notes-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin:18px 0 14px}.notes-actions button{min-height:44px;max-width:100%;background:#213b36;color:#f3f4ec;border-color:#213b36;font-size:13px;line-height:1.5;white-space:normal}.notes-actions small{font-size:12px;line-height:1.8;color:#52674d}#notes-save-status{margin:0 0 14px}

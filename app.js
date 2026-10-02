@@ -1,3 +1,4 @@
+import {saveFieldNotes} from './field-notes.js';
 import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-passport-1';
 import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
@@ -421,6 +422,7 @@ function inspectMission(fromCanvas=false){
  if(report.kind==='advance'){run.phase=1;run.baseline.evidence=report.evidence;}
  if(report.kind==='complete'){
   run.status='complete';fieldNotes.set(mode,report.note);
+  $('#notes-save-status').hidden=true;$('#notes-save-status').textContent='';
  }
  renderMission();
  announce(report.message);
@@ -429,6 +431,7 @@ function inspectMission(fromCanvas=false){
 }
 function renderFieldNotes(){
  const count=fieldNotes.size;
+ $('#notes-actions').hidden=count===0;
  $('#passport-count').textContent='本次发现 '+count+' / 5';$('#notes-count').textContent=count+' / 5';$('#notes-empty').hidden=count>0;
  $('#field-notes-list').innerHTML=[...fieldNotes].map(([name,note])=>`<li><span>✓ ${configs[name].title}</span><h3>${missions[name].finding}</h3><p>${note}</p><button data-return-world="${name}" aria-label="回到这个世界：${configs[name].title}，保留当前进度" aria-describedby="notes-return-help">回到这个世界 ↑</button></li>`).join('');
  for(const name of Object.keys(configs)){
@@ -437,6 +440,16 @@ function renderFieldNotes(){
 }
 // Notes describe past findings; returning opens the current in-memory world,
 // never a replacement guide or a replay of the historical observation.
+$('#notes-save').addEventListener('click',()=>{
+ const notes=[...fieldNotes].map(([name,note])=>({title:configs[name].title,finding:missions[name].finding,note}));
+ saveFieldNotes(notes,{document,report:message=>{
+  $('#notes-save-status').textContent=message;$('#notes-save-status').hidden=false;announce(message);
+ }});
+});
+// One held Enter should not start a stream of identical downloads.
+$('#notes-save').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 $('#field-notes-list').addEventListener('click',event=>{
  const button=event.target.closest?.('[data-return-world]');
  const next=button?.dataset.returnWorld;
