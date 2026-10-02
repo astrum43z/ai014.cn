@@ -247,3 +247,9 @@ The B3/S23 rules, current drawing, completed-generation count, manual step, rese
 Leaving the browser window or hiding the page now ends any unfinished Life drawing gesture while keeping its already painted cells. Returning cannot extend the old stroke or turn a trailing release into a new tap. A move reporting that the primary button is no longer held also cancels, including multi-button mouse releases where another button remains down. A fresh tap or drag starts normally, even with the same pointer ID.
 
 Completed strokes keep their click-suppression guard, ordinary visibility notifications do not interrupt a visible drawing, and secondary pointers cannot cancel the owning pointer. These safeguards do not reset a board, discard a completed challenge, change simulation timing, or add controls. Six event-driven regression cases cover interruptions, trailing events, repeated interruption, hover, button combinations and recovery; actual device and operating-system event ordering can differ.
+
+## Avoid redundant live-reading text replacements
+
+Animation readouts now compare their next text with the current DOM before setting it. Unchanged Orbit launch instructions, Wave path measurements, and shared observation explanations keep their text nodes; changed numeric readings, paused previews, probe movement, presets, resets, tab returns, and history navigation still refresh normally. There is no additional state cache, changed physics, animation cadence, layout, or live-announcement behavior.
+
+An event-driven 120-frame test eliminates 960 redundant static-text assignments in Orbit and 1,080 in Wave while verifying that dynamic readings keep changing. Tests also cover paused redraws, edits, all five tabs, and history restoration. These are deterministic DOM-write counts, not measured browser FPS, battery, or screen-reader improvements.
