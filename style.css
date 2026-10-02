@@ -25,6 +25,7 @@ canvas{height:clamp(240px,42vh,420px);min-height:240px;flex:none}
 .stage-controls{display:flex;flex-wrap:wrap;gap:8px;padding:12px 18px;background:#e6ecd8;border-top:1px solid #345046}
 .stage-controls button{flex:1;min-width:90px;font-size:12px;border-color:#acbca4;background:var(--white)}
 .stage-controls button.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.stage-controls button[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 .stage .walk-comparison{margin:0;padding:12px 18px;background:#1b3931;color:#d9e4cf;border-top:1px solid #345046}
 .stage .walk-comparison>span{font-size:10px}.stage .walk-comparison .button-row{display:inline-flex;margin:0 0 0 14px;gap:8px}
 .stage .walk-comparison button{background:#e6ecd8;min-height:44px;white-space:nowrap}

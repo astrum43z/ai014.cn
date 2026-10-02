@@ -453,3 +453,10 @@ Starting Life's “前进一代并对比” transfers keyboard focus to “返�
 Fractal's three one-point controls and Walk's two one-step controls now ignore repeated Enter keydowns. A held activation therefore retains the single point or step being inspected instead of silently skipping through the seeded sequence. Fresh Enter presses, native Space activation and clicks still use the same exact replay actions; batch stepping and directional movement remain unchanged. No timers, held-key state, model changes or new controls are introduced.
 
 `tests/replay-key.test.js` covers all five controls from running and paused starts, exact seeded return, both bounds and focus retention, shared checkpoints, tab/history/resize restoration, ordinary input and discovery boundaries. The skip was reproduced in the public cloud browser: holding Enter for 1.2 seconds on “只添一点 +1” advanced 15 points. Real-device touch and screen-reader speech remain outside these checks.
+
+
+## Recognize completed simulation limits
+
+At the 12,000-point fractal cap or 512-step walk cap, the main Continue and batch Step controls now expose `aria-disabled="true"` and use the same legible unavailable colors as the exact-step controls. They keep their native keyboard focus and refer to the existing adjacent limit reading, which explains how to rewind or reset. Activating the capped batch step does not redraw, change a checkpoint, or schedule animation. Continue retains its existing spoken explanation of the limit.
+
+Availability is derived from the current model when drawing, so exact or batch advancement, animation, direct observation links, history restoration and tab return agree. Rewinding, comparison checkpoints, resets, parameter changes, presets and guided starts restore availability immediately. Orbit, Life and wave controls remain usable; the wave step keeps its quarter-cycle description. There are no new controls, live regions, model rules, storage or dependencies. `tests/progress-limit.test.js` covers caps, focus preservation, inert repetition and all recovery paths. Physical screen-reader speech remains unverified.
