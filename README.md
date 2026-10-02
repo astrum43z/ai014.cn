@@ -321,3 +321,11 @@ Five event-driven tests exercise both directions across all five worlds, shared 
 A wave probe selected near a wide canvas edge now stays fully visible when the viewport narrows or the visitor zooms, including a resize while another world is active. The viewport includes the current probe with an 18-pixel margin without moving its model coordinates, advancing phase, changing pause state, rewriting a shared checkpoint, or adding announcements. A wider saved view remains intact; ordinary arrow/button movement still uses a stable field scale and existing bounds. Home, reset and presets release the expanded view as before.
 
 `tests/wave-resize.test.js` covers pointer and precision-selected probes, multiple aspect ratios, running/paused state, tab restoration, fixed shared links, ordinary movement bounds, and recovery to the default scale. These simulated resize tests complement public-browser zoom checks; physical device rotation is not claimed.
+
+## Resize the view, keep the orbit launch
+
+Narrowing the viewport or zooming no longer moves a selected orbit launch point or changes its speed and ten-second prediction. The view fits the marker and its direction arrow with the same 34-pixel margin used by precision placement. Current planets, elapsed time, pause state and parameter links are preserved, including when the viewport changes while another world is active.
+
+Pointer launches, precision buttons and canvas keys use the same displayed scale. Directional movement retains a stable, bounded view rather than continually zooming out. Home, reset, presets, guided starts and new URL settings return to the normal view. Existing planets remain free to leave the screen; fitting is for the next launch point, not a change to the gravity model.
+
+`tests/orbit-resize.test.js` covers all pointer quadrants, narrow/tall/fractional canvas sizes, tab restoration, unchanged readings and bodies, exact five-unit movement, bounded repeats, launch-to-preview agreement after resizing, resets and launch limits. Public cloud-browser zoom checks complement these deterministic tests; physical-device rotation and screen-reader speech are not claimed.

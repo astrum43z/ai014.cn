@@ -61,7 +61,7 @@ test('keyboard chooses a visible paused launch position without adding planets o
  assert.match(h.el('orbit-position').textContent,/x 140.0，y 0.0/);
  for(let i=0;i<200;i++){h.key('ArrowRight');h.key('ArrowDown');}
  assert.match(h.el('orbit-position').textContent,/x 289.1，y 188.0/);
- h.resize(284,240);assert.match(h.el('orbit-position').textContent,/x 202.5，y 161.3/);
+ h.resize(284,240);assert.match(h.el('orbit-position').textContent,/x 289.1，y 188.0/);
  h.key('Home');assert.match(h.el('orbit-position').textContent,/x 140.0，y 0.0/);
 });
 test('Enter and Space launch one planet, held keys do not repeat, and the cap is preserved',async()=>{

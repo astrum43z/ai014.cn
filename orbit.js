@@ -11,8 +11,8 @@ export function orbitLaunchState({x,y},gravity,speedPercent){
 
 // Keep the keyboard marker and its fixed-length direction arrow on screen.
 // This only limits placement; existing planets remain free to leave the view.
-export function clampOrbitPoint(point,width,height){
- const scale=Math.min(width,height)/450;
+// A fitted view may use a wider scale after a responsive resize.
+export function clampOrbitPoint(point,width,height,scale=Math.min(width,height)/450){
  if(!(scale>0))return {...point};
  const maxX=Math.max(0,(width/2-34)/scale),maxY=Math.max(0,(height/2-34)/scale);
  return {x:Math.max(-maxX,Math.min(maxX,point.x)),y:Math.max(-maxY,Math.min(maxY,point.y))};
