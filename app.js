@@ -158,6 +158,9 @@ function renderOrbitLaunch(){
  $('#orbit-preview-reading').hidden=!prediction;
  $('#orbit-preview-reading').textContent=prediction?`预演 10 秒后：x ${prediction.end.x.toFixed(1)}，y ${prediction.end.y.toFixed(1)} · 距中心 ${Math.hypot(prediction.end.x,prediction.end.y).toFixed(1)}`:'';
  $('#orbit-launch-note').textContent=bodies.length>=24?'已达到 24 颗上限，请先重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。';
+ $('#orbit-touch-reading').textContent=$('#orbit-position').textContent+'；'+$('#orbit-speed').textContent;
+ $('#orbit-touch-status').textContent=$('#orbit-launch-note').textContent;
+ $('#orbit-fire').disabled=!launch.valid||bodies.length>=24;
 }
 function launchOrbit(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -166,6 +169,27 @@ function launchOrbit(){
  bodies.push({...orbitPoint,vx:launch.vx,vy:launch.vy,trail:[],color:palette[bodies.length%palette.length]});
  draw();announce(`已添加第 ${bodies.length} 颗行星；`+orbitLaunchReading());
 }
+// Buttons and canvas keys share positioning, pause, bounds and launch semantics.
+function orbitCommand(key){
+ if(mode!=='orbit')return;
+ paused=true;updatePause();
+ if(key==='Enter'||key===' '){launchOrbit();return;}
+ if(key==='Home')orbitPoint={x:140,y:0};
+ else{
+  if(key==='ArrowLeft')orbitPoint.x-=5;
+  if(key==='ArrowRight')orbitPoint.x+=5;
+  if(key==='ArrowUp')orbitPoint.y-=5;
+  if(key==='ArrowDown')orbitPoint.y+=5;
+ }
+ orbitPoint=clampOrbitPoint(orbitPoint,width,height);draw();announce('已暂停；'+orbitLaunchReading());
+}
+for(const [id,key] of [['orbit-left','ArrowLeft'],['orbit-up','ArrowUp'],['orbit-down','ArrowDown'],['orbit-right','ArrowRight'],['orbit-home','Home'],['orbit-fire','Enter']]){
+ $('#'+id).addEventListener('click',()=>orbitCommand(key));
+}
+// Native buttons can repeat activation while Enter is held, just like canvas keys.
+$('#orbit-fire').addEventListener('keydown',e=>{
+ if(e.repeat&&(e.key==='Enter'||e.key===' '))e.preventDefault();
+});
 function orbitPrediction(){
  return paused&&bodies.length<24?getOrbitPreview(orbitPoint,values.gravity*1000,values.speed):null;
 }
@@ -200,16 +224,7 @@ if(mode==='orbit'){
  e.preventDefault();
  // A held launch key must not fill all remaining planet slots.
  if(e.repeat&&(e.key==='Enter'||e.key===' '))return;
- paused=true;updatePause();
- if(e.key==='Enter'||e.key===' '){launchOrbit();return;}
- if(e.key==='Home')orbitPoint={x:140,y:0};
- else{
-  if(e.key==='ArrowLeft')orbitPoint.x-=5;
-  if(e.key==='ArrowRight')orbitPoint.x+=5;
-  if(e.key==='ArrowUp')orbitPoint.y-=5;
-  if(e.key==='ArrowDown')orbitPoint.y+=5;
- }
- orbitPoint=clampOrbitPoint(orbitPoint,width,height);draw();announce('已暂停；'+orbitLaunchReading());return;
+ orbitCommand(e.key);return;
 }
 if(mode==='fractal'){
  if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey||e.key!=='ArrowRight')return;
@@ -383,7 +398,7 @@ function renderMission(){
  $('#mission-next').hidden=!complete;
  $('#mission-next').textContent='下一个发现 · '+configs[discoveries[mode].next].title+' ↗';
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
- $('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
+ $('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
  $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开最后一步的随机落点',walk:'一位漫步者的路程与位移'}[mode];
  renderFieldNotes();
 }
