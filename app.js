@@ -483,6 +483,11 @@ function touchLife(dx,dy,toggle=false){
 }
 for(const [id,dx,dy] of [['left',-1,0],['right',1,0],['up',0,-1],['down',0,1]])$('#life-'+id).addEventListener('click',()=>touchLife(dx,dy));
 $('#life-toggle').addEventListener('click',()=>touchLife(0,0,true));
+// Native Enter repeats would undo the cell just painted. Keep the initial
+// click and Space's native keyup activation, with no separate held-key state.
+$('#life-toggle').addEventListener('keydown',e=>{
+ if(e.repeat&&e.key==='Enter')e.preventDefault();
+});
 
 $('#preset-select').addEventListener('change',e=>applyPreset(e.target.value));
 $('#preset').addEventListener('click',()=>{preset=(preset+1)%presets[mode].length;$('#preset-select').value=presets[mode][preset][1];applyPreset(presets[mode][preset][1]);});

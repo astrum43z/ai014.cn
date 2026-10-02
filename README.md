@@ -267,3 +267,10 @@ The point bounds, exact seeded coordinates, 100-point control, canvas shortcuts,
 The near-canvas “只走一步 +1” and “从标记处发射” buttons stay in the keyboard sequence when unavailable. Reaching 512 walk steps or launching the 24th planet no longer drops the initiating button's focus to the page root. The same applies to a launch marker inside the central exclusion zone. Current readings explain the boundary, and `aria-disabled` with muted colors preserves the normal focus outline. Unavailable button activation does nothing, including no repeated announcement, redraw, model update, pause change or URL change. Comparison, reset or moving to a valid launch position restores availability as appropriate.
 
 This extends the existing fractal boundary behavior to the remaining precision actions. Canvas launch guidance and keyboard shortcuts, seeded walks, physical limits, tab memory and observation links are unchanged. Deterministic tests cover repeated activation, animation reaching the limit, tab return, reset and history. Public cloud-browser keyboard verification is separate from real-device touch and screen-reader speech, which remain unverified.
+
+
+## Life precision toggle: one edit per Enter press
+
+Holding Enter on “点亮所选格 / 熄灭所选格” no longer repeatedly undoes and reapplies the same cell. The first native activation still pauses and edits once; releasing and pressing again edits again. Space retains its native release-to-activate behavior, and pointer taps, focus, Tab navigation, directional controls and canvas shortcuts stay unchanged. The handler only prevents repeated Enter default activation, so there is no held-key state to get stuck after focus or tab changes.
+
+Four event-driven tests cover repeats, fresh presses, unchanged challenge comparisons, native-key pass-through, independent clicks, tab return, reset and history. Three regression cases fail against the previous implementation. Public cloud-browser keyboard checks separately exercise native repeated-key activation; physical mobile input and screen-reader speech remain unverified.
