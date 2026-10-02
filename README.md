@@ -18,6 +18,10 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Return from a discovery note
+
+Every completed note has a keyboard- and touch-accessible return button. It opens that world’s current in-memory canvas, parameters, pause state, and checkpoint, scrolls to the experiment and focuses the canvas. It never restarts a guide or rewinds to the historical note. Returning to the active world is equally non-destructive. Notes explain this distinction and remain page-only.
+
 ### Replay a fractal jump
 
 Near-canvas previous/next controls pause and inspect individual seeded jumps without opening the instrument drawer. Going back replays the same seed and ratio to exactly one fewer point; stepping forward restores the identical jump. The lower bound is the existing 300-point start, preserving shared-observation compatibility; the upper bound remains 12,000. Quiet readings and disabled boundary controls follow animation, parameter changes, checkpoints and tab restoration. Moving through points does not rewrite a previously shared checkpoint or automatically complete a discovery.

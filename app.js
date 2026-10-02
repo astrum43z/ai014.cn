@@ -419,11 +419,22 @@ function inspectMission(fromCanvas=false){
 function renderFieldNotes(){
  const count=fieldNotes.size;
  $('#passport-count').textContent='本次发现 '+count+' / 5';$('#notes-count').textContent=count+' / 5';$('#notes-empty').hidden=count>0;
- $('#field-notes-list').innerHTML=[...fieldNotes].map(([name,note])=>`<li><span>✓ ${configs[name].title}</span><h3>${missions[name].finding}</h3><p>${note}</p></li>`).join('');
+ $('#field-notes-list').innerHTML=[...fieldNotes].map(([name,note])=>`<li><span>✓ ${configs[name].title}</span><h3>${missions[name].finding}</h3><p>${note}</p><button data-return-world="${name}" aria-label="回到这个世界：${configs[name].title}，保留当前进度" aria-describedby="notes-return-help">回到这个世界 ↑</button></li>`).join('');
  for(const name of Object.keys(configs)){
   $('#seal-'+name).hidden=!fieldNotes.has(name);$('#tab-'+name).setAttribute('data-discovered',String(fieldNotes.has(name)));
  }
 }
+// Notes describe past findings; returning opens the current in-memory world,
+// never a replacement guide or a replay of the historical observation.
+$('#field-notes-list').addEventListener('click',event=>{
+ const button=event.target.closest?.('[data-return-world]');
+ const next=button?.dataset.returnWorld;
+ if(!fieldNotes.has(next))return;
+ selectTab(next);
+ $('#panel').scrollIntoView?.({block:'start'});
+ canvas.focus({preventScroll:true});
+ announce('已回到'+configs[mode].title+'；保留当前画布与参数，发现笔记仍是完成时的记录；'+(paused?'已暂停':'继续运行'));
+});
 $('#mission-start').addEventListener('click',()=>startMission());
 $('#mission-check').addEventListener('click',()=>inspectMission());
 $('#mission-check-inline').addEventListener('click',()=>inspectMission(true));

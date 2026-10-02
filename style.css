@@ -233,3 +233,6 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .fractal-touch button:disabled{opacity:.55;cursor:not-allowed}
 .fractal-touch small{display:block;color:#b7cbae;font-size:12px;line-height:1.6}
 @media(max-width:720px){.fractal-touch{padding:12px}}
+
+/* Completed notes provide a non-destructive route back to each experiment. */
+.field-notes li button{margin-top:16px;min-height:44px;max-width:100%;padding:10px 14px;white-space:normal;background:#e6ecd8;color:var(--ink);border-color:#acbca4;font-size:13px;line-height:1.5}
