@@ -121,7 +121,7 @@ test('undo is a quiet described native button near Clear with a wrapping 44px ta
  assert.match(html,/<p id="life-clear-status" class="life-clear-status" aria-live="off" hidden>/);
  assert.ok(html.indexOf('id="clear"')<html.indexOf('id="life-undo-clear"'));
  assert.ok(html.indexOf('id="life-undo-clear"')<html.indexOf('id="life-touch"'));
- assert.ok(html.includes('app.js?v=wave-color-key-1'));assert.ok(html.includes('style.css?v=wave-color-key-1'));
+ assert.ok(html.includes('app.js?v=life-pointer-geometry-1'));assert.ok(html.includes('style.css?v=wave-color-key-1'));
  const css=await readFile(new URL('../style.css',import.meta.url),'utf8');
  assert.match(css,/#life-undo-clear\{min-height:44px;white-space:normal\}/);
  assert.match(css,/#life-undo-clear\[aria-disabled="true"\]/);assert.match(css,/\.life-clear-status\{[^}]*overflow-wrap:anywhere/);

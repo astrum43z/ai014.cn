@@ -194,7 +194,7 @@ function restoreAddress(){
   if(['#home','#lab','#field-notes','#about'].includes(location.hash))$(location.hash).focus({preventScroll:true});
 }
 addEventListener('popstate',restoreAddress);
-function fit(){const rect=canvas.getBoundingClientRect();width=rect.width;height=rect.height;if(mode==='wave')fitWaveProbe();if(mode==='orbit')fitOrbitPoint();const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+function fit(){const rect=canvas.getBoundingClientRect();if(rect.width!==width||rect.height!==height)interruptPainting();width=rect.width;height=rect.height;if(mode==='wave')fitWaveProbe();if(mode==='orbit')fitOrbitPoint();const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
 // Fit the current measurement after a resize or tab return, without moving it.
 // Keep any wider shared view; normal probe movement must not continuously zoom.
 function fitWaveProbe(){
@@ -208,7 +208,7 @@ function fitOrbitPoint(){
 function orbitScale(){return Math.min(Math.min(width,height)/450,(width/2-34)/Math.max(1,Math.abs(orbitView?.x||0)),(height/2-34)/Math.max(1,Math.abs(orbitView?.y||0)));}
 function waveScale(){return Math.min(Math.min(width,height)/280,(width/2-18)/Math.max(1,Math.abs(waveView?.x||0)),(height/2-18)/Math.max(1,Math.abs(waveView?.y||0)));}
 function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)/r.width*width,y:(event.clientY-r.top)/r.height*height};}
-canvas.addEventListener('click',e=>{if(cancelledClickPointer!==null&&(e.pointerId===undefined||e.pointerId===cancelledClickPointer)){cancelledClickPointer=null;wasDragging=false;return;}if(mode==='life'&&wasDragging){wasDragging=false;return;}const p=coordinates(e);if(mode==='life'){const x=Math.min(47,Math.floor(p.x/width*48)),y=Math.min(31,Math.floor(p.y/height*32));lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());}if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
+canvas.addEventListener('click',e=>{if(cancelledClickPointer!==null&&(e.pointerId===undefined||e.pointerId===cancelledClickPointer)){cancelledClickPointer=null;wasDragging=false;return;}if(mode==='life'&&wasDragging){wasDragging=false;return;}if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
 function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -661,11 +661,11 @@ $('#share').addEventListener('click',async()=>{
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));
 // A stroke belongs to one pointer and cannot survive interrupted capture.
-let paintingPointer=null,cancelledClickPointer=null,lastPaint=null,wasDragging=false;
+let paintingPointer=null,cancelledClickPointer=null,lastPaint=null,paintingBounds=null,wasDragging=false;
 function cancelPainting(){
   const id=paintingPointer;
   if(id!==null)cancelledClickPointer=id;
-  paintingPointer=null;lastPaint=null;wasDragging=false;
+  paintingPointer=null;lastPaint=null;paintingBounds=null;wasDragging=false;
   if(id!==null&&canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);
 }
 // A lost window/tab or missed release ends only an active gesture. Keep the
@@ -679,24 +679,28 @@ function endPainting(e){
     paintTo(e);
     if(wasDragging)announce('已暂停；绘制完成；'+observationReading());
   }else cancelledClickPointer=e.pointerId;
-  paintingPointer=null;lastPaint=null;
+  paintingPointer=null;lastPaint=null;paintingBounds=null;
   // Preserve click suppression after a normal drag and its implicit capture loss.
 }
 canvas.addEventListener('pointerdown',e=>{
   if(paintingPointer!==null||e.isPrimary===false||e.button!==0)return;
   cancelledClickPointer=null;
   if(mode!=='life')return;
-  paintingPointer=e.pointerId;wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e);
+  paintingPointer=e.pointerId;paintingBounds=canvas.getBoundingClientRect();wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e,paintingBounds);
   canvas.setPointerCapture(e.pointerId);
 });
-function lifeCell(event){
-  if(!Number.isFinite(event.clientX)||!Number.isFinite(event.clientY)||width<=0||height<=0)return null;
-  const p=coordinates(event);
-  if(!Number.isFinite(p.x)||!Number.isFinite(p.y))return null;
-  return {x:Math.min(47,Math.max(0,Math.floor(p.x/width*48))),y:Math.min(31,Math.max(0,Math.floor(p.y/height*32)))};
+function lifeCell(event,rect=canvas.getBoundingClientRect()){
+  if(!Number.isFinite(event.clientX)||!Number.isFinite(event.clientY)||width<=0||height<=0||rect.width<=0||rect.height<=0)return null;
+  const x=(event.clientX-rect.left)/rect.width*48,y=(event.clientY-rect.top)/rect.height*32;
+  if(!Number.isFinite(x)||!Number.isFinite(y))return null;
+  return {x:Math.min(47,Math.max(0,Math.floor(x))),y:Math.min(31,Math.max(0,Math.floor(y)))};
 }
 function paintTo(event){
-  const next=lifeCell(event);
+  // A stroke belongs to one canvas rectangle. Catch layout/scroll changes even
+  // before ResizeObserver runs, rather than joining unrelated grid positions.
+  const rect=canvas.getBoundingClientRect();
+  if(paintingBounds&&['width','height','left','top'].some(key=>rect[key]!==paintingBounds[key])){interruptPainting();return;}
+  const next=lifeCell(event,rect);
   // A little movement inside the same cell is still a tap. Once the pointer
   // crosses a cell boundary, join samples so fast mouse/touch strokes stay solid.
   if(!next||!lastPaint||(next.x===lastPaint.x&&next.y===lastPaint.y))return;
