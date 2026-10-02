@@ -644,6 +644,13 @@ $('#field-notes-list').addEventListener('click',event=>{
 $('#mission-start').addEventListener('click',()=>startMission());
 $('#mission-check').addEventListener('click',()=>inspectMission());
 $('#mission-check-inline').addEventListener('click',()=>inspectMission(true));
+// A held Enter must not recheck the next phase and overwrite this result.
+// Keep fresh Enter, native Space keyup and pointer/assistive clicks unchanged.
+for(const id of ['mission-check','mission-check-inline']){
+ $('#'+id).addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
+}
 $('#mission-next').addEventListener('click',()=>openMission(discoveries[mode].next));
 // Touch buttons and canvas keys share model-unit steps, pause and viewport bounds.
 function moveWaveProbe(key){
