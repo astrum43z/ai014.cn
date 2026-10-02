@@ -312,3 +312,10 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .life-trial-view .return-to-canvas{margin-top:0;max-width:100%;color:#d3f35b;white-space:normal;overflow-wrap:anywhere;font-size:13px}
 .experiment-shortcuts #life-trial-result-link{margin-left:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 #life-test-result:focus-visible{outline:3px solid #ffac86;outline-offset:5px}
+
+/* An explicit drag eraser leaves tap/keyboard toggles unchanged. */
+.life-touch .life-drag-tool{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+.life-touch #life-erase{flex:0 1 auto;min-height:44px;white-space:normal;font-size:13px}
+.life-touch #life-erase[aria-pressed="true"]{background:#ffac86;border-color:#ffac86;color:#122e29}
+.life-touch #life-drag-status,.life-touch #life-drag-help{color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.life-touch #life-drag-help{display:block}

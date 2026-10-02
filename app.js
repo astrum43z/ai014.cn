@@ -4,7 +4,7 @@ import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
 import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.js';
 import {orbitLaunchState,clampOrbitPoint} from './orbit.js?v=resize-stable-1';
-import {paintLifeLine} from './painting.js';
+import {paintLifeLine} from './painting.js?v=drag-eraser-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
 import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} from './walk.js?v=walk-distance-1';
 import {discoveries} from './journeys.js?v=random-walk-1';
@@ -42,6 +42,8 @@ let fractal,walk;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let mode='orbit', values={},paused=reducedMotion.matches,t=0,acc=0,generation=0,bodies=[],cells=new Uint8Array(48*32),preset=0,focusCell={x:24,y:16},canvasFocused=false,width=600,height=414;
 let lifeTrial=null,lifeCleared=null;
+// Page-only drawing tool, independent of simulation state and shared links.
+let lifeErasing=false;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0},orbitView=null;
 let animation, stageVisible=true, addressObservation='';
 // At most one bounded model per inactive experiment; no persistent storage.
@@ -374,6 +376,7 @@ const lifeOutcomes={
  empty:['仍空','空格的活邻居不等于 3，下一代仍空']
 };
 function renderLifeInspector(){
+ renderLifeDragTool();
  const cell=inspectLifeCell(cells,48,32,focusCell.x,focusCell.y),[outcome,reason]=lifeOutcomes[cell.rule];
  $('#life-cell-position').textContent=`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行`;
  $('#life-cell-state').textContent=`当前：${cell.alive?'活格':'空格'} · 活邻居 ${cell.neighbors} / 8`;
@@ -713,6 +716,19 @@ function touchLife(dx,dy,toggle=false){
  if(toggle){lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}
  draw();announce('已暂停；'+lifeReading());
 }
+function renderLifeDragTool(){
+ $('#life-erase').setAttribute('aria-pressed',String(lifeErasing));
+ setReadingText($('#life-drag-status'),'当前拖动：'+(lifeErasing?'擦除':'点亮'));
+}
+$('#life-erase').addEventListener('click',()=>{
+ if(mode!=='life')return;
+ // Switching tools ends the old gesture; a delayed release cannot use the new one.
+ cancelPainting();lifeErasing=!lifeErasing;renderLifeDragTool();
+ announce($('#life-drag-status').textContent+'；轻点、Enter 与逐格按钮仍切换生灭。');
+});
+$('#life-erase').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 for(const [id,dx,dy] of [['left',-1,0],['right',1,0],['up',0,-1],['down',0,1]])$('#life-'+id).addEventListener('click',()=>touchLife(dx,dy));
 $('#life-toggle').addEventListener('click',()=>touchLife(0,0,true));
 // Native Enter repeats would undo the cell just painted. Keep the initial
@@ -798,7 +814,7 @@ function endPainting(e){
   if(e.type==='pointerup'){
     paintTo(e);
     if(paintingPointer===null)return;
-    if(wasDragging){suppressPaintingClick(e.pointerId);announce('已暂停；绘制完成；'+observationReading());}
+    if(wasDragging){suppressPaintingClick(e.pointerId);announce('已暂停；'+(lifeErasing?'擦除完成':'绘制完成')+'；'+observationReading());}
   }else suppressPaintingClick(e.pointerId);
   paintingPointer=null;lastPaint=null;paintingBounds=null;wasDragging=false;
 }
@@ -825,7 +841,7 @@ function paintTo(event){
   // A little movement inside the same cell is still a tap. Once the pointer
   // crosses a cell boundary, join samples so fast mouse/touch strokes stay solid.
   if(!next||!lastPaint||(next.x===lastPaint.x&&next.y===lastPaint.y))return;
-  lifeTrial=null;lifeCleared=null;paintLifeLine(cells,48,lastPaint,next);
+  lifeTrial=null;lifeCleared=null;paintLifeLine(cells,48,lastPaint,next,lifeErasing?0:1);
   wasDragging=true;lifeHistory=[];lastPaint=next;focusCell={...next};draw();
 }
 canvas.addEventListener('pointermove',e=>{
