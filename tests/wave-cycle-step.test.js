@@ -86,7 +86,7 @@ test('parameters, resets, presets, guides and resize continue from the right wav
  click(h);close(signed(h),expected(0,0,quarter*2,180,70));
  const before=signed(h);h.resize(295,260);close(signed(h),before);
  click(h,'reset');close(signed(h),expected(0,0,0,180,70));click(h);close(signed(h),expected(0,0,quarter,180,70));
- h.el('preset-select').handlers.change({target:{value:'wide'}});click(h);close(signed(h),expected(0,0,quarter,150,65));
+ (h.el('preset-select').handlers.change({target:{value:'wide'}}),h.el('load-preset').handlers.click());click(h);close(signed(h),expected(0,0,quarter,150,65));
  click(h,'guide-start');click(h);close(signed(h),expected(8,0,quarter));
 });
 

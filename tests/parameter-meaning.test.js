@@ -42,13 +42,13 @@ test('native ranges expose actual percentage and generations-per-second values a
 test('accessible units refresh through presets, guided starts, tab memory and history',async()=>{
  const h=await setup('?experiment=fractal&jump=70&seed=19&at=v1,1000');
  assert.equal(h.el('jump').getAttribute('aria-valuetext'),'70%');
- h.el('preset-select').handlers.change({target:{value:'overlap'}});assert.equal(h.el('jump').getAttribute('aria-valuetext'),'38%');
+ (h.el('preset-select').handlers.change({target:{value:'overlap'}}),h.el('load-preset').handlers.click());assert.equal(h.el('jump').getAttribute('aria-valuetext'),'38%');
  click(h,'mission-start');assert.equal(h.el('jump').getAttribute('aria-valuetext'),'50%');
  input(h,'jump',65);h.tabs[1].handlers.click();input(h,'rate',3);input(h,'density',45);
  h.tabs[3].handlers.click();assert.equal(h.el('jump').getAttribute('aria-valuetext'),'65%');
  h.tabs[1].handlers.click();assert.equal(h.el('rate').getAttribute('aria-valuetext'),'每秒 3 代');assert.equal(h.el('density').getAttribute('aria-valuetext'),'45%');
  h.navigate('?experiment=walk&bias=25&seed=99&at=v1,64');assert.equal(h.el('bias').getAttribute('aria-valuetext'),'25%');
- h.el('preset-select').handlers.change({target:{value:'unbiased'}});assert.equal(h.el('bias').getAttribute('aria-valuetext'),'0%');
+ (h.el('preset-select').handlers.change({target:{value:'unbiased'}}),h.el('load-preset').handlers.click());assert.equal(h.el('bias').getAttribute('aria-valuetext'),'0%');
  h.navigate('?experiment=orbit&speed=150&gravity=80');assert.equal(h.el('speed').getAttribute('aria-valuetext'),'150%');
 });
 

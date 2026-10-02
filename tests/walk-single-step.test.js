@@ -37,7 +37,7 @@ test('readout follows comparison buttons, presets, parameter reset and guide',as
  h.el('walk-step-one').handlers.click();check(h,99,25,65);
  h.el('walk-16').handlers.click();check(h,99,25,16);
  h.el('seed').handlers.input({target:{value:'50'}});check(h,50,25,16);
- h.el('preset-select').handlers.change({target:{value:'unbiased'}});check(h,50,0,16);
+ (h.el('preset-select').handlers.change({target:{value:'unbiased'}}),h.el('load-preset').handlers.click());check(h,50,0,16);
  h.el('guide-start').handlers.click();check(h,14,0,16);
 });
 test('shared checkpoints remain fixed until shared again and exact odd steps restore',async()=>{

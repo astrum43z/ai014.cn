@@ -31,7 +31,7 @@ test('replay preserves shared checkpoints, tab memory and parameter reset behavi
  h.tabs[0].handlers.click();const metrics=h.el('metrics').textContent;h.el('fractal-back').handlers.click();h.el('fractal-forward').handlers.click();assert.equal(h.el('metrics').textContent,metrics);
  h.tabs[3].handlers.click();check(h,730);h.navigate('?experiment=wave');h.navigate(url);check(h,731);
  h.el('seed').handlers.input({target:{value:'15'}});check(h,300,15);
- h.el('fractal-forward').handlers.click();check(h,301,15);h.el('preset-select').handlers.change({target:{value:'islands'}});check(h,300,15,65);
+ h.el('fractal-forward').handlers.click();check(h,301,15);(h.el('preset-select').handlers.change({target:{value:'islands'}}),h.el('load-preset').handlers.click());check(h,300,15,65);
 });
 test('animation updates quiet reading and replay does not record a discovery',async()=>{
  const h=await setup('?experiment=fractal');h.el('pause').handlers.click();const announcement=h.el('announcement').textContent;

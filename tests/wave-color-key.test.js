@@ -30,7 +30,7 @@ test('wave color key is adjacent to the field, quiet, labelled without color and
  assert.match(css,/\.wave-key-scale\{[^}]*flex-wrap:wrap/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
  assert.match(css,/\.wave-key output\{[^}]*font-variant-numeric:tabular-nums/);
- assert.ok(html.includes('app.js?v=life-pointer-geometry-1')&&html.includes('style.css?v=wave-color-key-1'));
+ assert.ok(html.includes('app.js?v=preset-loading-1')&&html.includes('style.css?v=preset-loading-1'));
 });
 test('legend swatches match actual field colors at negative, zero and positive displacement',async()=>{
  const h=await setup('?experiment=wave&at=v1,0,0,0'),darkTime=(50/32*2*Math.PI)/3;
@@ -94,7 +94,7 @@ test('probe movement, parameter edits, presets, reset and guide refresh the same
  h.el('wavelength').handlers.input({target:{value:'70'}});expectReading(h,waveComponents(2,-2,0,100,70).combined);
  h.el('separation').handlers.input({target:{value:'180'}});expectReading(h,waveComponents(2,-2,0,180,70).combined);
  click(h,'reset');expectReading(h,waveComponents(0,0,0,180,70).combined);
- h.el('preset-select').handlers.change({target:{value:'wide'}});expectReading(h,waveComponents(0,0,0,150,65).combined);
+ (h.el('preset-select').handlers.change({target:{value:'wide'}}),h.el('load-preset').handlers.click());expectReading(h,waveComponents(0,0,0,150,65).combined);
  click(h,'guide-start');expectReading(h,0);assert.equal(h.el('wave-key').hidden,false);
 });
 test('shared readings reproduce exactly and a running tab return does not catch up time',async()=>{

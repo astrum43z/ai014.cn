@@ -49,7 +49,7 @@ test('120 Wave frames preserve static text while signed displacements keep chang
 test('readings refresh across presets, reset, all five tabs and history without a stale cache',async()=>{
  const h=await setup('?experiment=wave');
  const tracked=track(h,[...observations,...wave,...orbit]);
- h.el('preset-select').handlers.change({target:{value:'wide'}});assert.match(h.el('wave-difference').textContent,/波长 65/);
+ (h.el('preset-select').handlers.change({target:{value:'wide'}}),h.el('load-preset').handlers.click());assert.match(h.el('wave-difference').textContent,/波长 65/);
  h.key('ArrowRight');h.el('reset').handlers.click();assert.match(h.el('wave-probe-reading').textContent,/x 0.0，y 0.0/);
  for(const [index,pattern] of [[0,/首颗行星距离/],[1,/活细胞/],[3,/已留下/],[4,/实测散开程度/],[2,/波程差/]]){
   h.tabs[index].handlers.click();assert.match(h.el('observation-a').textContent,pattern);

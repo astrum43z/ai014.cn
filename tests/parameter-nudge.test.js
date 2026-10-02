@@ -64,10 +64,10 @@ test('Life exact rate changes preserve fractional generation progress and densit
 test('boundaries refresh after preset replacement, shared history, guide starts and tab return',async()=>{
  const h=await setup('?experiment=walk&seed=99&bias=25');
  assert.equal(unavailable(h,'increase-seed'),true);assert.equal(unavailable(h,'increase-bias'),true);
- h.el('preset-select').handlers.change({target:{value:'another'}});
+ (h.el('preset-select').handlers.change({target:{value:'another'}}),h.el('load-preset').handlers.click());
  assert.equal(h.el('seed').value,'1');assert.equal(unavailable(h,'decrease-seed'),true);
  assert.equal(unavailable(h,'increase-seed'),false);assert.equal(unavailable(h,'decrease-bias'),true);
- h.el('preset-select').handlers.change({target:{value:'drift'}});assert.equal(unavailable(h,'increase-bias'),true);
+ (h.el('preset-select').handlers.change({target:{value:'drift'}}),h.el('load-preset').handlers.click());assert.equal(unavailable(h,'increase-bias'),true);
  h.tabs[3].handlers.click();h.tabs[4].handlers.click();assert.equal(unavailable(h,'increase-bias'),true);
  h.navigate('?experiment=fractal&seed=99&jump=70&at=v1,1000');
  assert.equal(unavailable(h,'increase-seed'),true);assert.equal(unavailable(h,'increase-jump'),true);

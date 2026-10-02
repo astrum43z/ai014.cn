@@ -67,7 +67,7 @@ test('step changes wave phase but geometry stays fixed; sliders and presets upda
  h.el('wavelength').handlers.input({target:{value:'64'}});assert.match(h.el('wave-difference').textContent,/16.00 ÷ 波长 64 ≈ 0.25/);assert.deepEqual(lines(h),geometry);
  h.el('separation').handlers.input({target:{value:'20'}});assert.equal(h.el('wave-distances').textContent,'A 路程 18.00 · B 路程 2.00');
  h.el('reset').handlers.click();assert.equal(h.el('wave-distances').textContent,'A 路程 10.00 · B 路程 10.00');
- h.el('preset-select').handlers.change({target:{value:'wide'}});assert.equal(h.el('wave-distances').textContent,'A 路程 75.00 · B 路程 75.00');
+ (h.el('preset-select').handlers.change({target:{value:'wide'}}),h.el('load-preset').handlers.click());assert.equal(h.el('wave-distances').textContent,'A 路程 75.00 · B 路程 75.00');
  h.el('guide-start').handlers.click();assert.deepEqual(lines(h),geometry);assert.equal(h.el('wave-value-left').textContent,start);
 });
 
@@ -105,5 +105,5 @@ test('path readings are quiet text inside the existing panel and preserve primar
  for(const id of ['wave-distances','wave-difference','wave-path-note'])assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
  const reading=html.match(/<div class="wave-path-reading">(.*?)<\/div>/)[1];assert.doesNotMatch(reading,/aria-live|role="status"|<button|<input/);
  assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('class="wave-path-reading"'));
- assert.ok(html.includes('app.js?v=life-pointer-geometry-1'));assert.ok(html.includes('style.css?v=wave-color-key-1'));
+ assert.ok(html.includes('app.js?v=preset-loading-1'));assert.ok(html.includes('style.css?v=preset-loading-1'));
 });

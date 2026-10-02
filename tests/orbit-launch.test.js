@@ -168,7 +168,7 @@ test('preview survives tab returns, resize and guide resets without leaking into
  h.resize(284,240);assert.equal(h.previewDrawn(),true);assert.equal(h.el('orbit-preview-reading').textContent,old);
  h.el('guide-start').handlers.click();assert.equal(h.previewDrawn(),true);assert.equal(h.frames.size,0);
  assert.match(h.el('orbit-position').textContent,/140.0，y 0.0/);
- for(const name of ['elliptic','escape','circular']){h.el('preset-select').handlers.change({target:{value:name}});assert.equal(h.previewDrawn(),true);}
+ for(const name of ['elliptic','escape','circular']){(h.el('preset-select').handlers.change({target:{value:name}}),h.el('load-preset').handlers.click());assert.equal(h.previewDrawn(),true);}
 });
 
 test('preview remains a quiet reading and makes its finite constant-gravity limit explicit',async()=>{

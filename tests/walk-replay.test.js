@@ -71,7 +71,7 @@ test('parameter changes, presets, reset and existing comparison controls restore
  const h=await setup('?experiment=walk&seed=99&bias=25&at=v1,73');click(h,'walk-back');check(h,72,99,25);
  h.el('seed').handlers.input({target:{value:'50'}});check(h,16,50,25);
  click(h,'walk-64');click(h,'walk-back');check(h,63,50,25);
- h.el('preset-select').handlers.change({target:{value:'unbiased'}});check(h,16,50,0);
+ (h.el('preset-select').handlers.change({target:{value:'unbiased'}}),h.el('load-preset').handlers.click());check(h,16,50,0);
  click(h,'walk-step-one');click(h,'reset');check(h,16,50,0);
  click(h,'walk-64');click(h,'walk-16');check(h,16,50,0);
  h.key('ArrowRight');check(h,32,50,0);h.key('Home');check(h,16,50,0);

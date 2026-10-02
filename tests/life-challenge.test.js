@@ -53,7 +53,7 @@ test('success is earned by hand construction, survives inspection and ordinary t
  click(h,'life-return');assert.match(h.el('metrics').textContent,/第 0 代 · 4 个活格子/);
 });
 test('every replacing or advancing action clears stale results and return snapshots',async()=>{
- const changes=[h=>h.key('Enter'),h=>tap(h,0,0),h=>click(h,'step'),h=>click(h,'pause'),h=>click(h,'clear'),h=>click(h,'reset'),h=>click(h,'guide-start'),h=>click(h,'life-challenge-start'),h=>click(h,'preset'),h=>h.navigate('?experiment=life&rate=3&density=20'),h=>h.el('preset-select').handlers.change({target:{value:'blinker'}}),h=>{const e={pointerId:1,button:0,isPrimary:true,clientX:1,clientY:1};h.el('canvas').handlers.pointerdown(e);h.el('canvas').handlers.pointermove({...e,clientX:30});}];
+ const changes=[h=>h.key('Enter'),h=>tap(h,0,0),h=>click(h,'step'),h=>click(h,'pause'),h=>click(h,'clear'),h=>click(h,'reset'),h=>click(h,'guide-start'),h=>click(h,'life-challenge-start'),h=>click(h,'preset'),h=>h.navigate('?experiment=life&rate=3&density=20'),h=>(h.el('preset-select').handlers.change({target:{value:'blinker'}}),h.el('load-preset').handlers.click()),h=>{const e={pointerId:1,button:0,isPrimary:true,clientX:1,clientY:1};h.el('canvas').handlers.pointerdown(e);h.el('canvas').handlers.pointermove({...e,clientX:30});}];
  for(const change of changes){const h=await setup('?experiment=life');draw(h);click(h,'life-test');change(h);assert.equal(h.el('life-return').hidden,true);assert.equal(h.el('life-test').disabled,false);assert.doesNotMatch(h.el('life-test-result').textContent,/找到静止结构/);const metrics=h.el('metrics').textContent;click(h,'life-return');assert.equal(h.el('metrics').textContent,metrics);}
 });
 test('test pauses a running world; pointer cancellation and repeat starts cannot leak drawing',async()=>{
@@ -72,7 +72,7 @@ test('challenge is optional native disclosure with quiet results, visible replac
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8'),css=await readFile(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<details id="life-challenge" class="life-challenge" hidden><summary>/);assert.doesNotMatch(html,/<details id="life-challenge"[^>]* open/);
  assert.match(html,/id="life-test-result" aria-live="off"/);assert.match(html,/id="life-challenge-start" aria-describedby="life-challenge-replaces"/);assert.match(html,/会替换画布/);
- assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-challenge"'));assert.ok(html.includes('app.js?v=life-pointer-geometry-1'));assert.ok(html.includes('style.css?v=wave-color-key-1'));
+ assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-challenge"'));assert.ok(html.includes('app.js?v=preset-loading-1'));assert.ok(html.includes('style.css?v=preset-loading-1'));
  assert.match(css,/\.life-challenge summary:focus-visible/);assert.match(css,/\.life-challenge-actions\{display:flex;flex-wrap:wrap/);assert.match(css,/\.life-challenge-actions button\{[^}]*min-height:44px/);
 });
 

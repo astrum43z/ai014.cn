@@ -66,7 +66,7 @@ test('fresh edits, generation advance, playback and replacement invalidate recov
  const edits=[
   h=>h.key('Enter'),h=>h.key(' '),h=>tap(h,0,0),h=>click(h,'life-toggle'),
   h=>click(h,'step'),h=>click(h,'pause'),h=>click(h,'life-test'),h=>click(h,'reset'),
-  h=>click(h,'preset'),h=>h.el('preset-select').handlers.change({target:{value:'blinker'}}),
+  h=>click(h,'preset'),h=>(h.el('preset-select').handlers.change({target:{value:'blinker'}}),h.el('load-preset').handlers.click()),
   h=>click(h,'life-challenge-start'),h=>click(h,'guide-start'),h=>click(h,'mission-start'),
   h=>h.navigate('?experiment=life&rate=3&density=20'),
   h=>{const event={pointerId:1,button:0,isPrimary:true,clientX:1,clientY:1};h.el('canvas').handlers.pointerdown(event);h.el('canvas').handlers.pointermove({...event,buttons:1,clientX:30});}
@@ -121,7 +121,7 @@ test('undo is a quiet described native button near Clear with a wrapping 44px ta
  assert.match(html,/<p id="life-clear-status" class="life-clear-status" aria-live="off" hidden>/);
  assert.ok(html.indexOf('id="clear"')<html.indexOf('id="life-undo-clear"'));
  assert.ok(html.indexOf('id="life-undo-clear"')<html.indexOf('id="life-touch"'));
- assert.ok(html.includes('app.js?v=life-pointer-geometry-1'));assert.ok(html.includes('style.css?v=wave-color-key-1'));
+ assert.ok(html.includes('app.js?v=preset-loading-1'));assert.ok(html.includes('style.css?v=preset-loading-1'));
  const css=await readFile(new URL('../style.css',import.meta.url),'utf8');
  assert.match(css,/#life-undo-clear\{min-height:44px;white-space:normal\}/);
  assert.match(css,/#life-undo-clear\[aria-disabled="true"\]/);assert.match(css,/\.life-clear-status\{[^}]*overflow-wrap:anywhere/);

@@ -41,7 +41,7 @@ test('fourth experiment guide, step, parameters, presets and history stay synchr
  h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/400 个点/);
  h.el('seed').handlers.input({target:{value:'15'}});
  assert.match(h.el('metrics').textContent,/300 个点.*种子 15/);
- h.el('preset-select').handlers.change({target:{value:'islands'}});
+ (h.el('preset-select').handlers.change({target:{value:'islands'}}),h.el('load-preset').handlers.click());
  assert.equal(h.el('out-jump').textContent,'65%');assert.match(h.el('observation-detail').textContent,/当前不是 50%/);
  h.navigate('?experiment=wave');h.navigate('?experiment=fractal&jump=50&seed=14');
  assert.match(h.el('metrics').textContent,/300 个点 · 前进 50% · 种子 14/);
@@ -97,7 +97,7 @@ test('cycling preset buttons advance from the manually selected preset',async()=
  ]){
   h.el('tab-'+mode).handlers.click();
   h.el('preset-select').value=last;
-  h.el('preset-select').handlers.change({target:{value:last}});
+  (h.el('preset-select').handlers.change({target:{value:last}}),h.el('load-preset').handlers.click());
   h.el('preset').handlers.click();
   assert.equal(h.el('preset-select').value,first,mode+' wraps after a manual selection');
   h.el('preset').handlers.click();
@@ -158,7 +158,7 @@ test('single-point observations reproduce their last jump and preserve anchor na
  h.el('seed').handlers.input({target:{value:'15'}});
  assert.match(h.el('fractal-jump-reading').textContent,/第 300 点.*65%，余下 35%/);
  assert.equal(h.el('share-link').hidden,true);
- h.el('preset-select').handlers.change({target:{value:'overlap'}});
+ (h.el('preset-select').handlers.change({target:{value:'overlap'}}),h.el('load-preset').handlers.click());
  assert.match(h.el('fractal-jump-reading').textContent,/第 300 点.*38%，余下 62%/);
  h.el('guide-start').handlers.click();assert.match(h.el('fractal-jump-reading').textContent,/第 300 点.*50%，余下 50%/);
  h.el('fractal-step').handlers.click();h.el('reset').handlers.click();

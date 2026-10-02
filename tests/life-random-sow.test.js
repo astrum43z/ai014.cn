@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {setup} from './life-challenge-harness.js';
 
 const click=(h,id)=>h.el(id).handlers.click();
-const choose=(h,value)=>h.el('preset-select').handlers.change({target:{value}});
+const choose=(h,value)=>(h.el('preset-select').handlers.change({target:{value}}),h.el('load-preset').handlers.click());
 const input=(h,id,value)=>h.el(id).handlers.input({target:{value:String(value)}});
 
 test('random sow always samples a full Life board, regardless of selected preset',async t=>{

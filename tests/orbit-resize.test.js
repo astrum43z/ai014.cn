@@ -92,7 +92,7 @@ test('pointer launches use the displayed fitted scale and match the explicit lau
 
 test('Home, reset, presets, guides and changed URL settings release the expanded view',async()=>{
  const h=await setup('?experiment=orbit');
- for(const release of [()=>click(h,'orbit-home'),()=>h.key('Home'),()=>click(h,'reset'),()=>h.el('preset-select').handlers.change({target:{value:'elliptic'}}),()=>click(h,'guide-start'),()=>h.navigate('?experiment=orbit&gravity=40&speed=65')]){
+ for(const release of [()=>click(h,'orbit-home'),()=>h.key('Home'),()=>click(h,'reset'),()=>(h.el('preset-select').handlers.change({target:{value:'elliptic'}}),h.el('load-preset').handlers.click()),()=>click(h,'guide-start'),()=>h.navigate('?experiment=orbit&gravity=40&speed=65')]){
   h.resize(600,414);click(h,'orbit-home');selectWidePoint(h);h.resize(259,414);
   assert.ok(scale(h)<259/450);release();
   near(scale(h),259/450);assert.deepEqual(launcher(h),{x:140,y:0});

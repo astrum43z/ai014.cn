@@ -21,11 +21,11 @@ test('walk guide and checkpoints reproduce 16/64 steps without autoplay',async()
 });
 test('walk presets and reset synchronize controls, parameter links and seeded state',async()=>{
  const h=await setup('?experiment=walk');await h.el('share').handlers.click();
- h.el('preset-select').handlers.change({target:{value:'drift'}});assert.equal(h.el('out-bias').textContent,'25%');assert.match(h.el('share-link').value,/bias=25/);
+ (h.el('preset-select').handlers.change({target:{value:'drift'}}),h.el('load-preset').handlers.click());assert.equal(h.el('out-bias').textContent,'25%');assert.match(h.el('share-link').value,/bias=25/);
  h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/32 步/);
  h.el('reset').handlers.click();assert.match(h.el('metrics').textContent,/16 步/);
- h.el('preset-select').handlers.change({target:{value:'another'}});assert.equal(h.el('out-bias').textContent,'0%');assert.equal(h.el('out-seed').textContent,'15');
- h.el('seed').handlers.input({target:{value:'99'}});h.el('preset-select').handlers.change({target:{value:'another'}});assert.equal(h.el('out-seed').textContent,'1');
+ (h.el('preset-select').handlers.change({target:{value:'another'}}),h.el('load-preset').handlers.click());assert.equal(h.el('out-bias').textContent,'0%');assert.equal(h.el('out-seed').textContent,'15');
+ h.el('seed').handlers.input({target:{value:'99'}});(h.el('preset-select').handlers.change({target:{value:'another'}}),h.el('load-preset').handlers.click());assert.equal(h.el('out-seed').textContent,'1');
  h.navigate('?experiment=walk&bias=Infinity&seed=1000');assert.match(location.search,/bias=0&seed=99/);
  h.navigate('?experiment=orbit');assert.equal(h.el('walk-comparison').hidden,true);assert.equal(h.el('walk-legend').hidden,true);
  h.navigate('?experiment=walk&bias=25&seed=15');assert.equal(h.el('walk-comparison').hidden,false);assert.equal(h.el('walk-legend').hidden,false);assert.equal(h.frames.size,0);
@@ -98,7 +98,7 @@ test('saved observations, presets and parameter resets reproduce the chosen walk
  h.navigate('?experiment=fractal');assert.equal(h.el('walk-distance').hidden,true);
  h.navigate(url);assert.equal(h.el('walk-distance').hidden,false);assert.deepEqual(['walk-length','walk-displacement','walk-cancellation'].map(id=>h.el(id).textContent),reading);
  h.el('seed').handlers.input({target:{value:'50'}});assert.equal(h.el('walk-length').textContent,'16 步长');assert.equal(h.el('share-link').hidden,true);
- h.el('preset-select').handlers.change({target:{value:'unbiased'}});assert.equal(h.el('walk-displacement').textContent,'0.00 步长');assert.match(h.el('walk-distance-note').textContent,/回到了起点/);assert.match(h.el('walk-cancellation').textContent,/左右抵消.*上下抵消/);
+ (h.el('preset-select').handlers.change({target:{value:'unbiased'}}),h.el('load-preset').handlers.click());assert.equal(h.el('walk-displacement').textContent,'0.00 步长');assert.match(h.el('walk-distance-note').textContent,/回到了起点/);assert.match(h.el('walk-cancellation').textContent,/左右抵消.*上下抵消/);
  h.el('guide-start').handlers.click();assert.equal(h.el('walk-length').textContent,'16 步长');assert.equal(h.el('walk-displacement').textContent,'4.47 步长');assert.equal(h.frames.size,0);
 });
 test('the full representative path remains inside the view at the long biased checkpoint',async()=>{

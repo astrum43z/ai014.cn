@@ -6,7 +6,7 @@ import {setup} from './life-challenge-harness.js';
 const caption=h=>h.el('history-caption').textContent;
 const points=h=>h.el('history-line').getAttribute('points').split(' ').map(pair=>pair.split(',').map(Number));
 const step=h=>h.el('step').handlers.click();
-const choose=(h,value)=>h.el('preset-select').handlers.change({target:{value}});
+const choose=(h,value)=>(h.el('preset-select').handlers.change({target:{value}}),h.el('load-preset').handlers.click());
 const snapshot=h=>({caption:caption(h),points:points(h),max:h.el('history-maximum').textContent,start:h.el('history-start').textContent,end:h.el('history-end').textContent,cx:h.el('history-current').getAttribute('cx'),cy:h.el('history-current').getAttribute('cy')});
 
 test('history visibility belongs to an HTML figure, with quiet text and decorative SVG',async()=>{

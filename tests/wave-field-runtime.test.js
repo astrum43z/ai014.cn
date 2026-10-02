@@ -25,7 +25,7 @@ test('real app draws the original field through stepping, slider edits, presets,
  verify(100,32,0);h.el('step').handlers.click();verify(100,32,Math.PI/6);
  h.el('wavelength').handlers.input({target:{value:'70'}});verify(100,70,Math.PI/6);
  h.el('separation').handlers.input({target:{value:'180'}});verify(180,70,Math.PI/6);
- h.el('preset-select').handlers.change({target:{value:'wide'}});verify(150,65,0);
+ (h.el('preset-select').handlers.change({target:{value:'wide'}}),h.el('load-preset').handlers.click());verify(150,65,0);
  h.el('guide-start').handlers.click();verify(100,32,0);
  width=767;height=317.9375;h.resize(width,height);verify(100,32,0);
  h.el('step').handlers.click();verify(100,32,Math.PI/6);
