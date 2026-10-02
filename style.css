@@ -217,3 +217,10 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .orbit-touch #orbit-fire:disabled{background:#c1cbb7;color:#465842;cursor:not-allowed;opacity:.7}
 .orbit-touch small{display:block;color:#b7cbae;font-size:12px;line-height:1.6}
 @media(max-width:720px){.orbit-touch{padding:12px}.orbit-touch>div{gap:5px}}
+
+/* Keep the fine-grained walk control and its quiet reading usable on phones. */
+.walk-comparison .button-row{flex-wrap:wrap}
+#walk-step-reading{margin:10px 0 0;font-size:12px;line-height:1.7;color:#e6ecd8;overflow-wrap:anywhere}
+#walk-step-help{display:block;margin:6px 0 0}
+
+#walk-step-one:disabled{opacity:.55;cursor:not-allowed}

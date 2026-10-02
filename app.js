@@ -607,6 +607,10 @@ function setWalkCheckpoint(steps){
 }
 $('#walk-16').addEventListener('click',()=>setWalkCheckpoint(16));
 $('#walk-64').addEventListener('click',()=>setWalkCheckpoint(64));
+$('#walk-step-one').addEventListener('click',()=>{
+ if(mode!=='walk')return;
+ paused=true;acc=0;updatePause();advanceWalk(walk,1);draw();announceWalk();
+});
 function announceWalk(){const stats=walkStats(walk);announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，请重置后继续':''}`);}
 function growWalk(amount=16){
  advanceWalk(walk,amount);
@@ -678,6 +682,10 @@ function waveReading(){return $('#wave-distances').textContent+'；'+$('#wave-di
 
 function renderWalkDistance(){
  const path=walkPathStats(walk);
+ const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
+ const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';
+ $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可重置或比较 16 / 64 步':''}。`;
+ $('#walk-step-one').disabled=walk.steps>=WALK_LIMIT;
  $('#walk-length').textContent=path.length+' 步长';
  $('#walk-displacement').textContent=path.distance.toFixed(2)+' 步长';
  const horizontal=path.x===0?'左右抵消':`净向${path.x>0?'右':'左'} ${Math.abs(path.x)} 步`;
