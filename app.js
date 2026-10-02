@@ -143,6 +143,9 @@ function restoreAddress(){
     return;
   }
   loadAddress(shared);
+  // A restored world can remove the focused control. Re-establish the named
+  // section destination while leaving scroll restoration to the browser.
+  if(['#home','#lab','#field-notes','#about'].includes(location.hash))$(location.hash).focus({preventScroll:true});
 }
 addEventListener('popstate',restoreAddress);
 function fit(){const rect=canvas.getBoundingClientRect();width=rect.width;height=rect.height;if(mode==='orbit')orbitPoint=clampOrbitPoint(orbitPoint,width,height);const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}

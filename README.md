@@ -20,7 +20,7 @@ Loading a preset or repeatedly pressing Check never completes a discovery. Curre
 
 ### Named keyboard navigation destinations
 
-The home, world chooser, notes and about section anchors accept programmatic focus without adding Tab stops. Native links and browser Back/Forward can land on a named section rather than leaving focus on the page root after a world change removes a control. Browser fragment navigation stays native; experiment state, URLs and animation behavior are unchanged.
+The home, world chooser, notes and about section anchors accept programmatic focus without adding Tab stops. Native links and browser Back/Forward can land on a named section rather than leaving focus on the page root after a world change removes a control. After a world-changing history restoration, focus is explicitly returned to the addressed section without scrolling. Anchor-only navigation and browser scroll restoration stay native; experiment state, URLs and animation behavior are unchanged.
 
 ### Return from a discovery note
 
