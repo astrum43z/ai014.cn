@@ -87,8 +87,8 @@ test('reading navigation has native links, reachable focus targets and visible r
 test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('href="style.css?v=discovery-passport-1"'));
- assert.ok(html.includes('src="app.js?v=discovery-passport-1"'));
+ assert.ok(html.includes('href="style.css?v=life-selection-1"'));
+ assert.ok(html.includes('src="app.js?v=life-selection-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{

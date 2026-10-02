@@ -259,6 +259,9 @@ function renderLifeInspector(){
  $('#life-cell-state').textContent=`当前：${cell.alive?'活格':'空格'} · 活邻居 ${cell.neighbors} / 8`;
  $('#life-cell-next').textContent=`下一代：${outcome}`;
  $('#life-cell-reason').textContent=reason+'。';
+ // Keep precise editing readable without opening the detailed instruments.
+ $('#life-selection').textContent=`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行 · ${cell.alive?'活格':'空格'} · ${cell.neighbors} 个活邻居`;
+ $('#life-toggle').textContent=cell.alive?'熄灭所选格':'点亮所选格';
  cell.neighborhood.forEach((alive,i)=>$('#life-neighbor-'+i).setAttribute('data-alive',String(alive)));
 }
 // Optional construction challenge. One bounded trial snapshot survives tab
