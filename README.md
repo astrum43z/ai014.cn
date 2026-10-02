@@ -308,3 +308,10 @@ Percentage ranges now expose their current value with `%` through `aria-valuetex
 Life’s “随机播种” button now always selects the existing random-garden preset and samples all 1,536 cells using the current density. Previously it advanced through named presets, so clicking the advertised random action could produce a three-cell blinker instead. Repeated clicks create fresh generation-zero boards; density changes alone still leave the current drawing untouched. The selected preset and existing status message now reflect the actual random sow. Named glider, blinker and pulsar patterns remain directly selectable, and the other four experiments retain their preset cycling.
 
 The change reuses the existing reset, sampling and rendering path, preserving pause/running state, focus, history cleanup, tab memory and parameter-only Life sharing. No new controls, data storage, random algorithm, dependency or domain change is introduced. Regression tests use controlled samples to verify strict per-cell thresholds at 10%, 30% and 60%, every starting preset, repeated sowing, named patterns and unaffected experiment cycles.
+
+
+## One pause toggle per Enter press
+
+Holding Enter on the shared Pause/Continue button now changes motion state only once. Repeated native keydown activation can no longer undo a pause or keep stopping and restarting a continued simulation. Release and press again to toggle intentionally. The initial native activation, Space's release-to-activate behavior, pointer clicks, focus, Tab navigation, per-world pause memory and reduced-motion opt-in remain unchanged. No held-key state, timers or new controls are introduced.
+
+Five event-driven tests exercise both directions across all five worlds, shared checkpoints, reduced-motion changes, seeded progress limits, Life comparisons, fresh presses and tab returns. They model native Enter default activation and fail against the previous implementation. Public-browser keyboard checks are separate from physical-device and screen-reader testing.
