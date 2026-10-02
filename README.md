@@ -440,3 +440,10 @@ The exploration's two check controls now have nearby effect descriptions, associ
 Life's optional instrument action now says “前进一代并对比”. Its associated description explicitly explains that this comparison pauses and advances one generation, can return to the original drawing, and does not itself write a discovery. Continue, a model step or an edit ends the comparison as before. The separate clearing action keeps its own replacement warning. This distinguishes the two existing operations without changing either operation, scientific checks, notebook rules, focus behavior, shared observations or simulation models.
 
 `tests/check-effects.test.js` verifies all five non-advancing exploration checks, pause behavior, help visibility through completion/restart/tab/history, fixed checkpoints, actual Life advance/return, notebook boundaries and quiet animation. Existing native wrapping and 44-pixel controls are retained. Physical touch, rotation and screen-reader speech are outside these automated checks.
+
+
+## Keep a Life comparison open after a held Enter
+
+Starting Life's “前进一代并对比” transfers keyboard focus to “返回修改”. That return control now ignores repeated Enter keydowns, so holding the comparison's activation key cannot immediately restore the original drawing and hide the result. A fresh Enter, Space, pointer or assistive activation still returns normally; existing canvas repeat protection prevents a held Return from editing a cell after focus moves back. The change adds no timer or key-state tracking.
+
+`tests/life-comparison-key.test.js` covers focus transfer, successful and unsuccessful comparisons, exact return, running and paused starts, three evolution rates, tab/anchor/resize and clear recovery, ordinary keys and clicks, plus discovery and shared-link isolation. The four regression cases fail on the previous implementation; the ordinary-input preservation case passes before and after. The original failure was reproduced using a held native Enter in the public cloud browser; physical touch and screen-reader speech remain separate verification limits.

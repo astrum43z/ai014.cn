@@ -403,6 +403,11 @@ function returnLifeDrawing(){
 }
 $('#life-test').addEventListener('click',testLifeDrawing);
 $('#life-return').addEventListener('click',returnLifeDrawing);
+// Compare moves focus here during Enter's keydown. Do not let repeats from
+// that same held key immediately return and hide the result it just produced.
+$('#life-return').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 $('#life-challenge-start').addEventListener('click',()=>{
  if(mode!=='life')return;
  cancelPainting();paused=true;acc=0;updatePause();
