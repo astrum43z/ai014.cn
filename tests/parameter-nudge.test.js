@@ -102,7 +102,7 @@ test('native one-unit buttons have specific names, current-value descriptions, a
   for(const [id] of parameters[mode]){
    assert.ok(markup.includes('<label for="'+id+'">'));
    assert.ok(markup.includes('</label><output aria-live="off" id="out-'+id+'" for="'+id+'">'));
-   assert.ok(markup.includes('aria-controls="'+id+'" aria-describedby="out-'+id+'"'));
+   assert.match(markup,new RegExp('aria-controls="'+id+'" aria-describedby="out-'+id+'(?: parameter-effect)?"'));
    for(const direction of ['increase','decrease'])assert.ok(markup.includes('type="button" id="'+direction+'-'+id+'" aria-label="'));
   }
   for(const label of markup.matchAll(/<label\b[^>]*>([\s\S]*?)<\/label>/g))assert.doesNotMatch(label[1],/<button|<output/);

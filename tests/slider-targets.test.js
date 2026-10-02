@@ -25,7 +25,8 @@ test('the larger slider target preserves the old track center and native appeara
 
 test('every exhibit keeps the existing labeled native range inputs',()=>{
  assert.match(app,/c\.sliders\.map\(\(\[id,label,min,max,initial,unit\]\)=>/);
- assert.ok(app.includes('<input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}">'));
+ assert.ok(app.includes('<input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"'));
+ assert.ok(app.includes('aria-describedby="${help}"'),'effect help supplements the native range');
  assert.doesNotMatch(app,/role="slider"|tabindex="-1"[^>]*type="range"/);
  assert.ok(app.includes("c.sliders.forEach"),'existing input handlers remain in place');
 });

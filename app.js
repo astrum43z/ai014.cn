@@ -62,11 +62,21 @@ function restoreExperiment(state){
  if(mode==='fractal')fractal=state.fractal;
  if(mode==='walk')walk=state.walk;
 }
+// Describe delayed effects and progress replacement at the controls themselves.
+// Shared quiet help avoids repeating the same warning under both seeded sliders.
+const parameterEffects={
+ orbit:{ids:['speed'],help:'新行星速度只影响下一次发射，不改变已有行星。',result:'；仅用于下一次发射'},
+ life:{ids:['density'],help:'随机初始密度是每格变活的概率，只用于下一次“随机播种”，不改动当前图案。',result:'；仅用于下一次随机播种'},
+ fractal:{ids:['jump','seed'],help:'改比例或种子后，会按新参数从 300 点重新开始；当前暂停或运行状态保持不变。',result:'；已按新参数重建到 300 点'},
+ walk:{ids:['bias','seed'],help:'改偏向或种子后，会按新参数从 16 步重新开始；当前暂停或运行状态保持不变。',result:'；已按新参数重建到 16 步'}
+};
 // Ranges remain useful for broad changes; native buttons make an exact one-unit
 // comparison possible without dragging to a tiny position on a touch screen.
 function syncParameterControls(){
  for(const [id,,min,max,,unit] of configs[mode].sliders){
-  $('#'+id).value=String(values[id]);setReadingText($('#out-'+id),values[id]+unit);
+  $('#'+id).value=String(values[id]);
+  if(unit)$('#'+id).setAttribute('aria-valuetext',unit===' 代/秒'?`每秒 ${values[id]} 代`:values[id]+unit);
+  setReadingText($('#out-'+id),values[id]+unit);
   $('#decrease-'+id).setAttribute('aria-disabled',String(values[id]<=min));
   $('#increase-'+id).setAttribute('aria-disabled',String(values[id]>=max));
  }
@@ -83,18 +93,19 @@ function setParameter(id,next){
  return true;
 }
 function renderParameters(){
- const c=configs[mode],parameterMode=mode;
+ const c=configs[mode],parameterMode=mode,effect=parameterEffects[mode];
  $('#sliders').innerHTML=c.sliders.map(([id,label,min,max,initial,unit])=>{
   const value=values[id],step=unit==='%'?'1 个百分点':'1'+unit;
-  return `<div class="slider"><div class="parameter-heading"><label for="${id}">${label}</label><output aria-live="off" id="out-${id}" for="${id}">${value}${unit}</output></div><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"><div class="parameter-nudge"><button type="button" id="decrease-${id}" aria-label="${label}减少 ${step}" aria-controls="${id}" aria-describedby="out-${id}">−1</button><button type="button" id="increase-${id}" aria-label="${label}增加 ${step}" aria-controls="${id}" aria-describedby="out-${id}">+1</button></div></div>`;
- }).join('');
+  const help=effect?.ids.includes(id)?'parameter-effect':'';
+  return `<div class="slider"><div class="parameter-heading"><label for="${id}">${label}</label><output aria-live="off" id="out-${id}" for="${id}">${value}${unit}</output></div><input id="${id}" type="range" min="${min}" max="${max}" value="${value}" aria-label="${label}"${help?` aria-describedby="${help}"`:""}><div class="parameter-nudge"><button type="button" id="decrease-${id}" aria-label="${label}减少 ${step}" aria-controls="${id}" aria-describedby="out-${id}${help?" "+help:""}">−1</button><button type="button" id="increase-${id}" aria-label="${label}增加 ${step}" aria-controls="${id}" aria-describedby="out-${id}${help?" "+help:""}">+1</button></div></div>`;
+ }).join('')+(effect?`<p id="parameter-effect" class="parameter-effect">${effect.help}</p>`:'');
  c.sliders.forEach(([id,label,,,,unit])=>{
   $('#'+id).addEventListener('input',event=>{if(mode===parameterMode)setParameter(id,event.target.value);});
   for(const [direction,delta] of [['decrease',-1],['increase',1]]){
    $('#'+direction+'-'+id).addEventListener('click',()=>{
     if(mode!==parameterMode||!setParameter(id,values[id]+delta))return;
-    const restart=mode==='fractal'?'；已按新参数重建到 300 点':mode==='walk'?'；已按新参数重建到 16 步':'';
-    announce(label+'：'+values[id]+unit+restart);
+    const result=effect?.ids.includes(id)?effect.result:'';
+    announce(label+'：'+values[id]+unit+result);
    });
   }
  });
