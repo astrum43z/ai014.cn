@@ -290,3 +290,6 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 /* Complete the parameter comparison loop without traversing export controls. */
 .controls>.return-to-canvas{grid-column:1/-1;justify-self:start;max-width:100%;margin:0 0 9px;white-space:normal;overflow-wrap:anywhere}
+
+/* Match exact replay controls while preserving focus at the history boundary. */
+#life-back{min-height:44px;white-space:normal}
