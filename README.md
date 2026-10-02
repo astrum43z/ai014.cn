@@ -18,6 +18,10 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Replay a fractal jump
+
+Near-canvas previous/next controls pause and inspect individual seeded jumps without opening the instrument drawer. Going back replays the same seed and ratio to exactly one fewer point; stepping forward restores the identical jump. The lower bound is the existing 300-point start, preserving shared-observation compatibility; the upper bound remains 12,000. Quiet readings and disabled boundary controls follow animation, parameter changes, checkpoints and tab restoration. Moving through points does not rewrite a previously shared checkpoint or automatically complete a discovery.
+
 ### One step of a random walk
 
 The near-canvas “只走一步 +1” control pauses and advances all 256 walkers by exactly one seeded step. A quiet readout follows the white representative walker: the latest direction, total path length and straight-line distance from the origin. This makes reversals visible without jumping 16 steps or opening the detailed instruments. It follows checkpoints, animation, parameter changes, tab restoration and shared observations; the shared URL stays fixed until shared again. At 512 steps the control is disabled, and reset or comparison buttons restore it. The existing 16-step keyboard and batch controls are unchanged.
