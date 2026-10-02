@@ -7,7 +7,7 @@ const click=(h,id)=>h.el(id).handlers.click();
 const input=(h,id,value)=>h.el(id).handlers.input({target:{value:String(value)}});
 const available=h=>h.el('life-undo-clear').getAttribute('aria-disabled')==='false';
 const tap=(h,x,y)=>h.el('canvas').handlers.click({clientX:(x+.5)*600/48,clientY:(y+.5)*414/32});
-const drawing=h=>({canvas:h.drawing(),metrics:h.el('metrics').textContent,history:h.el('history-line').getAttribute('points'),historyLabel:h.el('history-plot').getAttribute('aria-label'),position:h.el('life-cell-position').textContent,selection:h.el('life-selection').textContent,trial:h.el('life-test-result').textContent,returnHidden:h.el('life-return').hidden});
+const drawing=h=>({canvas:h.drawing(),metrics:h.el('metrics').textContent,history:h.el('history-line').getAttribute('points'),historyLabel:h.el('history-caption').textContent,position:h.el('life-cell-position').textContent,selection:h.el('life-selection').textContent,trial:h.el('life-test-result').textContent,returnHidden:h.el('life-return').hidden});
 const state=h=>({drawing:drawing(h),draws:h.drawCount(),url:location.href,writes:h.writes(),frames:h.frames.size,announcement:h.el('announcement').textContent,notes:h.el('field-notes-list').innerHTML,mission:h.el('mission-state').textContent});
 
 function pattern(h){
@@ -121,7 +121,7 @@ test('undo is a quiet described native button near Clear with a wrapping 44px ta
  assert.match(html,/<p id="life-clear-status" class="life-clear-status" aria-live="off" hidden>/);
  assert.ok(html.indexOf('id="clear"')<html.indexOf('id="life-undo-clear"'));
  assert.ok(html.indexOf('id="life-undo-clear"')<html.indexOf('id="life-touch"'));
- assert.ok(html.includes('app.js?v=life-input-interruption-1'));assert.ok(html.includes('style.css?v=life-clear-recovery-1'));
+ assert.ok(html.includes('app.js?v=life-history-1'));assert.ok(html.includes('style.css?v=life-history-1'));
  const css=await readFile(new URL('../style.css',import.meta.url),'utf8');
  assert.match(css,/#life-undo-clear\{min-height:44px;white-space:normal\}/);
  assert.match(css,/#life-undo-clear\[aria-disabled="true"\]/);assert.match(css,/\.life-clear-status\{[^}]*overflow-wrap:anywhere/);
