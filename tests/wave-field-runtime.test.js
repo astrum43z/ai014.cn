@@ -22,14 +22,14 @@ function assertField(h,width,height,scale,separation,wavelength,time){
 test('real app draws the original field through stepping, slider edits, presets, reset and geometry changes',async()=>{
  const h=await setup('?experiment=wave&at=v1,8,0,0');let width=600,height=414;
  const verify=(separation,wavelength,time,scale=Math.min(width,height)/280)=>assertField(h,width,height,scale,separation,wavelength,time);
- verify(100,32,0);h.el('step').handlers.click();verify(100,32,.1);
- h.el('wavelength').handlers.input({target:{value:'70'}});verify(100,70,.1);
- h.el('separation').handlers.input({target:{value:'180'}});verify(180,70,.1);
+ verify(100,32,0);h.el('step').handlers.click();verify(100,32,Math.PI/6);
+ h.el('wavelength').handlers.input({target:{value:'70'}});verify(100,70,Math.PI/6);
+ h.el('separation').handlers.input({target:{value:'180'}});verify(180,70,Math.PI/6);
  h.el('preset-select').handlers.change({target:{value:'wide'}});verify(150,65,0);
  h.el('guide-start').handlers.click();verify(100,32,0);
  width=767;height=317.9375;h.resize(width,height);verify(100,32,0);
- h.el('step').handlers.click();verify(100,32,.1);
- h.tabs[1].handlers.click();width=259;height=240;h.resize(width,height);h.tabs[2].handlers.click();verify(100,32,.1);
+ h.el('step').handlers.click();verify(100,32,Math.PI/6);
+ h.tabs[1].handlers.click();width=259;height=240;h.resize(width,height);h.tabs[2].handlers.click();verify(100,32,Math.PI/6);
  h.navigate('?experiment=wave&wavelength=15&separation=20&at=v1,10000,-10000,1000000000');
  verify(20,15,1e9,Math.min(width/2-18,height/2-18)/10000);
  h.key('Home');verify(20,15,1e9);

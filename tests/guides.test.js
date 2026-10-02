@@ -111,14 +111,16 @@ test('wave components show persistent cancellation and refresh after every probe
  const h=await setup('?experiment=wave');
  assert.equal(h.el('wave-components').hidden,false);
  h.el('guide-start').handlers.click();
- const firstLeft=h.el('wave-value-left').textContent;
+ const firstLeft=h.el('wave-value-left').textContent,seen=new Set();
  for(let i=0;i<24;i++){
+  seen.add(h.el('wave-value-left').textContent);
   assert.equal(h.el('wave-value-combined').textContent,'0.00');
   assert.ok(Math.abs(Number(h.el('wave-value-left').textContent)+Number(h.el('wave-value-right').textContent))<.001);
   assert.match(h.el('wave-envelope').textContent,/0.00$/);
   h.el('step').handlers.click();
  }
- assert.notEqual(h.el('wave-value-left').textContent,firstLeft);
+ assert.ok(seen.size>1,'source displacement changes within each cycle');
+ assert.equal(h.el('wave-value-left').textContent,firstLeft,'24 quarter steps complete six cycles');
  assert.match(h.el('announcement').textContent,/左源 A.*右源 B.*画面合成 0.00/);
  assert.equal(h.frames.size,0);
  h.key('Home');

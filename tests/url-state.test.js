@@ -88,7 +88,7 @@ test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=life-clear-recovery-1"'));
- assert.ok(html.includes('src="app.js?v=life-clear-recovery-1"'));
+ assert.ok(html.includes('src="app.js?v=wave-cycle-step-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
@@ -160,7 +160,7 @@ test('sharing wave cancellation restores the exact probe and phase, paused even 
  assert.deepEqual(ids.map(id=>h.el(id).textContent),expected);
  assert.equal(h.el('status').textContent,'已暂停');assert.equal(h.frames.size,0);
  assert.equal(location.href,url.href);assert.match(h.el('announcement').textContent,/复现/);
- h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/t \+ 0.2 s/);
+ h.el('step').handlers.click();assert.match(h.el('metrics').textContent,/t \+ 1.0 s/);
 });
 test('seeded exhibit links restore non-default progress and readings and can continue identically',async()=>{
  for(const [mode,search,steps] of [['fractal','jump=65&seed=23',9],['walk','bias=25&seed=99',5]]){
