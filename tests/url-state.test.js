@@ -80,15 +80,15 @@ test('reading navigation has native links, reachable focus targets and visible r
  const nav=html.match(/<nav class="reading-nav"[^>]*>(.*?)<\/nav>/)[1];
  for(const id of ['canvas','observation-title','discovery-title'])assert.ok(nav.includes('href="#'+id+'"'));
  for(const id of ['observation-title','discovery-title'])assert.ok(html.includes('id="'+id+'" tabindex="-1"'));
- assert.equal((html.match(/class="return-to-canvas" href="#canvas"/g)||[]).length,3);
+ assert.equal((html.match(/class="return-to-canvas" href="#canvas"/g)||[]).length,4);
 });
 
 
 test('updated assets have explicit cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('href="style.css?v=saved-observation-return-1"'));
- assert.ok(html.includes('src="app.js?v=saved-observation-return-1"'));
+ assert.ok(html.includes('href="style.css?v=life-comparison-route-1"'));
+ assert.ok(html.includes('src="app.js?v=life-comparison-route-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{

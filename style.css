@@ -306,3 +306,9 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .saved-observation p{margin:0 0 8px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
 .saved-observation button{width:100%;text-align:left}
 .saved-observation small{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.7}
+
+/* Read the comparison overlay without undoing the one-generation trial. */
+.life-trial-view{margin:0 0 12px}
+.life-trial-view .return-to-canvas{margin-top:0;max-width:100%;color:#d3f35b;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+.experiment-shortcuts #life-trial-result-link{margin-left:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+#life-test-result:focus-visible{outline:3px solid #ffac86;outline-offset:5px}
