@@ -294,3 +294,9 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 /* Match exact replay controls while preserving focus at the history boundary. */
 #life-back{min-height:44px;white-space:normal}
 #mission-result:focus-visible{outline:3px solid #ec8867;outline-offset:5px}
+
+/* Keep the route to recorded findings next to the completed result. */
+.mission-notes{margin-top:10px}
+.mission-notes a{display:inline-flex;align-items:center;min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:14px;line-height:1.8;text-decoration:underline;text-underline-offset:4px}
+.mission-notes a:focus-visible{outline:3px solid #ec8867;outline-offset:3px}
+.mission-notes small{display:block;color:#5d7157;font-size:12px;line-height:1.8}

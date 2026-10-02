@@ -574,6 +574,8 @@ function renderMission(){
  $('#mission-check').hidden=!run||complete;$('#mission-check-inline').hidden=!run||complete;
  $('#mission-check-help').hidden=!run||complete;$('#mission-check-inline-help').hidden=!run||complete;
  $('#mission-next').hidden=!complete;
+ // A completed result leads straight to the existing session notebook.
+ $('#mission-notes').hidden=!complete;
  renderMissionEntries();
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
  $('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#fractal-touch').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
