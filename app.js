@@ -224,19 +224,7 @@ if(mode==='walk'){
 if(mode==='wave'){
   if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;
   if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
-  e.preventDefault();paused=true;updatePause();
-  const scale=waveScale();
-  if(e.key==='Home'){probe={x:0,y:0};waveView=null;}
-  else{
-    if(e.key==='ArrowLeft')probe.x-=2;
-    if(e.key==='ArrowRight')probe.x+=2;
-    if(e.key==='ArrowUp')probe.y-=2;
-    if(e.key==='ArrowDown')probe.y+=2;
-    probe.x=Math.max(-width/(2*scale),Math.min(width/(2*scale),probe.x));
-    probe.y=Math.max(-height/(2*scale),Math.min(height/(2*scale),probe.y));
-  }
-  draw();
-  announce(`已暂停；探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)}；${$('#observation-b').textContent}；${$('#observation-c').textContent}；${waveReading()}`);
+  e.preventDefault();moveWaveProbe(e.key);
   return;
 }
 if(mode!=='life')return;if(e.altKey||e.ctrlKey||e.metaKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){
@@ -395,7 +383,7 @@ function renderMission(){
  $('#mission-next').hidden=!complete;
  $('#mission-next').textContent='下一个发现 · '+configs[discoveries[mode].next].title+' ↗';
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
- $('#wave-home').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
+ $('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
  $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开最后一步的随机落点',walk:'一位漫步者的路程与位移'}[mode];
  renderFieldNotes();
 }
@@ -425,10 +413,25 @@ $('#mission-start').addEventListener('click',()=>startMission());
 $('#mission-check').addEventListener('click',()=>inspectMission());
 $('#mission-check-inline').addEventListener('click',()=>inspectMission(true));
 $('#mission-next').addEventListener('click',()=>startMission(discoveries[mode].next));
-$('#wave-home').addEventListener('click',()=>{
+// Touch buttons and canvas keys share model-unit steps, pause and viewport bounds.
+function moveWaveProbe(key){
  if(mode!=='wave')return;
- paused=true;updatePause();probe={x:0,y:0};waveView=null;draw();announce('已暂停，探针回到中央；'+waveReading());
-});
+ paused=true;updatePause();
+ const scale=waveScale();
+ if(key==='Home'){probe={x:0,y:0};waveView=null;}
+ else{
+  if(key==='ArrowLeft')probe.x-=2;
+  if(key==='ArrowRight')probe.x+=2;
+  if(key==='ArrowUp')probe.y-=2;
+  if(key==='ArrowDown')probe.y+=2;
+  probe.x=Math.max(-width/(2*scale),Math.min(width/(2*scale),probe.x));
+  probe.y=Math.max(-height/(2*scale),Math.min(height/(2*scale),probe.y));
+ }
+ draw();
+ announce(`已暂停；探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)}；${$('#observation-b').textContent}；${$('#observation-c').textContent}；${waveReading()}`);
+}
+$('#wave-home').addEventListener('click',()=>moveWaveProbe('Home'));
+for(const direction of ['left','up','down','right'])$('#wave-'+direction).addEventListener('click',()=>moveWaveProbe('Arrow'+direction[0].toUpperCase()+direction.slice(1)));
 $('#fractal-1000').addEventListener('click',()=>{
  if(mode!=='fractal')return;
  paused=true;acc=0;updatePause();fractal=addFractalPoints(createFractal(values.seed,values.jump),1000);draw();updateAddress();
@@ -652,6 +655,7 @@ function renderWaveComponents(){
   $('#wave-bar-'+key).setAttribute('x',String(100+Math.min(0,value)*100));
   $('#wave-bar-'+key).setAttribute('width',String(Math.abs(value)*100));
  }
+ $('#wave-probe-reading').textContent=`探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)} · 整周期最大幅度 ${parts.envelope.toFixed(2)}`;
  $('#wave-envelope').textContent='完整周期最大 |(A+B)/2| · '+parts.envelope.toFixed(2);
 }
 
