@@ -166,6 +166,7 @@ function updateAddress(observation=null){
   // looking like a live link. Parameter-only links retain their existing behavior.
   refreshShareLink();
   if(canShareObservation(mode)&&!observation)$('#share-link').hidden=true;
+  renderSavedObservation();
 }
 function refreshShareLink(){
  const input=$('#share-link');
@@ -189,6 +190,32 @@ function currentObservation(){
   if(mode==='walk')return {count:walk.steps};
   return null;
 }
+// Read the existing fixed URL checkpoint, rather than keeping another model
+// snapshot. Parameter replacement already clears it; ordinary progress does not.
+function renderSavedObservation(){
+ const observation=readObservation(addressObservation,mode);
+ $('#saved-observation').hidden=!observation;
+ $('#saved-observation-reading').textContent=observation?'链接中的观测：'+(mode==='wave'?`探针 x ${observation.x.toFixed(1)}，y ${observation.y.toFixed(1)} · t ${observation.time.toFixed(2)} s`:mode==='fractal'?`${observation.count} 点`:`${observation.count} 步`):'';
+}
+function applyObservation(observation){
+ paused=true;acc=0;
+ if(mode==='wave'){probe={x:observation.x,y:observation.y};waveView={...probe};t=observation.time;}
+ if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),observation.count);
+ if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),observation.count);
+ updatePause();draw();
+}
+$('#observation-return').addEventListener('click',()=>{
+ const observation=readObservation(addressObservation,mode);
+ if(!observation)return;
+ clearShareStatus();
+ applyObservation(observation);
+ canvas.scrollIntoView?.({block:'center'});
+ canvas.focus({preventScroll:true});
+ announce('已回到链接中的观测并暂停；保留探索进度与本次发现；'+observationReading());
+});
+$('#observation-return').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function addressSettings(){
   if(location.search)return {...parseSettings(location.search,configs),search:location.search};
   const next=Object.hasOwn(configs,location.hash.slice(1))?location.hash.slice(1):'orbit';
@@ -199,11 +226,7 @@ function loadAddress(shared){
   const observation=readObservation(shared.search,shared.mode);
   changeMode(shared.mode,shared.values);
   if(!observation)return;
-  paused=true;acc=0;
-  if(mode==='wave'){probe={x:observation.x,y:observation.y};waveView={...probe};t=observation.time;}
-  if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),observation.count);
-  if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),observation.count);
-  updatePause();draw();updateAddress(observation);
+  applyObservation(observation);updateAddress(observation);
   announce('已暂停复现链接中的观测；可以单步比较或继续探索');
 }
 function restoreAddress(){

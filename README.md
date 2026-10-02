@@ -492,3 +492,12 @@ A completed exploration now offers “查看与保存本次发现” immediately
 The route appears only for the current completed exploration, follows its retained state across tab returns, and hides on restart or a genuinely different URL. Historical notes remain intact. Result focus and its existing announcement stay unchanged; the next Tab reaches the link. The link uses the already named, focusable notebook section and existing native anchor/history behavior. It wraps with a 44-pixel target and a visible keyboard focus ring, with no new live region, model changes, storage, download logic or dependencies.
 
 `tests/mission-notes-route.test.js` covers every experiment and both check locations, incomplete checks, repeated completion, restart, tab returns, fixed checkpoints, running-state preservation, native fragments, URL invalidation, and responsive/accessible markup. Public cloud-browser checks cover the completed-result-to-notebook path and zoomed layout; physical touch, device rotation and screen-reader speech remain unverified.
+
+
+## Return to a fixed shared observation
+
+Wave, Fractal and Walk now show a quiet description of the current link’s saved moment, plus “回到链接中的观测”. The action rebuilds that same probe/time, seeded point count or seeded step count and pauses, then reveals and focuses the canvas. It does not reload the page, rewrite the fixed URL, change other worlds, restart an exploration or erase earned notebook entries. A nearby warning explains that the current canvas is replaced. An opened observation link offers the same return even before it is copied. Parameter-only or invalid links offer no misleading return action.
+
+The destination comes from the existing validated URL checkpoint, with no extra model archive or persistent storage. Ordinary running, stepping, reset and tab return retain it; changing parameters, presets or guided starts clears it as before. Sharing again explicitly records the new moment. Return clears obsolete copy feedback and ignores a late clipboard result; repeated Enter cannot trigger repeated returns or edit the newly focused canvas.
+
+`tests/saved-observation-return.test.js` covers exact replay and subsequent deterministic steps, running interruptions, caps, resize, tab/history restoration, invalid links, replacement invalidation, active and completed discoveries, other-world preservation, native key behavior and responsive/accessible markup. Hardware touch, device rotation and screen-reader speech remain unverified.
