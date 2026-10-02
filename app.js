@@ -208,7 +208,9 @@ function fitOrbitPoint(){
 function orbitScale(){return Math.min(Math.min(width,height)/450,(width/2-34)/Math.max(1,Math.abs(orbitView?.x||0)),(height/2-34)/Math.max(1,Math.abs(orbitView?.y||0)));}
 function waveScale(){return Math.min(Math.min(width,height)/280,(width/2-18)/Math.max(1,Math.abs(waveView?.x||0)),(height/2-18)/Math.max(1,Math.abs(waveView?.y||0)));}
 function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)/r.width*width,y:(event.clientY-r.top)/r.height*height};}
-canvas.addEventListener('click',e=>{if(cancelledClickPointer!==null&&(e.pointerId===undefined||e.pointerId===cancelledClickPointer)){cancelledClickPointer=null;wasDragging=false;return;}if(mode==='life'&&wasDragging){wasDragging=false;return;}if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
+// Legacy MouseEvent clicks follow the latest accepted pointer sequence. Keyboard
+// activation (detail 0) and unrelated pointer IDs never consume another guard.
+canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
 function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -672,30 +674,36 @@ $('#share').addEventListener('click',async()=>{
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));
 // A stroke belongs to one pointer and cannot survive interrupted capture.
-let paintingPointer=null,cancelledClickPointer=null,lastPaint=null,paintingBounds=null,wasDragging=false;
+let paintingPointer=null,lastCanvasPointer=null,lastPaint=null,paintingBounds=null,wasDragging=false;
+const suppressedClickPointers=new Set();
+function suppressPaintingClick(id){
+  suppressedClickPointers.delete(id);suppressedClickPointers.add(id);
+  // Cancelled touches may never produce a click; retain only recent sequences.
+  if(suppressedClickPointers.size>16)suppressedClickPointers.delete(suppressedClickPointers.values().next().value);
+}
 function cancelPainting(){
   const id=paintingPointer;
-  if(id!==null)cancelledClickPointer=id;
+  if(id!==null)suppressPaintingClick(id);
   paintingPointer=null;lastPaint=null;paintingBounds=null;wasDragging=false;
   if(id!==null&&canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);
 }
-// A lost window/tab or missed release ends only an active gesture. Keep the
-// following-click guard of an already completed drag intact. Accepted keyboard,
-// Step and Continue commands also take ownership before changing the Life board.
+// A lost window/tab or missed release ends only an active gesture. Completed
+// drag clicks belong to their pointer even after another command or world opens.
 function interruptPainting(){if(paintingPointer!==null)cancelPainting();}
 addEventListener('blur',interruptPainting);
 function endPainting(e){
   if(paintingPointer===null||e.pointerId!==paintingPointer)return;
   if(e.type==='pointerup'){
     paintTo(e);
-    if(wasDragging)announce('已暂停；绘制完成；'+observationReading());
-  }else cancelledClickPointer=e.pointerId;
-  paintingPointer=null;lastPaint=null;paintingBounds=null;
-  // Preserve click suppression after a normal drag and its implicit capture loss.
+    if(paintingPointer===null)return;
+    if(wasDragging){suppressPaintingClick(e.pointerId);announce('已暂停；绘制完成；'+observationReading());}
+  }else suppressPaintingClick(e.pointerId);
+  paintingPointer=null;lastPaint=null;paintingBounds=null;wasDragging=false;
 }
 canvas.addEventListener('pointerdown',e=>{
   if(paintingPointer!==null||e.isPrimary===false||e.button!==0)return;
-  cancelledClickPointer=null;
+  // A genuine new interaction supersedes only this pointer's unconsumed click.
+  suppressedClickPointers.delete(e.pointerId);lastCanvasPointer=e.pointerId;
   if(mode!=='life')return;
   paintingPointer=e.pointerId;paintingBounds=canvas.getBoundingClientRect();wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e,paintingBounds);
   canvas.setPointerCapture(e.pointerId);
