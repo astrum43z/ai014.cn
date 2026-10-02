@@ -293,3 +293,4 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 /* Match exact replay controls while preserving focus at the history boundary. */
 #life-back{min-height:44px;white-space:normal}
+#mission-result:focus-visible{outline:3px solid #ec8867;outline-offset:5px}

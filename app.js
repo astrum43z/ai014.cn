@@ -592,8 +592,13 @@ function inspectMission(fromCanvas=false){
  }
  renderMission();
  announce(report.message);
- if(fromCanvas)$('#mission').scrollIntoView?.({block:'start'});
- if(fromCanvas||report.kind==='complete')$('#mission-result').focus({preventScroll:true});
+ if(fromCanvas||report.kind==='complete'){
+  // At narrow widths the instructions can be taller than the viewport.
+  // Reveal the same result that receives focus, after its content is rendered.
+  const result=$('#mission-result');
+  result.scrollIntoView?.({block:'center'});
+  result.focus({preventScroll:true});
+ }
 }
 function recordedNotes(){
  return [...fieldNotes].map(([name,note])=>({title:configs[name].title,finding:missions[name].finding,note}));

@@ -136,7 +136,7 @@ test('notebook retains discoveries through a replay, never duplicates or persist
 
 test('inline check returns to result and next discovery loads the connected world paused',async()=>{
  const h=await setup('?experiment=wave');start(h);check(h);click(h,'wave-home');
- let scrolled=0,focused=0;h.el('mission').scrollIntoView=()=>scrolled++;h.el('mission-result').focus=()=>focused++;
+ let scrolled=0,focused=0;h.el('mission-result').scrollIntoView=()=>scrolled++;h.el('mission-result').focus=()=>focused++;
  click(h,'mission-check-inline');assert.equal(scrolled,1);assert.equal(focused,1);
  click(h,'mission-next');assert.match(location.search,/experiment=life/);assert.equal(h.el('mission-state').textContent,'探索中');assert.match(h.el('metrics').textContent,/0 个活格子/);assert.equal(h.frames.size,0);
 });
