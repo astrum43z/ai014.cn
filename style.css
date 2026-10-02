@@ -286,3 +286,6 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .explain .reading-source a{display:flex;align-items:center;min-height:44px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
 .explain .reading-source p{font-size:12px;line-height:1.8;margin-top:4px;overflow-wrap:anywhere}
 @media(max-width:720px){.explain .reading-source p{font-size:13px}}
+
+/* Complete the parameter comparison loop without traversing export controls. */
+.controls>.return-to-canvas{grid-column:1/-1;justify-self:start;max-width:100%;margin:0 0 9px;white-space:normal;overflow-wrap:anywhere}

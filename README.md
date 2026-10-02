@@ -413,3 +413,12 @@ Each experiment's existing external reference now names its publisher and topic 
 Reference titles wrap in a flexible layout, retain visible keyboard focus and use a minimum 44-pixel link target. Descriptions follow direct links, tab returns, guides and history restoration without a live region or additional control. This adds no model step, saved data, dependency or network request. Source titles, formats and the PDF page count were checked at their existing destinations on 2026-10-02.
 
 `tests/reading-sources.test.js` covers every source, repeated transitions, PDF-description clearing, history, fixed checkpoints versus live canvases, preset/parameter/guide changes, native markup and responsive styles. Public cloud-browser checks cover the published labels, keyboard navigation and zoomed layout; physical touch and screen-reader speech remain separate verification limits.
+
+
+## Return from parameters to the canvas
+
+A native “回到画布，继续实验” link immediately follows the parameter sliders and their effect guidance. On the stacked phone/zoomed layout, visitors can now go straight back to the canvas after an adjustment, before passing the preset, save, share and reading controls. It reuses the existing visible focus style and 44-pixel reading-link target, spans the controls grid, and wraps at narrow widths.
+
+The link moves native focus and navigation to the current canvas. It does not restart, pause, step or change parameters; effects that apply only to the next launch or random sowing still work that way. Existing Back/Forward handling, per-world state and fixed observation checkpoints remain unchanged. No new JavaScript handler, animation, storage or dependency is added.
+
+`tests/parameter-return.test.js` checks native semantics and placement, responsive styling, all five worlds after parameter edits, running-state preservation, fixed checkpoints and Life clear recovery. Public cloud-browser checks cover keyboard/pointer return and Back/Forward at normal and zoomed widths; physical touch, device rotation and screen-reader speech are not claimed.
