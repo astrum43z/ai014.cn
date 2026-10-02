@@ -312,6 +312,7 @@ e.preventDefault();
 // A held toggle key must not repeatedly erase and repaint the same cell.
 // Arrow repeats remain useful for moving across the board.
 if(e.repeat&&(e.key==='Enter'||e.key===' '))return;
+interruptPainting();
 paused=true;updatePause();if(e.key==='ArrowLeft')focusCell.x=(focusCell.x+47)%48;if(e.key==='ArrowRight')focusCell.x=(focusCell.x+1)%48;if(e.key==='ArrowUp')focusCell.y=(focusCell.y+31)%32;if(e.key==='ArrowDown')focusCell.y=(focusCell.y+1)%32;if(e.key==='Enter'||e.key===' '){lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}draw();announce('已暂停；'+lifeReading());}});
 
 const lifeOutcomes={
@@ -408,7 +409,7 @@ function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;gr
 $('#pause').addEventListener('keydown',event=>{
  if(event.repeat&&event.key==='Enter')event.preventDefault();
 });
-$('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；可退回一步、重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；可退回一点、重置或改变参数后继续');return;}paused=!paused;if(mode==='life'&&!paused){lifeTrial=null;lifeCleared=null;draw();}updatePause();if(mode==='orbit'||mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){preset=presets[mode].findIndex(([,value])=>value===name);$('#preset-select').value=name;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}syncParameterControls();draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
+$('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；可退回一步、重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；可退回一点、重置或改变参数后继续');return;}interruptPainting();paused=!paused;if(mode==='life'&&!paused){lifeTrial=null;lifeCleared=null;draw();}updatePause();if(mode==='orbit'||mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){preset=presets[mode].findIndex(([,value])=>value===name);$('#preset-select').value=name;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}syncParameterControls();draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
 // Guided starts are explicit, repeatable resets; they never begin animation.
 function startGuide(next=mode){
   if(next!==mode)changeMode(next);
@@ -606,7 +607,7 @@ $('#preset').addEventListener('click',()=>{
  const next=mode==='life'?'random':presets[mode][(preset+1)%presets[mode].length][1];
  applyPreset(next);
 });
-$('#step').addEventListener('click',()=>{paused=true;updatePause();if(mode==='life'){lifeTrial=null;lifeCleared=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=mode==='wave'?WAVE_QUARTER_PERIOD:.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce((mode==='wave'?'已暂停，推进四分之一周期；':'已暂停；')+observationReading());});
+$('#step').addEventListener('click',()=>{interruptPainting();paused=true;updatePause();if(mode==='life'){lifeTrial=null;lifeCleared=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=mode==='wave'?WAVE_QUARTER_PERIOD:.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce((mode==='wave'?'已暂停，推进四分之一周期；':'已暂停；')+observationReading());});
 // One bounded recovery for an explicit Clear; fresh work cannot be overwritten.
 function renderLifeClear(){
  $('#life-undo-clear').setAttribute('aria-disabled',String(!lifeCleared));
@@ -653,7 +654,8 @@ function cancelPainting(){
   if(id!==null&&canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);
 }
 // A lost window/tab or missed release ends only an active gesture. Keep the
-// following-click guard of an already completed drag intact.
+// following-click guard of an already completed drag intact. Accepted keyboard,
+// Step and Continue commands also take ownership before changing the Life board.
 function interruptPainting(){if(paintingPointer!==null)cancelPainting();}
 addEventListener('blur',interruptPainting);
 function endPainting(e){

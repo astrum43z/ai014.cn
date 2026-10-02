@@ -88,7 +88,7 @@ test('updated reading assets have explicit matching cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=life-clear-recovery-1"'));
- assert.ok(html.includes('src="app.js?v=discovery-return-1"'));
+ assert.ok(html.includes('src="app.js?v=life-input-interruption-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
