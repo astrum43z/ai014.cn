@@ -431,3 +431,12 @@ Exploration steps now say “当前步骤” or “已完成” in visible text,
 The labels follow the existing checked milestones: only an explicit successful check advances a comparison, with Life's cleared starting board already marked complete. Growing a sample or changing a parameter does not claim an unchecked result. Completed steps remain historical after further experimentation, survive tab/anchor returns, and clear when a genuinely different URL starts a new experiment. Restart retains earlier notebook entries. Models, pause behavior, fixed shared observations, and the number of steps are unchanged.
 
 `tests/mission-progress.test.js` covers all five starts, failed/repeated checks, verified comparisons and completion, restarts, tab and history restoration, historical notes, fixed checkpoints, and quiet animation. Public cloud-browser checks cover visible/accessible wording and zoomed wrapping; physical touch, rotation and screen-reader speech remain unverified.
+
+
+## Know what a check does before using it
+
+The exploration's two check controls now have nearby effect descriptions, associated with their buttons for assistive technology: checking pauses without advancing the simulation, and only completing the exploration adds a notebook entry. The near-canvas description also explains that the result returns to the exploration above. These quiet descriptions appear with the active controls and disappear for idle or completed explorations.
+
+Life's optional instrument action now says “前进一代并对比”. Its associated description explicitly explains that this comparison pauses and advances one generation, can return to the original drawing, and does not itself write a discovery. Continue, a model step or an edit ends the comparison as before. The separate clearing action keeps its own replacement warning. This distinguishes the two existing operations without changing either operation, scientific checks, notebook rules, focus behavior, shared observations or simulation models.
+
+`tests/check-effects.test.js` verifies all five non-advancing exploration checks, pause behavior, help visibility through completion/restart/tab/history, fixed checkpoints, actual Life advance/return, notebook boundaries and quiet animation. Existing native wrapping and 44-pixel controls are retained. Physical touch, rotation and screen-reader speech are outside these automated checks.

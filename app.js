@@ -354,6 +354,7 @@ function renderLifeInspector(){
 function renderLifeChallenge(){
  $('#life-test').disabled=Boolean(lifeTrial);
  $('#life-return').hidden=!lifeTrial;
+ $('#life-return-help').hidden=!lifeTrial;
  $('#life-trial-legend').hidden=!lifeTrial||lifeTrial.report.changed===0;
  const count=population(cells);
  const result=$('#life-test-result');
@@ -531,6 +532,7 @@ function renderMission(){
  $('#mission-start').textContent=run?'重新开始 ↺':'开始这次探索 ↗';
  $('#mission-start').setAttribute('data-restart',String(Boolean(run)));
  $('#mission-check').hidden=!run||complete;$('#mission-check-inline').hidden=!run||complete;
+ $('#mission-check-help').hidden=!run||complete;$('#mission-check-inline-help').hidden=!run||complete;
  $('#mission-next').hidden=!complete;
  renderMissionEntries();
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
