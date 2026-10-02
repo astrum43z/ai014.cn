@@ -4,7 +4,7 @@ import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
 import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.js';
 import {orbitLaunchState,clampOrbitPoint} from './orbit.js?v=resize-stable-1';
-import {paintLifeLine} from './painting.js?v=drag-eraser-1';
+import {paintLifeLine} from './painting.js?v=edit-recovery-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
 import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} from './walk.js?v=walk-distance-1';
 import {discoveries} from './journeys.js?v=random-walk-1';
@@ -41,7 +41,7 @@ presets.walk=[['没有偏向 · 扩散','unbiased'],['轻轻向右 · 漂移','d
 let fractal,walk;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let mode='orbit', values={},paused=reducedMotion.matches,t=0,acc=0,generation=0,bodies=[],cells=new Uint8Array(48*32),preset=0,focusCell={x:24,y:16},canvasFocused=false,width=600,height=414;
-let lifeTrial=null,lifeCleared=null;
+let lifeTrial=null,lifeCleared=null,lifeEdited=null;
 // Page-only drawing tool, independent of simulation state and shared links.
 let lifeErasing=false;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0},orbitView=null;
@@ -74,11 +74,11 @@ function renderProgressControls(){
 }
 
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';$('#status').textContent=paused?'已暂停':'运行中';$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
-function reset(){cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
+function reset(){cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
 function rememberExperiment(){
  const state={values,paused,t,acc,preset,presetChoice:$('#preset-select').value,addressObservation,shareVisible:!$('#share-link').hidden};
  if(mode==='orbit')Object.assign(state,{bodies,orbitPoint,orbitView});
- if(mode==='life')Object.assign(state,{cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared});
+ if(mode==='life')Object.assign(state,{cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared,lifeEdited});
  if(mode==='wave')Object.assign(state,{probe,waveView});
  if(mode==='fractal')state.fractal=fractal;
  if(mode==='walk')state.walk=walk;
@@ -87,7 +87,7 @@ function rememberExperiment(){
 function restoreExperiment(state){
  ({values,paused,t,acc,preset}=state);
  if(mode==='orbit'){({bodies,orbitPoint,orbitView}=state);fitOrbitPoint();}
- if(mode==='life')({cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared}=state);
+ if(mode==='life')({cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared,lifeEdited}=state);
  if(mode==='wave'){({probe,waveView}=state);fitWaveProbe();}
  if(mode==='fractal')fractal=state.fractal;
  if(mode==='walk')walk=state.walk;
@@ -261,7 +261,7 @@ function waveScale(){return Math.min(Math.min(width,height)/280,(width/2-18)/Mat
 function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)/r.width*width,y:(event.clientY-r.top)/r.height*height};}
 // Legacy MouseEvent clicks follow the latest accepted pointer sequence. Keyboard
 // activation (detail 0) and unrelated pointer IDs never consume another guard.
-canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
+canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
 function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -366,7 +366,7 @@ e.preventDefault();
 // Arrow repeats remain useful for moving across the board.
 if(e.repeat&&(e.key==='Enter'||e.key===' '))return;
 interruptPainting();
-paused=true;updatePause();if(e.key==='ArrowLeft')focusCell.x=(focusCell.x+47)%48;if(e.key==='ArrowRight')focusCell.x=(focusCell.x+1)%48;if(e.key==='ArrowUp')focusCell.y=(focusCell.y+31)%32;if(e.key==='ArrowDown')focusCell.y=(focusCell.y+1)%32;if(e.key==='Enter'||e.key===' '){lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}draw();announce('已暂停；'+lifeReading());}});
+paused=true;updatePause();if(e.key==='ArrowLeft')focusCell.x=(focusCell.x+47)%48;if(e.key==='ArrowRight')focusCell.x=(focusCell.x+1)%48;if(e.key==='ArrowUp')focusCell.y=(focusCell.y+31)%32;if(e.key==='ArrowDown')focusCell.y=(focusCell.y+1)%32;if(e.key==='Enter'||e.key===' '){rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}draw();announce('已暂停；'+lifeReading());}});
 
 const lifeOutcomes={
  born:['诞生','空格恰有 3 个活邻居，下一代变活'],
@@ -376,7 +376,7 @@ const lifeOutcomes={
  empty:['仍空','空格的活邻居不等于 3，下一代仍空']
 };
 function renderLifeInspector(){
- renderLifeDragTool();
+ renderLifeDragTool();renderLifeEdit();
  const cell=inspectLifeCell(cells,48,32,focusCell.x,focusCell.y),[outcome,reason]=lifeOutcomes[cell.rule];
  $('#life-cell-position').textContent=`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行`;
  $('#life-cell-state').textContent=`当前：${cell.alive?'活格':'空格'} · 活邻居 ${cell.neighbors} / 8`;
@@ -428,7 +428,7 @@ function drawLifeTrial(cw,ch){
 function testLifeDrawing(){
  if(mode!=='life'||lifeTrial)return;
  cancelPainting();paused=true;acc=0;updatePause();
- lifeCleared=null;
+ lifeCleared=null;lifeEdited=null;
  const report=testStillLife(cells,48,32);
  lifeTrial={cells:cells.slice(),generation,lifeHistory:lifeHistory.slice(),focusCell:{...focusCell},report};
  cells=report.next;generation++;draw();
@@ -438,7 +438,7 @@ function testLifeDrawing(){
 function returnLifeDrawing(){
  if(mode!=='life'||!lifeTrial)return;
  cancelPainting();paused=true;acc=0;updatePause();
- ({cells,generation,lifeHistory,focusCell}=lifeTrial);lifeTrial=null;draw();
+ ({cells,generation,lifeHistory,focusCell}=lifeTrial);lifeTrial=null;lifeEdited=null;draw();
  canvas.scrollIntoView?.({block:'center'});canvas.focus({preventScroll:true});
  announce('已回到检验前的图案，可以修改；'+$('#life-test-result').textContent);
 }
@@ -452,7 +452,7 @@ $('#life-return').addEventListener('keydown',event=>{
 $('#life-challenge-start').addEventListener('click',()=>{
  if(mode!=='life')return;
  cancelPainting();paused=true;acc=0;updatePause();
- cells=new Uint8Array(48*32);generation=0;lifeHistory=[];lifeTrial=null;lifeCleared=null;focusCell={x:23,y:15};
+ cells=new Uint8Array(48*32);generation=0;lifeHistory=[];lifeTrial=null;lifeCleared=null;lifeEdited=null;focusCell={x:23,y:15};
  draw();canvas.scrollIntoView?.({block:'center'});canvas.focus({preventScroll:true});
  announce('已清空并暂停。挑战：点亮 4 格，让下一代位置完全不变。方向键选格，Enter 切换生灭。');
 });
@@ -495,7 +495,7 @@ $('#life-back').addEventListener('click',()=>{
  if(mode!=='life')return;
  const previous=previousLifeGeneration();if(!previous)return;
  cancelPainting();paused=true;acc=0;updatePause();
- lifeTrial=null;lifeCleared=null;
+ lifeTrial=null;lifeCleared=null;lifeEdited=null;
  lifeHistory.pop();cells=Uint8Array.from(previous.key,Number);generation=previous.generation;
  draw();announce('已暂停并退回一代；'+observationReading());
 });
@@ -504,13 +504,13 @@ $('#life-back').addEventListener('keydown',event=>{
 });
 function observe(){renderProgressControls();const a=$('#observation-a'),b=$('#observation-b'),c=$('#observation-c'),detail=$('#observation-detail');$('#history-plot').hidden=mode!=='life';if(mode==='orbit'){renderOrbitLaunch();const body=bodies[0],r=Math.hypot(body.x,body.y),v=Math.hypot(body.vx,body.vy);setReadingText(a,'首颗行星距离 · '+r.toFixed(1));setReadingText(b,'首颗行星速率 · '+v.toFixed(1));setReadingText(c,'活跃天体 · '+bodies.length);setReadingText(detail,'距离和速率使用模型单位。调弱引力后，比较同一颗行星的距离变化；想公平比较，请先重置，再只改一个参数。');}if(mode==='life'){renderLifeClear();renderLifeInspector();renderLifeChallenge();if(lifeHistory.at(-1)?.generation===generation)lifeHistory.pop();const count=population(cells),period=repeatPeriod(lifeHistory,cells,generation);lifeHistory.push({generation,key:Array.from(cells).join(''),count});if(lifeHistory.length>120)lifeHistory.shift();setReadingText(a,'活细胞 · '+count);setReadingText(b,'占用率 · '+(count/cells.length*100).toFixed(1)+'%');setReadingText(c,count===0?'状态 · 全部消失':period===1?'状态 · 静止图案':period?'重复周期 · '+period+' 代':'状态 · 尚未发现重复');renderLifeHistory();setReadingText(detail,'折线保留最近 120 次观测，横轴为代数，纵轴从 0 到这段记录的最大数量（全空时为 1 格），会自动缩放；实点是当前值。数量相同不代表图案相同。周期判断比较完全相同的棋盘，不把平移后的滑翔机算作重复；只检查最近 120 次观测，未发现重复不代表永不重复；编辑画布会重新开始记录。');}if(mode==='fractal'){renderFractalJump();setReadingText(a,'已留下 · '+fractal.count+' / '+FRACTAL_LIMIT+' 点');setReadingText(b,'每次前进 · '+values.jump+'%');setReadingText(c,'随机种子 · '+values.seed);setReadingText(detail,values.jump===50?'50%：观察中央的空三角形，再找角落里的更小空三角形。换一个种子，比较相同点数：落点顺序改变，整体结构仍相似。颜色仅用于显示点，不表示概率或维数。':'当前不是 50%：比较空隙和重叠怎样变化。维数 1.585 只对应 50% 的理想谢尔宾斯基三角形，不适用于当前比例。');}if(mode==='walk'){renderWalkDistance();const stats=walkStats(walk);setReadingText(a,'实测散开程度 · '+stats.spread.toFixed(2));setReadingText(b,'理论散开程度 · '+stats.expectedSpread.toFixed(2));setReadingText(c,'点云中心 x · '+stats.meanX.toFixed(2));setReadingText(detail,`当前 ${walk.steps} 步；散开程度 = 到点云中心距离的均方根，单位为步长。理论中心 x = ${stats.expectedX.toFixed(2)}；实测离起点的均方根距离 = ${stats.rmsDistance.toFixed(2)}。有限的 256 个样本会有波动，实测不必等于理论。虚线圈是理论散开尺度，不是边界或等概率线；视图可能缩放，请看标尺与读数。`);}if(mode==='wave'){renderWaveComponents();const d=wavePathDifference(probe.x,probe.y,values.separation,values.wavelength);setReadingText(a,'波程差 Δr · '+d.difference.toFixed(1));setReadingText(b,'Δr / λ · '+d.cycles.toFixed(2));setReadingText(c,'相遇方式 · '+({constructive:'接近加强',destructive:'接近抵消',mixed:'部分叠加'}[d.kind]));setReadingText(detail,'数值使用模型单位。轻点画布或聚焦后用方向键移动白色探针，Home 回中央。两条路径相差整数个波长时加强，相差半整数个波长时抵消。“接近”指与上述位置相差不到 0.1 个波长；它描述振幅包络，不是这一瞬间的位移。');}}
 function draw(){ctx.clearRect(0,0,width,height);ctx.fillStyle='#122e29';ctx.fillRect(0,0,width,height);if(mode==='orbit'){const scale=orbitScale();ctx.save();ctx.translate(width/2,height/2);ctx.scale(scale,scale);ctx.strokeStyle='#29443a';ctx.lineWidth=1/scale;[50,100,150,200].forEach(r=>{ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();});ctx.strokeStyle='#385046';ctx.beginPath();ctx.moveTo(-width/scale/2,0);ctx.lineTo(width/scale/2,0);ctx.moveTo(0,-height/scale/2);ctx.lineTo(0,height/scale/2);ctx.stroke();const glow=ctx.createRadialGradient(0,0,3,0,0,38);glow.addColorStop(0,'#d3f35b88');glow.addColorStop(1,'#d3f35b00');ctx.fillStyle=glow;ctx.fillRect(-38,-38,76,76);ctx.fillStyle='#d3f35b';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();drawOrbitPreview(scale);bodies.forEach(b=>{ctx.strokeStyle=b.color+'75';ctx.lineWidth=1.3/scale;ctx.beginPath();b.trail.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,4.5/scale,0,Math.PI*2);ctx.fill();});drawOrbitLauncher(scale);ctx.restore();$('#metrics').textContent=`${bodies.length} 颗行星 · t + ${t.toFixed(1)} s`;}else if(mode==='life'){const cw=width/48,ch=height/32;ctx.fillStyle='#d3f35b';cells.forEach((v,i)=>{if(v)ctx.fillRect((i%48)*cw+.6,Math.floor(i/48)*ch+.6,Math.max(1,cw-1.2),Math.max(1,ch-1.2));});ctx.strokeStyle='#26443a';ctx.lineWidth=.5;for(let x=0;x<=48;x++){ctx.beginPath();ctx.moveTo(x*cw,0);ctx.lineTo(x*cw,height);ctx.stroke();}for(let y=0;y<=32;y++){ctx.beginPath();ctx.moveTo(0,y*ch);ctx.lineTo(width,y*ch);ctx.stroke();}drawLifeTrial(cw,ch);ctx.strokeStyle='#ffac86';ctx.lineWidth=2;ctx.strokeRect(focusCell.x*cw+1,focusCell.y*ch+1,Math.max(1,cw-2),Math.max(1,ch-2));$('#metrics').textContent=`第 ${generation} 代 · ${cells.reduce((a,b)=>a+b,0)} 个活格子`;}else if(mode==='fractal'){drawFractal();}else if(mode==='walk'){drawWalk();}else{const scale=waveScale(),step=WAVE_GRID_STEP,field=getWaveField(width,height,scale,values.separation,values.wavelength);let sample=0;for(let y=0;y<height;y+=step)for(let x=0;x<width;x+=step){const v=waveFieldValue(field,sample++,t*WAVE_ANGULAR_SPEED),a=Math.abs(v);ctx.fillStyle=v>0?`rgb(${18+a*175},${46+a*177},${41+a*55})`:`rgb(${18+a*56},${46+a*107},${41+a*112})`;ctx.fillRect(x,y,step,step);}drawWavePaths(scale);for(const sign of [-1,1]){ctx.fillStyle='#f4f5eb';ctx.beginPath();ctx.arc(width/2+sign*values.separation/2*scale,height/2,4,0,Math.PI*2);ctx.fill();ctx.font='11px sans-serif';ctx.fillText(sign<0?'A':'B',width/2+sign*values.separation/2*scale-4,height/2-12);}ctx.strokeStyle='#fff';ctx.lineWidth=1;const px=width/2+probe.x*scale,py=height/2+probe.y*scale;ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);ctx.moveTo(px-14,py);ctx.lineTo(px+14,py);ctx.moveTo(px,py-14);ctx.lineTo(px,py+14);ctx.stroke();$('#metrics').textContent=`2 个同频波源 · 波长 ${values.wavelength} · t + ${t.toFixed(1)} s`;}observe();}
-function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;growWalk(4);draw();return;}if(mode==='fractal'){acc+=dt;if(acc<.1)return;acc%=.1;growFractal();draw();return;}if(mode==='orbit'){bodies.forEach(b=>{for(let i=0;i<4;i++)orbitStep(b,values.gravity*1000,dt/4);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}if(mode==='life'){acc+=dt;let changed=false;while(acc>=1/values.rate){lifeTrial=null;cells=lifeStep(cells,48,32);generation++;acc-=1/values.rate;changed=true;}if(!changed)return;}draw();}
+function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;growWalk(4);draw();return;}if(mode==='fractal'){acc+=dt;if(acc<.1)return;acc%=.1;growFractal();draw();return;}if(mode==='orbit'){bodies.forEach(b=>{for(let i=0;i<4;i++)orbitStep(b,values.gravity*1000,dt/4);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}if(mode==='life'){acc+=dt;let changed=false;while(acc>=1/values.rate){lifeTrial=null;lifeEdited=null;cells=lifeStep(cells,48,32);generation++;acc-=1/values.rate;changed=true;}if(!changed)return;}draw();}
 // A held Enter must not repeatedly undo Pause or Continue. Leave the first
 // activation and Space's native keyup behavior intact, without held-key state.
 $('#pause').addEventListener('keydown',event=>{
  if(event.repeat&&event.key==='Enter')event.preventDefault();
 });
-$('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；可退回一步、重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；可退回一点、重置或改变参数后继续');return;}interruptPainting();paused=!paused;if(mode==='life'&&!paused){lifeTrial=null;lifeCleared=null;draw();}updatePause();if(mode==='orbit'||mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){const next=presets[mode].findIndex(([,value])=>value===name);if(next<0)return;preset=next;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}choosePreset(name);syncParameterControls();draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
+$('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；可退回一步、重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；可退回一点、重置或改变参数后继续');return;}interruptPainting();paused=!paused;if(mode==='life'&&!paused){lifeTrial=null;lifeCleared=null;lifeEdited=null;draw();}updatePause();if(mode==='orbit'||mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){const next=presets[mode].findIndex(([,value])=>value===name);if(next<0)return;preset=next;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}choosePreset(name);syncParameterControls();draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
 // Guided starts are explicit, repeatable resets; they never begin animation.
 function startGuide(next=mode){
   if(next!==mode)changeMode(next);
@@ -548,7 +548,7 @@ function missionSnapshot(){
 function startMission(next=mode){
  startGuide(next);
  if(mode==='life'){
-  cancelPainting();cells=new Uint8Array(48*32);generation=0;acc=0;lifeHistory=[];lifeTrial=null;lifeCleared=null;focusCell={x:23,y:15};draw();
+  cancelPainting();cells=new Uint8Array(48*32);generation=0;acc=0;lifeHistory=[];lifeTrial=null;lifeCleared=null;lifeEdited=null;focusCell={x:23,y:15};draw();
  }
  const initial=missionSnapshot();
  missionRuns.set(mode,{phase:0,status:'active',baseline:{revision:initial.revision},feedback:''});
@@ -713,7 +713,7 @@ function touchLife(dx,dy,toggle=false){
  if(mode!=='life')return;
  cancelPainting();paused=true;updatePause();
  focusCell={x:(focusCell.x+48+dx)%48,y:(focusCell.y+32+dy)%32};
- if(toggle){lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}
+ if(toggle){rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}
  draw();announce('已暂停；'+lifeReading());
 }
 function renderLifeDragTool(){
@@ -737,6 +737,23 @@ $('#life-toggle').addEventListener('keydown',e=>{
  if(e.repeat&&e.key==='Enter')e.preventDefault();
 });
 
+// Keep one edit, never a stack of earlier recoveries. A drag shares one snapshot
+// across all its samples; selection and the drawing tool are not edits.
+function lifeDrawingSnapshot(){
+ return {cells:cells.slice(),generation,lifeHistory:lifeHistory.slice(),focusCell:{...focusCell},lifeTrial,fraction:acc*values.rate};
+}
+function rememberLifeEdit(){lifeEdited=lifeDrawingSnapshot();}
+function renderLifeEdit(){
+ $('#life-undo-edit').setAttribute('aria-disabled',String(!lifeEdited));
+ setReadingText($('#life-edit-status'),lifeEdited?'可撤销上一笔：恢复本次轻点、逐格切换或整段拖动前的图案。':'暂无可撤销的绘制。');
+}
+$('#life-undo-edit').addEventListener('click',()=>{
+ if(mode!=='life'||!lifeEdited)return;
+ cancelPainting();paused=true;updatePause();
+ ({cells,generation,lifeHistory,focusCell,lifeTrial}=lifeEdited);acc=lifeEdited.fraction/values.rate;lifeEdited=null;lifeCleared=null;
+ draw();announce('已撤销上一笔并暂停；'+observationReading());
+});
+
 // Selecting is reversible and never replaces an experiment. Load is explicit,
 // so native keyboard browsing and reloading the same choice are both safe.
 function choosePreset(name){
@@ -753,7 +770,7 @@ $('#preset').addEventListener('click',()=>{
  const next=mode==='life'?'random':presets[mode][(preset+1)%presets[mode].length][1];
  applyPreset(next);
 });
-$('#step').addEventListener('click',()=>{if(progressAtLimit()){announce('已暂停；'+observationReading());return;}interruptPainting();paused=true;updatePause();if(mode==='life'){lifeTrial=null;lifeCleared=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=mode==='wave'?WAVE_QUARTER_PERIOD:.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce((mode==='wave'?'已暂停，推进四分之一周期；':'已暂停；')+observationReading());});
+$('#step').addEventListener('click',()=>{if(progressAtLimit()){announce('已暂停；'+observationReading());return;}interruptPainting();paused=true;updatePause();if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=mode==='wave'?WAVE_QUARTER_PERIOD:.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce((mode==='wave'?'已暂停，推进四分之一周期；':'已暂停；')+observationReading());});
 // One bounded recovery for an explicit Clear; fresh work cannot be overwritten.
 function renderLifeClear(){
  $('#life-undo-clear').setAttribute('aria-disabled',String(!lifeCleared));
@@ -765,13 +782,13 @@ $('#clear').addEventListener('click',()=>{
  // A second clear of the untouched blank board must not erase its recovery.
  const count=population(cells);
  if(count||generation||lifeTrial)lifeCleared={cells:cells.slice(),generation,lifeHistory:lifeHistory.slice(),focusCell:{...focusCell},lifeTrial,fraction:acc*values.rate,count};
- cells=new Uint8Array(48*32);generation=0;acc=0;lifeHistory=[];lifeTrial=null;draw();
+ cells=new Uint8Array(48*32);generation=0;acc=0;lifeHistory=[];lifeTrial=null;lifeEdited=null;draw();
  announce('画布已清空，可以播种'+(lifeCleared?'；可用“撤销清空”恢复原图案':''));
 });
 $('#life-undo-clear').addEventListener('click',()=>{
  if(mode!=='life'||!lifeCleared)return;
  cancelPainting();paused=true;updatePause();
- ({cells,generation,lifeHistory,focusCell,lifeTrial}=lifeCleared);acc=lifeCleared.fraction/values.rate;lifeCleared=null;
+ ({cells,generation,lifeHistory,focusCell,lifeTrial}=lifeCleared);acc=lifeCleared.fraction/values.rate;lifeCleared=null;lifeEdited=null;
  draw();announce('已撤销清空，恢复原图案并暂停；'+observationReading());
 });
 $('#share').addEventListener('click',async()=>{
@@ -792,7 +809,7 @@ $('#share').addEventListener('click',async()=>{
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));
 // A stroke belongs to one pointer and cannot survive interrupted capture.
-let paintingPointer=null,lastCanvasPointer=null,lastPaint=null,paintingBounds=null,wasDragging=false;
+let paintingPointer=null,lastCanvasPointer=null,lastPaint=null,paintingBounds=null,paintingBefore=null,wasDragging=false;
 const suppressedClickPointers=new Set();
 function suppressPaintingClick(id){
   suppressedClickPointers.delete(id);suppressedClickPointers.add(id);
@@ -802,7 +819,7 @@ function suppressPaintingClick(id){
 function cancelPainting(){
   const id=paintingPointer;
   if(id!==null)suppressPaintingClick(id);
-  paintingPointer=null;lastPaint=null;paintingBounds=null;wasDragging=false;
+  paintingPointer=null;lastPaint=null;paintingBounds=null;paintingBefore=null;wasDragging=false;
   if(id!==null&&canvas.hasPointerCapture?.(id))canvas.releasePointerCapture(id);
 }
 // A lost window/tab or missed release ends only an active gesture. Completed
@@ -816,14 +833,14 @@ function endPainting(e){
     if(paintingPointer===null)return;
     if(wasDragging){suppressPaintingClick(e.pointerId);announce('已暂停；'+(lifeErasing?'擦除完成':'绘制完成')+'；'+observationReading());}
   }else suppressPaintingClick(e.pointerId);
-  paintingPointer=null;lastPaint=null;paintingBounds=null;wasDragging=false;
+  paintingPointer=null;lastPaint=null;paintingBounds=null;paintingBefore=null;wasDragging=false;
 }
 canvas.addEventListener('pointerdown',e=>{
   if(paintingPointer!==null||e.isPrimary===false||e.button!==0)return;
   // A genuine new interaction supersedes only this pointer's unconsumed click.
   suppressedClickPointers.delete(e.pointerId);lastCanvasPointer=e.pointerId;
   if(mode!=='life')return;
-  paintingPointer=e.pointerId;paintingBounds=canvas.getBoundingClientRect();wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e,paintingBounds);
+  paintingPointer=e.pointerId;paintingBounds=canvas.getBoundingClientRect();wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e,paintingBounds);paintingBefore=lifeDrawingSnapshot();
   canvas.setPointerCapture(e.pointerId);
 });
 function lifeCell(event,rect=canvas.getBoundingClientRect()){
@@ -841,8 +858,12 @@ function paintTo(event){
   // A little movement inside the same cell is still a tap. Once the pointer
   // crosses a cell boundary, join samples so fast mouse/touch strokes stay solid.
   if(!next||!lastPaint||(next.x===lastPaint.x&&next.y===lastPaint.y))return;
-  lifeTrial=null;lifeCleared=null;paintLifeLine(cells,48,lastPaint,next,lifeErasing?0:1);
-  wasDragging=true;lifeHistory=[];lastPaint=next;focusCell={...next};draw();
+  const changed=paintLifeLine(cells,48,lastPaint,next,lifeErasing?0:1);
+  if(changed){
+    if(paintingBefore){lifeEdited=paintingBefore;paintingBefore=null;}
+    lifeTrial=null;lifeCleared=null;lifeHistory=[];
+  }
+  wasDragging=true;lastPaint=next;focusCell={...next};draw();
 }
 canvas.addEventListener('pointermove',e=>{
   if(paintingPointer===null||e.pointerId!==paintingPointer||mode!=='life')return;

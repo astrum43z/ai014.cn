@@ -319,3 +319,10 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .life-touch #life-erase[aria-pressed="true"]{background:#ffac86;border-color:#ffac86;color:#122e29}
 .life-touch #life-drag-status,.life-touch #life-drag-help{color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 .life-touch #life-drag-help{display:block}
+
+/* A single drawing recovery remains reachable beside the drawing tools. */
+.life-touch .life-edit-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+.life-touch #life-undo-edit{flex:0 1 auto;min-height:44px;white-space:normal;font-size:13px}
+.life-touch #life-undo-edit[aria-disabled="true"]{opacity:.6;cursor:default}
+.life-touch #life-edit-status,.life-touch #life-edit-help{color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.life-touch #life-edit-help{display:block}

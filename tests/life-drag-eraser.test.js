@@ -103,7 +103,8 @@ test('an actual erasing edit invalidates old comparison and clear recovery, whil
  assert.equal(h.el('life-trial-view').hidden,true);assert.equal(h.el('life-back').getAttribute('aria-disabled'),'true');
  const before=state(h);click(h,'clear');assert.equal(h.el('life-undo-clear').getAttribute('aria-disabled'),'false');
  click(h,'life-undo-clear');assert.equal(erasing(h),true);assert.deepEqual(state(h),before);
- click(h,'clear');stroke(h,[2,4],[6,4]);assert.equal(h.el('life-undo-clear').getAttribute('aria-disabled'),'true');
+ click(h,'clear');stroke(h,[2,4],[6,4]);assert.equal(h.el('life-undo-clear').getAttribute('aria-disabled'),'false','erasing empty cells does not replace recovery');
+ tap(h,2,4);assert.equal(h.el('life-undo-clear').getAttribute('aria-disabled'),'true');
  const edited=state(h);click(h,'life-undo-clear');assert.deepEqual(state(h),edited);
 });
 
@@ -150,6 +151,6 @@ test('eraser is a described native toggle with a quiet visible state and wrappin
  assert.ok(group.includes('id="life-erase"'));assert.doesNotMatch(group,/aria-live="polite"|role="status"/);
  assert.match(css,/\.life-touch \.life-drag-tool\{[^}]*flex-wrap:wrap/);
  assert.match(css,/\.life-touch #life-erase\{[^}]*min-height:44px;white-space:normal/);
- assert.match(html,/app\.js\?v=life-drag-eraser-1/);assert.match(html,/style\.css\?v=life-drag-eraser-1/);
- const app=await readFile(new URL('../app.js',import.meta.url),'utf8');assert.match(app,/painting\.js\?v=drag-eraser-1/);
+ assert.match(html,/app\.js\?v=life-edit-recovery-1/);assert.match(html,/style\.css\?v=life-edit-recovery-1/);
+ const app=await readFile(new URL('../app.js',import.meta.url),'utf8');assert.match(app,/painting\.js\?v=edit-recovery-1/);
 });
