@@ -329,3 +329,12 @@ Narrowing the viewport or zooming no longer moves a selected orbit launch point 
 Pointer launches, precision buttons and canvas keys use the same displayed scale. Directional movement retains a stable, bounded view rather than continually zooming out. Home, reset, presets, guided starts and new URL settings return to the normal view. Existing planets remain free to leave the screen; fitting is for the next launch point, not a change to the gravity model.
 
 `tests/orbit-resize.test.js` covers all pointer quadrants, narrow/tall/fractional canvas sizes, tab restoration, unchanged readings and bodies, exact five-unit movement, bounded repeats, launch-to-preview agreement after resizing, resets and launch limits. Public cloud-browser zoom checks complement these deterministic tests; physical-device rotation and screen-reader speech are not claimed.
+
+
+## Recover an accidentally cleared Life drawing
+
+Life now keeps one page-only snapshot for its explicit Clear action. The adjacent “撤销清空” button restores the exact cells, generation, selected cell, observation history, and any open before/after challenge comparison, and leaves the simulation paused. Its quiet message identifies the recoverable generation and live-cell count. Repeated clearing of the untouched blank board preserves the original snapshot. The consumed control stays focusable with a guarded unavailable state.
+
+Moving the cursor, resizing, changing rate or density, sharing parameters, and visiting other worlds retain recovery. Editing cells, advancing or continuing the simulation, testing a generation, loading a preset or guide, resetting, or restoring different Life URL settings discards it, so undo cannot overwrite newer work. Restoring retains the pre-clear fractional generation at the current rate; it does not revert parameters, shared URLs, earned notes, or discovery progress. Refresh clears the snapshot; nothing is stored or uploaded.
+
+`tests/life-clear-recovery.test.js` covers exact restoration, repeated clear/undo, focus, cadence, interrupted drawing, comparisons, tab/history transitions, invalidation and unaffected worlds. Public cloud-browser checks supplement these deterministic tests; physical touch and screen-reader speech require separate verification.
