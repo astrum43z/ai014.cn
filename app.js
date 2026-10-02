@@ -557,7 +557,12 @@ $('#life-toggle').addEventListener('keydown',e=>{
 });
 
 $('#preset-select').addEventListener('change',e=>applyPreset(e.target.value));
-$('#preset').addEventListener('click',()=>{preset=(preset+1)%presets[mode].length;$('#preset-select').value=presets[mode][preset][1];applyPreset(presets[mode][preset][1]);});
+$('#preset').addEventListener('click',()=>{
+ // Life's button promises a fresh random sow at the selected density.
+ // Named patterns remain available in the select; other worlds keep cycling.
+ const next=mode==='life'?'random':presets[mode][(preset+1)%presets[mode].length][1];
+ applyPreset(next);
+});
 $('#step').addEventListener('click',()=>{paused=true;updatePause();if(mode==='life'){lifeTrial=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce('已暂停；'+observationReading());});
 $('#clear').addEventListener('click',()=>{cancelPainting();paused=true;updatePause();cells=new Uint8Array(48*32);generation=0;lifeHistory=[];lifeTrial=null;draw();announce('画布已清空，可以播种');});
 $('#share').addEventListener('click',async()=>{
