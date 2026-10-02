@@ -858,6 +858,13 @@ $('#walk-step-one').addEventListener('click',()=>{
  if(mode!=='walk'||walk.steps>=WALK_LIMIT)return;
  paused=true;acc=0;updatePause();advanceWalk(walk,1);draw();announceWalk();
 });
+// Exact replay is one point or step per press, like the fractal canvas key.
+// Keep native Space keyup and fresh presses; only cancel held Enter repeats.
+for(const id of ['fractal-back','fractal-forward','fractal-step','walk-back','walk-step-one']){
+ $('#'+id).addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
+}
 function announceWalk(){const stats=walkStats(walk);announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，可退回一步或重置后继续':''}`);}
 function growWalk(amount=16){
  advanceWalk(walk,amount);
