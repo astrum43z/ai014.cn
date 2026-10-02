@@ -20,7 +20,7 @@ test('the final single walk step preserves focus and further activation is a tru
  const button=keepNativeFocus(h,'walk-step-one');click(h,'walk-step-one');
  assert.equal(document.activeElement,button);assert.equal(unavailable(h,'walk-step-one'),true);
  assert.match(h.el('metrics').textContent,/512 步/);
- assert.match(h.el('walk-step-reading').textContent,/已达 512 步上限，可重置或比较 16 \/ 64 步/);
+ assert.match(h.el('walk-step-reading').textContent,/已达 512 步上限，可退回一步、重置或比较 16 \/ 64 步/);
  const atLimit=state(h);
  for(let i=0;i<10;i++)click(h,'walk-step-one');
  assert.deepEqual(state(h),atLimit);assert.equal(document.activeElement,button);

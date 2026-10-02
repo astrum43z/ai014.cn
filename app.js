@@ -40,7 +40,7 @@ function observationReading(){
  const progress=mode==='life'?`第 ${generation} 代；`:mode==='walk'?`${walk.steps} 步；`:'';
  const readings=['a','b','c'].map(key=>$('#observation-'+key).textContent).join('；');
  const atLimit=(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT)||(mode==='walk'&&walk.steps>=WALK_LIMIT);
- return progress+readings+(mode==='orbit'?'；'+orbitLaunchReading():mode==='wave'?'；'+waveReading():mode==='life'?'；'+lifeReading():mode==='fractal'?'；'+fractalReading():mode==='walk'?'；'+walkReading():'')+(atLimit?'；已达到上限，请重置后继续':'');
+ return progress+readings+(mode==='orbit'?'；'+orbitLaunchReading():mode==='wave'?'；'+waveReading():mode==='life'?'；'+lifeReading():mode==='fractal'?'；'+fractalReading():mode==='walk'?'；'+walkReading():'')+(atLimit?(mode==='walk'?'；已达到上限，可退回一步或重置后继续':'；已达到上限，请重置后继续'):'');
 }
 
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';$('#status').textContent=paused?'已暂停':'运行中';$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
@@ -405,7 +405,7 @@ function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;gr
 $('#pause').addEventListener('keydown',event=>{
  if(event.repeat&&event.key==='Enter')event.preventDefault();
 });
-$('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；请重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；可退回一点、重置或改变参数后继续');return;}paused=!paused;if(mode==='life'&&!paused){lifeTrial=null;draw();}updatePause();if(mode==='orbit'||mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){preset=presets[mode].findIndex(([,value])=>value===name);$('#preset-select').value=name;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}syncParameterControls();draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
+$('#pause').addEventListener('click',()=>{if(mode==='walk'&&walk.steps>=WALK_LIMIT){announce('已达到 512 步；可退回一步、重置或改参数后继续');return;}if(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT){announce('已达到 12,000 点；可退回一点、重置或改变参数后继续');return;}paused=!paused;if(mode==='life'&&!paused){lifeTrial=null;draw();}updatePause();if(mode==='orbit'||mode==='fractal'||mode==='walk'||mode==='wave')draw();announce(paused?'模拟已暂停；'+observationReading():'模拟已继续');});$('#reset').addEventListener('click',reset);function applyPreset(name){preset=presets[mode].findIndex(([,value])=>value===name);$('#preset-select').value=name;if(mode==='walk'){values.bias=name==='drift'?25:0;if(name==='another')values.seed=values.seed%99+1;for(const id of ['bias','seed']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id]+(id==='bias'?'%':'');}}if(mode==='fractal'){values.jump={half:50,overlap:38,islands:65}[name];$('#jump').value=values.jump;$('#out-jump').textContent=values.jump+'%';}reset();if(mode==='orbit'){bodies.forEach(b=>{b.vy*=name==='elliptic'?.65:name==='escape'?1.45:1;});}if(mode==='life'){cells=new Uint8Array(48*32);if(name==='random'){cells=Uint8Array.from({length:48*32},()=>Math.random()<values.density/100?1:0);}else{let points=name==='blinker'?[[0,0],[1,0],[2,0]]:name==='pulsar'?[]:[[1,0],[2,1],[0,2],[1,2],[2,2]];if(name==='pulsar'){for(const a of [2,3,4,8,9,10])for(const b of [0,5,7,12]){points.push([a,b],[b,a]);}}const ox=name==='pulsar'?17:22,oy=name==='pulsar'?9:14;points.forEach(([x,y])=>cells[(oy+y)*48+ox+x]=1);focusCell={x:ox+points[0][0],y:oy+points[0][1]};}}if(mode==='wave'){const options={ripple:[32,100],wide:[65,150],close:[28,35]};[values.wavelength,values.separation]=options[name];for(const id of ['wavelength','separation']){$('#'+id).value=values[id];$('#out-'+id).textContent=values[id];}}syncParameterControls();draw();updateAddress();announce('已载入预设：'+presets[mode].find(p=>p[1]===name)[0]);}
 // Guided starts are explicit, repeatable resets; they never begin animation.
 function startGuide(next=mode){
   if(next!==mode)changeMode(next);
@@ -735,14 +735,20 @@ function setWalkCheckpoint(steps){
 }
 $('#walk-16').addEventListener('click',()=>setWalkCheckpoint(16));
 $('#walk-64').addEventListener('click',()=>setWalkCheckpoint(64));
+$('#walk-back').addEventListener('click',()=>{
+ // Replaying the seed restores every walker and the next random draw exactly.
+ // Keep the shared-observation lower bound and do nothing when unavailable.
+ if(mode!=='walk'||walk.steps<=16)return;
+ setWalkCheckpoint(walk.steps-1);
+});
 $('#walk-step-one').addEventListener('click',()=>{
  if(mode!=='walk'||walk.steps>=WALK_LIMIT)return;
  paused=true;acc=0;updatePause();advanceWalk(walk,1);draw();announceWalk();
 });
-function announceWalk(){const stats=walkStats(walk);announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，请重置后继续':''}`);}
+function announceWalk(){const stats=walkStats(walk);announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，可退回一步或重置后继续':''}`);}
 function growWalk(amount=16){
  advanceWalk(walk,amount);
- if(walk.steps>=WALK_LIMIT){paused=true;updatePause();announce('已达到 512 步并暂停；可以保存图片，或重置后探索');}
+ if(walk.steps>=WALK_LIMIT){paused=true;updatePause();announce('已达到 512 步并暂停；可退回一步、保存图片，或重置后探索');}
 }
 function drawWalk(){
  const stats=walkStats(walk),center=stats.expectedX/2;
@@ -812,7 +818,8 @@ function renderWalkDistance(){
  const path=walkPathStats(walk);
  const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
  const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';
- $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可重置或比较 16 / 64 步':''}。`;
+ $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可退回一步、重置或比较 16 / 64 步':walk.steps<=16?'；已回到 16 步起点':''}。`;
+ $('#walk-back').setAttribute('aria-disabled',String(walk.steps<=16));
  $('#walk-step-one').setAttribute('aria-disabled',String(walk.steps>=WALK_LIMIT));
  $('#walk-length').textContent=path.length+' 步长';
  $('#walk-displacement').textContent=path.distance.toFixed(2)+' 步长';

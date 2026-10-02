@@ -224,6 +224,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 #walk-step-help{display:block;margin:6px 0 0}
 
 #walk-step-one[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
+#walk-back[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 
 /* Seed replay controls remain beside the canvas when instruments are closed. */
 .fractal-touch{padding:14px 20px;border-top:1px solid #385046}
