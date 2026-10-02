@@ -424,7 +424,7 @@ function startGuide(next=mode){
 }
 $('#guide-start').addEventListener('click',()=>enterDiscovery(mode));
 function enterDiscovery(next){startGuide(next);$('#panel').scrollIntoView?.({block:'start'});canvas.focus({preventScroll:true});}
-$('#journey-start').addEventListener('click',()=>startMission('fractal'));
+$('#journey-start').addEventListener('click',()=>openMission('fractal'));
 $('#discovery-next').addEventListener('click',()=>enterDiscovery(discoveries[mode].next));
 function renderDiscovery(){
  const d=discoveries[mode];
@@ -454,6 +454,30 @@ function startMission(next=mode){
  $('#mission').scrollIntoView?.({block:'start'});$('#mission-title').focus({preventScroll:true});
  announce('已开始并暂停：'+missions[mode].title+'。'+missions[mode].first);
 }
+// Entry shortcuts return to an existing exploration instead of resetting it.
+// Explicit restart stays available; historical notes alone are not a session.
+function openMission(next){
+ const run=missionRuns.get(next);
+ if(!run){startMission(next);return;}
+ selectTab(next);
+ const complete=run.status==='complete',target=$(complete?'#mission-result':'#mission-title');
+ (complete?target:$('#mission')).scrollIntoView?.({block:complete?'center':'start'});
+ target.focus({preventScroll:true});
+ announce('已回到'+configs[mode].title+'；保留当前画布、参数与探索记录；'+(paused?'已暂停':'继续运行')+'。'+$('#mission-instruction').textContent);
+}
+function missionEntryHelp(next){
+ const run=missionRuns.get(next);
+ if(!run)return '载入'+configs[next].title+'的探索起点并暂停，会替换该实验的画布与参数。';
+ return (run.status==='complete'?'回看已完成的发现':'接着上次的探索')+'；保留当前画布、参数与探索记录，运行或暂停状态保持不变。';
+}
+function renderMissionEntries(){
+ const first=missionRuns.get('fractal'),next=discoveries[mode].next,following=missionRuns.get(next);
+ $('#journey-start').innerHTML=(first?(first.status==='complete'?'回看发现':'继续探索'):'先试一个')+'：随机长出秩序 <span aria-hidden="true">↗</span>';
+ $('#journey-replaces').textContent=(first?'':'约 2 分钟 · ')+missionEntryHelp('fractal');
+ $('#mission-next').textContent=(following?(following.status==='complete'?'回看发现':'继续探索'):'下一个发现')+' · '+configs[next].title+' ↗';
+ $('#mission-next-help').textContent=missionEntryHelp(next);
+ $('#mission-next-help').hidden=missionRuns.get(mode)?.status!=='complete';
+}
 function renderMission(){
  const activity=missions[mode],run=missionRuns.get(mode),complete=run?.status==='complete';
  $('#mission-title').textContent=activity.title;$('#mission-duration').textContent=activity.duration;
@@ -470,7 +494,7 @@ function renderMission(){
  $('#mission-start').setAttribute('data-restart',String(Boolean(run)));
  $('#mission-check').hidden=!run||complete;$('#mission-check-inline').hidden=!run||complete;
  $('#mission-next').hidden=!complete;
- $('#mission-next').textContent='下一个发现 · '+configs[discoveries[mode].next].title+' ↗';
+ renderMissionEntries();
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
  $('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#fractal-touch').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
  $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开最后一步的随机落点',walk:'一位漫步者的路程与位移'}[mode];
@@ -535,7 +559,7 @@ $('#field-notes-list').addEventListener('click',event=>{
 $('#mission-start').addEventListener('click',()=>startMission());
 $('#mission-check').addEventListener('click',()=>inspectMission());
 $('#mission-check-inline').addEventListener('click',()=>inspectMission(true));
-$('#mission-next').addEventListener('click',()=>startMission(discoveries[mode].next));
+$('#mission-next').addEventListener('click',()=>openMission(discoveries[mode].next));
 // Touch buttons and canvas keys share model-unit steps, pause and viewport bounds.
 function moveWaveProbe(key){
  if(mode!=='wave')return;

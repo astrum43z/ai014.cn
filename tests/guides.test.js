@@ -80,7 +80,7 @@ test('guide cancels an active drawing stroke and mode changes replace its instru
  assert.equal(h.frames.size,0);
 });
 
-test('question entrance loads a reproducible paused fractal and repeated entry resets it',async()=>{
+test('question entrance starts a paused fractal and repeated entry retains it',async()=>{
  const h=await setup('?experiment=life');
  h.el('journey-start').handlers.click();
  assert.match(h.el('stage-title').textContent,/随机长出秩序/);
@@ -89,7 +89,7 @@ test('question entrance loads a reproducible paused fractal and repeated entry r
  assert.equal(h.frames.size,0);
  h.el('step').handlers.click();
  h.el('journey-start').handlers.click();
- assert.match(h.el('metrics').textContent,/300 个点/);
+ assert.match(h.el('metrics').textContent,/400 个点/);
  assert.equal(h.frames.size,0);
 });
 test('connected discovery route cycles every experiment without autoplay and synchronizes questions',async()=>{
