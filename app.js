@@ -163,7 +163,7 @@ function renderOrbitLaunch(){
  setReadingText($('#orbit-launch-note'),bodies.length>=24?'已达到 24 颗上限，请先重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。');
  setReadingText($('#orbit-touch-reading'),$('#orbit-position').textContent+'；'+$('#orbit-speed').textContent);
  setReadingText($('#orbit-touch-status'),$('#orbit-launch-note').textContent);
- $('#orbit-fire').disabled=!launch.valid||bodies.length>=24;
+ $('#orbit-fire').setAttribute('aria-disabled',String(!launch.valid||bodies.length>=24));
 }
 function launchOrbit(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -187,7 +187,12 @@ function orbitCommand(key){
  orbitPoint=clampOrbitPoint(orbitPoint,width,height);draw();announce('已暂停；'+orbitLaunchReading());
 }
 for(const [id,key] of [['orbit-left','ArrowLeft'],['orbit-up','ArrowUp'],['orbit-down','ArrowDown'],['orbit-right','ArrowRight'],['orbit-home','Home'],['orbit-fire','Enter']]){
- $('#'+id).addEventListener('click',()=>orbitCommand(key));
+ $('#'+id).addEventListener('click',()=>{
+  // Unavailable precision buttons remain focusable; guard before pausing or
+  // announcing. Direct canvas launches retain their existing guidance.
+  if(id==='orbit-fire'&&(mode!=='orbit'||bodies.length>=24||!orbitLaunchState(orbitPoint,values.gravity*1000,values.speed).valid))return;
+  orbitCommand(key);
+ });
 }
 // Native buttons can repeat activation while Enter is held, just like canvas keys.
 $('#orbit-fire').addEventListener('keydown',e=>{
@@ -638,7 +643,7 @@ function setWalkCheckpoint(steps){
 $('#walk-16').addEventListener('click',()=>setWalkCheckpoint(16));
 $('#walk-64').addEventListener('click',()=>setWalkCheckpoint(64));
 $('#walk-step-one').addEventListener('click',()=>{
- if(mode!=='walk')return;
+ if(mode!=='walk'||walk.steps>=WALK_LIMIT)return;
  paused=true;acc=0;updatePause();advanceWalk(walk,1);draw();announceWalk();
 });
 function announceWalk(){const stats=walkStats(walk);announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，请重置后继续':''}`);}
@@ -715,7 +720,7 @@ function renderWalkDistance(){
  const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
  const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';
  $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可重置或比较 16 / 64 步':''}。`;
- $('#walk-step-one').disabled=walk.steps>=WALK_LIMIT;
+ $('#walk-step-one').setAttribute('aria-disabled',String(walk.steps>=WALK_LIMIT));
  $('#walk-length').textContent=path.length+' 步长';
  $('#walk-displacement').textContent=path.distance.toFixed(2)+' 步长';
  const horizontal=path.x===0?'左右抵消':`净向${path.x>0?'右':'左'} ${Math.abs(path.x)} 步`;

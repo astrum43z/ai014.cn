@@ -49,13 +49,13 @@ test('shared checkpoints remain fixed until shared again and exact odd steps res
 });
 test('animation updates the quiet readout and limit disables until rewind or reset',async()=>{
  const h=await setup('?experiment=walk&at=v1,511');check(h,14,0,511);
- h.el('walk-step-one').handlers.click();check(h,14,0,512);assert.equal(h.el('walk-step-one').disabled,true);
+ h.el('walk-step-one').handlers.click();check(h,14,0,512);assert.equal(h.el('walk-step-one').getAttribute('aria-disabled'),'true');
  assert.match(h.el('walk-step-reading').textContent,/已达 512 步上限/);
  h.el('walk-step-one').handlers.click();check(h,14,0,512);
- h.el('walk-64').handlers.click();assert.equal(h.el('walk-step-one').disabled,false);
+ h.el('walk-64').handlers.click();assert.equal(h.el('walk-step-one').getAttribute('aria-disabled'),'false');
  h.el('pause').handlers.click();const announcement=h.el('announcement').textContent;
  h.tick(0);h.tick(50);h.tick(100);check(h,14,0,68);assert.equal(h.el('announcement').textContent,announcement);
- h.el('reset').handlers.click();check(h,14,0,16);assert.equal(h.el('walk-step-one').disabled,false);
+ h.el('reset').handlers.click();check(h,14,0,16);assert.equal(h.el('walk-step-one').getAttribute('aria-disabled'),'false');
 });
 test('one-step completes neither measured mission phase without the required checks',async()=>{
  const h=await setup('?experiment=walk');h.el('mission-start').handlers.click();h.el('mission-check').handlers.click();

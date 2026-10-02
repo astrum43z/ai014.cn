@@ -21,19 +21,19 @@ test('explicit launch adds exactly one paused planet and invalid center is expla
  const h=await setup('?experiment=orbit');click(h,'orbit-fire');
  assert.match(h.el('metrics').textContent,/4 颗行星 · t \+ 0.0 s/);assert.equal(h.frames.size,0);
  for(let i=0;i<28;i++)click(h,'orbit-left');
- assert.equal(h.el('orbit-fire').disabled,true);assert.match(reading(h),/离中心太近/);
+ assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'true');assert.match(reading(h),/离中心太近/);
  assert.match(h.el('orbit-touch-status').textContent,/至少 22/);
  click(h,'orbit-fire');assert.match(h.el('metrics').textContent,/4 颗行星/);
- click(h,'orbit-home');assert.equal(h.el('orbit-fire').disabled,false);assert.match(reading(h),/x 140.0，y 0.0/);
+ click(h,'orbit-home');assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'false');assert.match(reading(h),/x 140.0，y 0.0/);
  click(h,'orbit-fire');assert.match(h.el('metrics').textContent,/5 颗行星/);
 });
 
 test('24-planet cap disables launch and reset restores it without autoplay',async()=>{
  const h=await setup('?experiment=orbit');for(let i=0;i<24;i++)click(h,'orbit-fire');
- assert.match(h.el('metrics').textContent,/24 颗行星/);assert.equal(h.el('orbit-fire').disabled,true);
+ assert.match(h.el('metrics').textContent,/24 颗行星/);assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'true');
  assert.match(h.el('orbit-touch-status').textContent,/24 颗上限/);
- click(h,'orbit-home');assert.equal(h.el('orbit-fire').disabled,true);
- click(h,'reset');assert.equal(h.el('orbit-fire').disabled,false);assert.match(h.el('metrics').textContent,/3 颗行星/);assert.equal(h.frames.size,0);
+ click(h,'orbit-home');assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'true');
+ click(h,'reset');assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'false');assert.match(h.el('metrics').textContent,/3 颗行星/);assert.equal(h.frames.size,0);
 });
 
 test('tab return restores position and hidden controls cannot affect another world',async()=>{
@@ -41,7 +41,7 @@ test('tab return restores position and hidden controls cannot affect another wor
  h.tabs[3].handlers.click();assert.equal(h.el('orbit-touch').hidden,true);const metrics=h.el('metrics').textContent;
  click(h,'orbit-fire');click(h,'orbit-home');assert.equal(h.el('metrics').textContent,metrics);
  h.tabs[0].handlers.click();assert.equal(h.el('orbit-touch').hidden,false);assert.equal(reading(h),position);assert.equal(location.href,url);
- h.navigate('?experiment=orbit&gravity=40&speed=65');assert.match(reading(h),/x 140.0，y 0.0/);assert.equal(h.el('orbit-fire').disabled,false);
+ h.navigate('?experiment=orbit&gravity=40&speed=65');assert.match(reading(h),/x 140.0，y 0.0/);assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'false');
 });
 
 test('readings track slider and direct canvas launches and animation stays quiet',async()=>{
@@ -49,7 +49,7 @@ test('readings track slider and direct canvas launches and animation stays quiet
  assert.match(reading(h),/15.5.*23.9 × 65%/);
  h.el('canvas').handlers.click({clientX:300+100*414/450,clientY:207});
  assert.match(reading(h),/x 100.0，y 0.0/);assert.match(h.el('metrics').textContent,/4 颗行星/);
- assert.equal(h.el('orbit-fire').disabled,false);
+ assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'false');
  click(h,'pause');const position=reading(h),message=h.el('announcement').textContent;
  h.tick(0);h.tick(50);assert.equal(reading(h),position);assert.equal(h.el('announcement').textContent,message);
  click(h,'orbit-home');assert.equal(h.frames.size,0);assert.equal(h.el('orbit-preview-reading').hidden,false);
