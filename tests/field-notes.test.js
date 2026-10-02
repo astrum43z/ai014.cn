@@ -135,3 +135,108 @@ test('save is a named native button with quiet feedback, refresh guidance and a 
  assert.match(css,/\.notes-actions\{[^}]*flex-wrap:wrap/);
  assert.match(css,/\.notes-actions button\{[^}]*min-height:44px;[^}]*max-width:100%;[^}]*white-space:normal/);
 });
+
+test('plain-text view appears only with a completed discovery and empty selection is harmless',async()=>{
+ const h=await setupLab('?experiment=wave');
+ assert.equal(h.el('notes-preview').hidden,true);assert.equal(h.el('notes-text').value,'');
+ const before=snapshot(h),announcement=h.el('announcement').textContent;
+ click(h,'notes-select');assert.deepEqual(snapshot(h),before);assert.equal(h.el('announcement').textContent,announcement);
+ click(h,'mission-start');click(h,'mission-check');
+ assert.equal(h.el('notes-preview').hidden,true);assert.equal(h.el('notes-text').value,'');
+ click(h,'wave-home');click(h,'mission-check');
+ assert.equal(h.el('notes-preview').hidden,false);
+ assert.equal(h.el('notes-text').value,await download(h).text());
+ const fresh=await setupLab('?experiment=wave');
+ assert.equal(fresh.el('notes-preview').hidden,true);assert.equal(fresh.el('notes-text').value,'');
+});
+test('all five preview entries have exactly the same ordered historical content as the TXT',async()=>{
+ const h=await setupLab('?experiment=life');
+ for(const mode of ['life','wave','walk','fractal','orbit']){
+  complete(h,mode);
+  assert.equal(h.el('notes-text').value,await download(h).text());
+ }
+ const text=h.el('notes-text').value;
+ assert.match(text,/已记录 5 \/ 5/);assert.equal((text.match(/观测记录：/g)||[]).length,5);
+ assert.ok(text.indexOf('1. 生命的形状')<text.indexOf('5. 引力游乐场'));
+});
+test('select-all focuses the read-only view, selects all text and never claims to copy',async()=>{
+ const h=await setupLab('?experiment=wave');complete(h,'wave');
+ const field=h.el('notes-text');let selections=0;
+ field.select=()=>{selections++;field.selectionStart=0;field.selectionEnd=field.value.length;};
+ h.el('notes-select').focus();click(h,'notes-select');
+ assert.equal(document.activeElement,field);assert.equal(selections,1);
+ assert.equal(field.selectionStart,0);assert.equal(field.selectionEnd,field.value.length);
+ assert.match(h.el('announcement').textContent,/已选中全部发现文字.*复制快捷键.*长按/);
+ assert.doesNotMatch(h.el('announcement').textContent,/已复制|复制成功|剪贴板/);
+ click(h,'notes-select');assert.equal(selections,2,'a fresh intentional selection remains available');
+});
+test('selecting notebook text leaves model, URL, mission, running animation and save feedback unchanged',async()=>{
+ const h=await setupLab('?experiment=walk');complete(h,'walk');
+ await h.el('share').handlers.click();download(h);click(h,'pause');
+ const field=h.el('notes-text');field.focus();
+ const before=snapshot(h),text=field.value,feedback=h.el('notes-save-status').textContent;
+ click(h,'notes-select');
+ assert.deepEqual(snapshot(h),before);assert.equal(field.value,text);
+ assert.equal(h.el('notes-save-status').textContent,feedback);assert.equal(h.el('notes-save-status').hidden,false);
+ assert.equal(h.el('notes-preview').hidden,false);
+});
+test('unchanged notebook renders preserve native selection, scroll and disclosure state without value writes',async()=>{
+ const h=await setupLab('?experiment=wave');complete(h,'wave');
+ const field=h.el('notes-text'),text=field.value;let writes=0;
+ assert.match(text,/^微观宇宙 · 本次发现/);
+ Object.defineProperty(field,'value',{get:()=>text,set(){writes++;},configurable:true});
+ Object.assign(field,{selectionStart:7,selectionEnd:29,scrollTop:86});
+ h.el('notes-preview').open=true;
+ input(h,'wavelength',64);click(h,'wave-right');click(h,'mission-start');
+ click(h,'tab-life');click(h,'tab-wave');
+ h.navigate('?experiment=walk&bias=10&seed=27');
+ assert.equal(writes,0);assert.equal(field.value,text);
+ assert.deepEqual([field.selectionStart,field.selectionEnd,field.scrollTop],[7,29,86]);
+ assert.equal(h.el('notes-preview').open,true);
+});
+test('new findings update the open preview without forcing focus or erasing saved historical findings',async()=>{
+ const h=await setupLab('?experiment=wave');complete(h,'wave');
+ const original=h.el('notes-text').value;h.el('notes-preview').open=true;
+ complete(h,'life');
+ assert.match(h.el('notes-text').value,/已记录 2 \/ 5/);
+ assert.ok(h.el('notes-text').value.includes(original.split('1. 波与波相遇\n')[1].split('\n\n由当前页面')[0]));
+ assert.equal(h.el('notes-preview').open,true);assert.equal(document.activeElement,h.el('mission-result'));
+ assert.equal(h.el('notes-text').value,await download(h).text());
+});
+test('recompletion replaces only that historical preview entry, not before the new check',async()=>{
+ const h=await setupLab('?experiment=orbit');complete(h,'orbit');
+ const original=h.el('notes-text').value;
+ click(h,'mission-start');click(h,'mission-check');input(h,'gravity',40);
+ for(let i=0;i<90;i++)click(h,'step');
+ const radius=h.el('observation-a').textContent.split(' · ')[1];
+ assert.equal(h.el('notes-text').value,original);
+ click(h,'mission-check');
+ const updated=h.el('notes-text').value;
+ assert.notEqual(updated,original);assert.ok(updated.includes('75.0 → '+radius+'（模型单位）'));
+ assert.equal((updated.match(/观测记录：/g)||[]).length,1);
+ assert.equal(updated,await download(h).text());
+});
+test('preview and manual selection remain available if initiating the download fails',async()=>{
+ const h=await setupLab('?experiment=wave');complete(h,'wave');
+ const field=h.el('notes-text'),text=field.value,original=URL.createObjectURL;let selections=0;
+ field.select=()=>{selections++;};
+ try{URL.createObjectURL=()=>{throw Error('download unavailable');};click(h,'notes-save');}
+ finally{URL.createObjectURL=original;}
+ assert.match(h.el('notes-save-status').textContent,/未能发起/);
+ click(h,'notes-select');
+ assert.equal(selections,1);assert.equal(field.value,text);assert.equal(h.el('notes-preview').hidden,false);
+ assert.equal(document.activeElement,field);
+});
+test('preview uses a native disclosure, labelled read-only textarea, copy guidance and visible 44px controls',async()=>{
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
+ assert.match(html,/<details id="notes-preview" class="notes-preview" hidden><summary>查看与复制文字<\/summary>/);
+ assert.match(html,/<label for="notes-text">本次发现 · 纯文字<\/label>/);
+ assert.match(html,/<textarea id="notes-text" rows="10" readonly spellcheck="false" aria-describedby="notes-text-help"><\/textarea>/);
+ assert.match(html,/<button id="notes-select" type="button" aria-controls="notes-text" aria-describedby="notes-text-help">全选文字<\/button>/);
+ assert.match(html,/内容与 TXT 相同。.*复制快捷键.*长按文字选择复制/);
+ const css=await readFile(new URL('../style.css',import.meta.url),'utf8');
+ assert.match(css,/\.notes-preview summary\{[^}]*min-height:44px/);
+ assert.match(css,/\.notes-preview button\{[^}]*min-height:44px;[^}]*max-width:100%;[^}]*white-space:normal/);
+ assert.match(css,/\.notes-preview textarea\{[^}]*width:100%;max-width:100%;[^}]*resize:vertical;[^}]*font:16px\/1.7/);
+ assert.match(css,/\.notes-preview summary:focus-visible,\.notes-preview textarea:focus-visible\{outline:3px solid/);
+});

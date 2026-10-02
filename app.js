@@ -1,4 +1,4 @@
-import {saveFieldNotes} from './field-notes.js';
+import {fieldNotesText,saveFieldNotes} from './field-notes.js';
 import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-passport-1';
 import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
@@ -429,9 +429,16 @@ function inspectMission(fromCanvas=false){
  if(fromCanvas)$('#mission').scrollIntoView?.({block:'start'});
  if(fromCanvas||report.kind==='complete')$('#mission-result').focus({preventScroll:true});
 }
+function recordedNotes(){
+ return [...fieldNotes].map(([name,note])=>({title:configs[name].title,finding:missions[name].finding,note}));
+}
 function renderFieldNotes(){
  const count=fieldNotes.size;
  $('#notes-actions').hidden=count===0;
+ $('#notes-preview').hidden=count===0;
+ const text=fieldNotesText(recordedNotes()),preview=$('#notes-text');
+ // Preserve native text selection and scroll when an unchanged note re-renders.
+ if(preview.value!==text)preview.value=text;
  $('#passport-count').textContent='本次发现 '+count+' / 5';$('#notes-count').textContent=count+' / 5';$('#notes-empty').hidden=count>0;
  $('#field-notes-list').innerHTML=[...fieldNotes].map(([name,note])=>`<li><span>✓ ${configs[name].title}</span><h3>${missions[name].finding}</h3><p>${note}</p><button data-return-world="${name}" aria-label="回到这个世界：${configs[name].title}，保留当前进度" aria-describedby="notes-return-help">回到这个世界 ↑</button></li>`).join('');
  for(const name of Object.keys(configs)){
@@ -441,14 +448,18 @@ function renderFieldNotes(){
 // Notes describe past findings; returning opens the current in-memory world,
 // never a replacement guide or a replay of the historical observation.
 $('#notes-save').addEventListener('click',()=>{
- const notes=[...fieldNotes].map(([name,note])=>({title:configs[name].title,finding:missions[name].finding,note}));
- saveFieldNotes(notes,{document,report:message=>{
+ saveFieldNotes(recordedNotes(),{document,report:message=>{
   $('#notes-save-status').textContent=message;$('#notes-save-status').hidden=false;announce(message);
  }});
 });
 // One held Enter should not start a stream of identical downloads.
 $('#notes-save').addEventListener('keydown',event=>{
  if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
+$('#notes-select').addEventListener('click',()=>{
+ if(!fieldNotes.size)return;
+ const preview=$('#notes-text');preview.focus();preview.select();
+ announce('已选中全部发现文字；请用复制快捷键，或长按文字选择复制');
 });
 $('#field-notes-list').addEventListener('click',event=>{
  const button=event.target.closest?.('[data-return-world]');
