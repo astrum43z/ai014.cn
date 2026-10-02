@@ -4,6 +4,26 @@ An independent, Chinese-language interactive science playground for ai014.cn.
 
 Five original browser experiments: a softened central-gravity orbital model, Conway's toroidal Game of Life, ideal two-source wave interference, a seeded triangle chaos game, and a seeded random-walk ensemble. Responsive, keyboard-operable controls, reduced-motion support, PNG snapshots, no accounts, trackers, external fonts, API keys, network dependencies, or build step.
 
+## Vol. 002 · Make a discovery
+
+The homepage now introduces the museum with a real 1,000-point chaos-game specimen and five geometric experiment cards. A visitor can enter a short optional exploration or keep experimenting freely. Existing query links, observation checkpoints, in-page reading links, tab memory, CNAME, and contact footer remain intact.
+
+Each exploration has an explicit paused start, a concrete action, and a model-based check:
+
+- **Orbit:** record radius 75, reduce gravity from 80 to 40, then measure the same first body's radius above 100. A reset or preset replacement invalidates that baseline
+- **Life:** draw four cells and verify the entire next board has no births or deaths. Checking does not advance or alter the drawing
+- **Waves:** record the half-wavelength cancellation point, move the probe to the center, and compare full-cycle amplitude envelopes rather than one dark frame
+- **Fractal:** compare exactly 1,000 points with seeds 14 and 15 at a 50% jump. Count actual model points in the open central triangle, excluding boundary roundoff
+- **Walk:** record the same seeded, unbiased ensemble at 16 and 64 steps; report both theoretical and actual measured spread
+
+Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
+
+### Phone-sized controls
+
+A five-button Life cursor allows exact cell editing without targeting tiny cells. Wave center and fractal 1,000-point buttons provide reproducible touch-accessible comparisons. The primary sequence is task → canvas → parameters → expandable detailed instruments, with a near-canvas Check action returning to the visible result. Native details disclosures retain all previous instruments and an additional guided observation method. Keyboard controls, reduced-motion behavior, the compact five-tab row, and semantic reading anchors remain available.
+
+`tests/missions.test.js` exercises every successful path, failed checks, repeated checks, tab round trips, new URL state, replay, baseline replacement, pointer-safe precision controls, measurement consistency, and field-note lifecycle. Run the aggregate test command below after any change.
+
 ## Run
 
 `npm start` or `python3 -m http.server 8140`, then open http://localhost:8140.

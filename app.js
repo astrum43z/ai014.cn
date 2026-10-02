@@ -1,3 +1,4 @@
+import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-passport-1';
 import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
 import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.js';
@@ -28,6 +29,8 @@ let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0};
 let animation, stageVisible=true, addressObservation='';
 // At most one bounded model per inactive experiment; no persistent storage.
 const experimentSessions=new Map();
+const missionRuns=new Map(),fieldNotes=new Map();
+let orbitRevision=0;
 const palette=['#d3f35b','#f59c80','#e7eee1','#87c2b1','#c7b1e8'];
 function announce(text){$('#announcement').textContent=text;}
 // Continuous readings remain available in the document without becoming a
@@ -40,7 +43,7 @@ function observationReading(){
 }
 
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';$('#status').textContent=paused?'已暂停':'运行中';$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
-function reset(){cancelPainting();if(mode==='life')lifeTrial=null;t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitPoint={x:140,y:0};bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
+function reset(){cancelPainting();if(mode==='life')lifeTrial=null;t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;orbitPoint={x:140,y:0};bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
 function rememberExperiment(){
  const state={values,paused,t,acc,preset,addressObservation,shareVisible:!$('#share-link').hidden};
  if(mode==='orbit')Object.assign(state,{bodies,orbitPoint});
@@ -81,11 +84,12 @@ function changeMode(next,sharedValues=null,saved=null){
   $('#share-link').hidden=!saved.shareVisible;refreshShareLink();
   announce('已回到'+configs[mode].title+'，保留离开时的画布与参数；'+(paused?'已暂停':'继续运行'));
  }else{updatePause();reset();updateAddress();}
+ renderMission();
 }
 function updateAddress(observation=null){
   clearShareStatus();
   addressObservation=writeObservation(mode,observation);
-  history.replaceState(history.state,'','?'+serializeSettings(mode,values)+(addressObservation?'&'+addressObservation:'')+(['#lab','#about','#canvas','#observation-title','#discovery-title'].includes(location.hash)?location.hash:''));
+  history.replaceState(history.state,'','?'+serializeSettings(mode,values)+(addressObservation?'&'+addressObservation:'')+(['#home','#lab','#about','#canvas','#observation-title','#discovery-title','#mission','#control-title','#instruments','#field-notes'].includes(location.hash)?location.hash:''));
   // A parameter edit starts a new exploration; don't leave an old observation
   // looking like a live link. Parameter-only links retain their existing behavior.
   refreshShareLink();
@@ -119,6 +123,7 @@ function addressSettings(){
   return {...parseSettings('?experiment='+next,configs),search:''};
 }
 function loadAddress(shared){
+  missionRuns.delete(shared.mode);
   const observation=readObservation(shared.search,shared.mode);
   changeMode(shared.mode,shared.values);
   if(!observation)return;
@@ -339,7 +344,7 @@ function startGuide(next=mode){
 }
 $('#guide-start').addEventListener('click',()=>enterDiscovery(mode));
 function enterDiscovery(next){startGuide(next);$('#panel').scrollIntoView?.({block:'start'});canvas.focus({preventScroll:true});}
-$('#journey-start').addEventListener('click',()=>enterDiscovery('fractal'));
+$('#journey-start').addEventListener('click',()=>startMission('fractal'));
 $('#discovery-next').addEventListener('click',()=>enterDiscovery(discoveries[mode].next));
 function renderDiscovery(){
  const d=discoveries[mode];
@@ -348,6 +353,94 @@ function renderDiscovery(){
  $('#next-connection').textContent=d.connection;
  $('#discovery-next').textContent='去看看 · '+configs[d.next].title+' ↗';
 }
+
+function missionSnapshot(){
+ const snapshot={values:{...values}};
+ if(mode==='orbit')Object.assign(snapshot,{revision:orbitRevision,time:t,radius:Math.hypot(bodies[0].x,bodies[0].y)});
+ if(mode==='life')snapshot.cells=cells;
+ if(mode==='wave')Object.assign(snapshot,{...probe,envelope:waveComponents(probe.x,probe.y,t*3,values.separation,values.wavelength).envelope});
+ if(mode==='fractal')Object.assign(snapshot,{count:fractal.count,gapCount:centralGapCount(fractal)});
+ if(mode==='walk')Object.assign(snapshot,{steps:walk.steps,...walkStats(walk)});
+ return snapshot;
+}
+function startMission(next=mode){
+ startGuide(next);
+ if(mode==='life'){
+  cancelPainting();cells=new Uint8Array(48*32);generation=0;acc=0;lifeHistory=[];lifeTrial=null;focusCell={x:23,y:15};draw();
+ }
+ const initial=missionSnapshot();
+ missionRuns.set(mode,{phase:0,status:'active',baseline:{revision:initial.revision},feedback:''});
+ renderMission();
+ $('#mission').scrollIntoView?.({block:'start'});$('#mission-title').focus({preventScroll:true});
+ announce('已开始并暂停：'+missions[mode].title+'。'+missions[mode].first);
+}
+function renderMission(){
+ const activity=missions[mode],run=missionRuns.get(mode),complete=run?.status==='complete';
+ $('#mission-title').textContent=activity.title;$('#mission-duration').textContent=activity.duration;
+ $('#mission').setAttribute('data-state',run?.status||'idle');
+ $('#mission-state').textContent=complete?'已留下发现':run?'探索中':'可选探索';
+ $('#mission-instruction').textContent=complete?activity.finding:run?(run.phase===0?activity.first:activity.second):activity.intro;
+ for(let i=0;i<3;i++){
+  const step=$('#mission-step-'+i);step.textContent=activity.steps[i];
+  const currentStep=mode==='life'?1:run?.phase||0;
+  step.setAttribute('data-current',String(Boolean(run)&&!complete&&i===currentStep));
+  step.setAttribute('data-done',String(complete||(Boolean(run)&&i<currentStep)));
+ }
+ $('#mission-start').textContent=run?'重新开始 ↺':'开始这次探索 ↗';
+ $('#mission-start').setAttribute('data-restart',String(Boolean(run)));
+ $('#mission-check').hidden=!run||complete;$('#mission-check-inline').hidden=!run||complete;
+ $('#mission-next').hidden=!complete;
+ $('#mission-next').textContent='下一个发现 · '+configs[discoveries[mode].next].title+' ↗';
+ $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
+ $('#wave-home').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
+ $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开最后一步的随机落点',walk:'一位漫步者的路程与位移'}[mode];
+ renderFieldNotes();
+}
+function inspectMission(fromCanvas=false){
+ const run=missionRuns.get(mode);if(!run||run.status==='complete')return;
+ cancelPainting();paused=true;acc=0;updatePause();draw();
+ const report=checkMission(mode,run.phase,missionSnapshot(),run.baseline);
+ run.feedback=report.message;
+ if(report.kind==='advance'){run.phase=1;run.baseline.evidence=report.evidence;}
+ if(report.kind==='complete'){
+  run.status='complete';fieldNotes.set(mode,report.note);
+ }
+ renderMission();
+ announce(report.message);
+ if(fromCanvas)$('#mission').scrollIntoView?.({block:'start'});
+ if(fromCanvas||report.kind==='complete')$('#mission-result').focus({preventScroll:true});
+}
+function renderFieldNotes(){
+ const count=fieldNotes.size;
+ $('#passport-count').textContent='本次发现 '+count+' / 5';$('#notes-count').textContent=count+' / 5';$('#notes-empty').hidden=count>0;
+ $('#field-notes-list').innerHTML=[...fieldNotes].map(([name,note])=>`<li><span>✓ ${configs[name].title}</span><h3>${missions[name].finding}</h3><p>${note}</p></li>`).join('');
+ for(const name of Object.keys(configs)){
+  $('#seal-'+name).hidden=!fieldNotes.has(name);$('#tab-'+name).setAttribute('data-discovered',String(fieldNotes.has(name)));
+ }
+}
+$('#mission-start').addEventListener('click',()=>startMission());
+$('#mission-check').addEventListener('click',()=>inspectMission());
+$('#mission-check-inline').addEventListener('click',()=>inspectMission(true));
+$('#mission-next').addEventListener('click',()=>startMission(discoveries[mode].next));
+$('#wave-home').addEventListener('click',()=>{
+ if(mode!=='wave')return;
+ paused=true;updatePause();probe={x:0,y:0};waveView=null;draw();announce('已暂停，探针回到中央；'+waveReading());
+});
+$('#fractal-1000').addEventListener('click',()=>{
+ if(mode!=='fractal')return;
+ paused=true;acc=0;updatePause();fractal=addFractalPoints(createFractal(values.seed,values.jump),1000);draw();updateAddress();
+ announce(`已暂停，按当前种子 ${values.seed} 与前进比例 ${values.jump}% 重建到 1,000 点。`);
+});
+function touchLife(dx,dy,toggle=false){
+ if(mode!=='life')return;
+ cancelPainting();paused=true;updatePause();
+ focusCell={x:(focusCell.x+48+dx)%48,y:(focusCell.y+32+dy)%32};
+ if(toggle){lifeTrial=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}
+ draw();announce('已暂停；'+lifeReading());
+}
+for(const [id,dx,dy] of [['left',-1,0],['right',1,0],['up',0,-1],['down',0,1]])$('#life-'+id).addEventListener('click',()=>touchLife(dx,dy));
+$('#life-toggle').addEventListener('click',()=>touchLife(0,0,true));
+
 $('#preset-select').addEventListener('change',e=>applyPreset(e.target.value));
 $('#preset').addEventListener('click',()=>{preset=(preset+1)%presets[mode].length;$('#preset-select').value=presets[mode][preset][1];applyPreset(presets[mode][preset][1]);});
 $('#step').addEventListener('click',()=>{paused=true;updatePause();if(mode==='life'){lifeTrial=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce('已暂停；'+observationReading());});
