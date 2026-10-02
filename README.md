@@ -253,3 +253,10 @@ Completed strokes keep their click-suppression guard, ordinary visibility notifi
 Animation readouts now compare their next text with the current DOM before setting it. Unchanged Orbit launch instructions, Wave path measurements, and shared observation explanations keep their text nodes; changed numeric readings, paused previews, probe movement, presets, resets, tab returns, and history navigation still refresh normally. There is no additional state cache, changed physics, animation cadence, layout, or live-announcement behavior.
 
 An event-driven 120-frame test eliminates 960 redundant static-text assignments in Orbit and 1,080 in Wave while verifying that dynamic readings keep changing. Tests also cover paused redraws, edits, all five tabs, and history restoration. These are deterministic DOM-write counts, not measured browser FPS, battery, or screen-reader improvements.
+
+
+## Keep keyboard focus at fractal limits
+
+The three single-point fractal controls remain focusable when unavailable at the 300-point starting floor or 12,000-point ceiling. They expose `aria-disabled`, keep a muted appearance and their normal focus outline, and are described by the current point reading plus the existing instructions. Reaching a limit no longer drops focus to the page; Tab and Shift+Tab remain available for moving to another control. Disabled activation is a true no-op: it does not redraw, announce again, alter a shared checkpoint, or restart animation. Backward replay makes forward stepping available again.
+
+The point bounds, exact seeded coordinates, 100-point control, canvas shortcuts, session retention and sharing format are unchanged. Tests cover availability through input changes, reset, tab return and history, plus repeated disabled clicks and canvas commands. Focus retention is also checked through normal keyboard interaction in the public cloud browser; this does not verify screen-reader speech or a physical mobile device.

@@ -230,7 +230,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .fractal-touch p{margin:0 0 10px;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 .fractal-touch>div{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .fractal-touch button{flex:1;min-height:44px;min-width:110px;background:#e6ecd8;color:var(--ink);border-color:#6b875e}
-.fractal-touch button:disabled{opacity:.55;cursor:not-allowed}
+.fractal-touch button[aria-disabled="true"],#fractal-step[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 .fractal-touch small{display:block;color:#b7cbae;font-size:12px;line-height:1.6}
 @media(max-width:720px){.fractal-touch{padding:12px}}
 

@@ -183,7 +183,7 @@ test('jump inspection has a quiet text alternative and a labeled, keyboard-opera
  const {readFile}=await import('node:fs/promises');const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  const panel=html.match(/<section id="fractal-jump".*?<\/section>/s)?.[0];assert.ok(panel);
  assert.match(panel,/aria-labelledby="fractal-jump-title"/);assert.doesNotMatch(panel,/aria-live|role="status"/);
- assert.match(panel,/<button id="fractal-step" aria-describedby="fractal-step-help">只走一步 \+1<\/button>/);
+ assert.match(panel,/<button id="fractal-step" aria-describedby="fractal-touch-reading fractal-step-help">只走一步 \+1<\/button>/);
  assert.match(panel,/可以连续选中同一顶点/);
 });
 

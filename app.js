@@ -580,13 +580,15 @@ function fractalReading(){
 function renderFractalJump(){
  $('#fractal-jump-reading').textContent=fractalReading();
  $('#fractal-touch-reading').textContent=fractalReading()+(fractal.count>=FRACTAL_LIMIT?'；已达 12,000 点上限，可退回一点或重置。':fractal.count<=300?'；已回到 300 点起点。':'。');
- $('#fractal-back').disabled=fractal.count<=300;
- $('#fractal-forward').disabled=fractal.count>=FRACTAL_LIMIT;
- $('#fractal-step').disabled=fractal.count>=FRACTAL_LIMIT;
+ // Native disabled would discard focus on the key press that reaches a limit.
+ // Keep each button discoverable; the handlers below enforce the same bounds.
+ $('#fractal-back').setAttribute('aria-disabled',String(fractal.count<=300));
+ $('#fractal-forward').setAttribute('aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
+ $('#fractal-step').setAttribute('aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
  $('#fractal-jump-note').textContent=paused?'空心圈是出发点，橙色实心点是新落点；橙线是本次前进，虚线指向选中的顶点。':'运行中暂隐连线；暂停或只走一步，即可拆开看最后一次跳跃。';
 }
 function stepFractalPoint(){
- if(mode!=='fractal')return;
+ if(mode!=='fractal'||fractal.count>=FRACTAL_LIMIT)return;
  paused=true;acc=0;updatePause();growFractal(1);draw();
  announce('已暂停；'+observationReading());
 }
