@@ -597,7 +597,9 @@ $('#wave-home').addEventListener('click',()=>moveWaveProbe('Home'));
 for(const direction of ['left','up','down','right'])$('#wave-'+direction).addEventListener('click',()=>moveWaveProbe('Arrow'+direction[0].toUpperCase()+direction.slice(1)));
 $('#fractal-1000').addEventListener('click',()=>{
  if(mode!=='fractal')return;
- paused=true;acc=0;updatePause();fractal=addFractalPoints(createFractal(values.seed,values.jump),1000);draw();updateAddress();
+ // Comparing the same seeded sequence changes the live canvas, not a saved
+ // observation. As with single-point replay, only Share records a new moment.
+ paused=true;acc=0;updatePause();fractal=addFractalPoints(createFractal(values.seed,values.jump),1000);draw();
  announce(`已暂停，按当前种子 ${values.seed} 与前进比例 ${values.jump}% 重建到 1,000 点。`);
 });
 function touchLife(dx,dy,toggle=false){
