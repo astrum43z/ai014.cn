@@ -404,3 +404,12 @@ The near-canvas “比较 1,000 点” action now retains an existing observatio
 Repeated comparison, tab returns and anchor navigation preserve the current canvas separately from its saved observation. Existing copy success, manual-copy recovery and pending-copy feedback remain tied to that link. Parameter/preset edits, guided replacement and a genuinely different URL still invalidate or replace it as before. No model, control, layout, storage, dependency or domain change is introduced.
 
 `tests/fractal-checkpoint.test.js` covers progress boundaries, exact seeded replay, running/reduced-motion behavior, focus, pending choices, hidden controls, sharing/re-sharing, copy failure and races, tab/history restoration, explicit replacements and discovery evidence. Public cloud-browser checks reproduce the old behavior and verify the published fix; physical touch and screen-reader speech remain unverified.
+
+
+## Know where further reading leads
+
+Each experiment's existing external reference now names its publisher and topic rather than the same generic link label. A visible description, associated with the link for assistive technology, identifies the English content and new-tab behavior. Walk specifically identifies its six-page PDF; Wave identifies its textbook chapter. The five existing URLs, native link behavior and opener/referrer protections stay unchanged. The default HTML also contains the complete Orbit reference before JavaScript starts.
+
+Reference titles wrap in a flexible layout, retain visible keyboard focus and use a minimum 44-pixel link target. Descriptions follow direct links, tab returns, guides and history restoration without a live region or additional control. This adds no model step, saved data, dependency or network request. Source titles, formats and the PDF page count were checked at their existing destinations on 2026-10-02.
+
+`tests/reading-sources.test.js` covers every source, repeated transitions, PDF-description clearing, history, fixed checkpoints versus live canvases, preset/parameter/guide changes, native markup and responsive styles. Public cloud-browser checks cover the published labels, keyboard navigation and zoomed layout; physical touch and screen-reader speech remain separate verification limits.
