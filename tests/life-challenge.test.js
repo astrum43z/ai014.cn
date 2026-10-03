@@ -72,7 +72,7 @@ test('challenge is optional native disclosure with quiet results, visible replac
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8'),css=await readFile(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<details id="life-challenge" class="life-challenge" hidden><summary>/);assert.doesNotMatch(html,/<details id="life-challenge"[^>]* open/);
  assert.match(html,/id="life-test-result" tabindex="-1" aria-live="off"/);assert.match(html,/id="life-challenge-start" aria-describedby="life-challenge-replaces"/);assert.match(html,/会替换画布/);
- assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-challenge"'));assert.ok(html.includes('app.js?v=walk-marker-contrast-1'));assert.ok(html.includes('style.css?v=walk-scale-1'));
+ assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-challenge"'));assert.ok(html.includes('app.js?v=walk-marker-contrast-2'));assert.ok(html.includes('style.css?v=walk-scale-1'));
  assert.match(css,/\.life-challenge summary:focus-visible/);assert.match(css,/\.life-challenge-actions\{display:flex;flex-wrap:wrap/);assert.match(css,/\.life-challenge-actions button\{[^}]*min-height:44px/);
 });
 

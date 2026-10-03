@@ -1120,6 +1120,9 @@ function drawWalk(){
 // their opaque dark edges above the points and path. Exact overlaps stay exact.
 function drawWalkMarkers(px,py,stats){
  ctx.save();ctx.setLineDash([]);ctx.lineJoin='round';
+ // Labels can intersect a walker in a fitted view; measurement shapes win.
+ ctx.font='11px sans-serif';ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.strokeText('起点',px(0)+6,py(0)+17);
+ ctx.fillStyle='#a9bfab';ctx.fillText('起点',px(0)+6,py(0)+17);
  if(paused){
   ctx.beginPath();ctx.arc(px(0),py(0),6,0,Math.PI*2);
   ctx.strokeStyle='#122e29';ctx.lineWidth=4.5;ctx.stroke();
@@ -1131,8 +1134,7 @@ function drawWalkMarkers(px,py,stats){
  ctx.strokeStyle='#f59c80';ctx.lineWidth=2;ctx.stroke();
  ctx.beginPath();ctx.arc(px(walk.positions[0]),py(walk.positions[1]),4,0,Math.PI*2);
  ctx.strokeStyle='#122e29';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#e7eee1';ctx.fill();
- ctx.font='11px sans-serif';ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.strokeText('起点',px(0)+6,py(0)+17);
- ctx.fillStyle='#a9bfab';ctx.fillText('起点',px(0)+6,py(0)+17);ctx.restore();
+ ctx.restore();
 }
 
 // Drift and outliers can zoom the view out. Keep a useful ruler length while

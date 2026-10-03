@@ -48,6 +48,7 @@ function markers(h,{steps=64,seed=14,bias=0,width=600,height=414,paused=true}={}
  assert.deepEqual(texts.map(t=>t.row),[['strokeText','起点',px(0)+6,py(0)+17],['fillText','起点',px(0)+6,py(0)+17]]);
  assert.equal(texts[0].strokeStyle,'#122e29');assert.equal(texts[0].lineWidth,3);assert.equal(texts[1].fillStyle,'#a9bfab');
  assert.equal(texts[1].font,'11px sans-serif');assert.equal(texts[0].lineJoin,'round');
+ assert.ok(texts[1].index<strokes[0].index,'all measurement shapes remain above the origin label, including overlapping endpoints');
  for(const stroke of strokes)assert.deepEqual(stroke.setLineDash,[],'measurement edges stay solid');
  const walkers=drawing.map((row,index)=>({row,index})).filter(({row})=>row[0]==='arc'&&row[3]===2.1);
  assert.equal(walkers.length,256);
@@ -134,7 +135,7 @@ test('visual measurement changes cannot earn or rewrite a discovery without an e
  const notes=h.el('field-notes-list').innerHTML;click(h,'walk-step-one');click(h,'walk-back');markers(h,{width:259,height:240});h.resize(600,414);markers(h);assert.equal(h.el('field-notes-list').innerHTML,notes);
 });
 
-test('the release refreshes only the application asset without new controls or dependencies',()=>{
+test('the release refreshes the application asset while preserving the stylesheet token',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('src="app.js?v=walk-marker-contrast-1"'));assert.ok(html.includes('href="style.css?v=walk-scale-1"'));
+ assert.ok(html.includes('src="app.js?v=walk-marker-contrast-2"'));assert.ok(html.includes('href="style.css?v=walk-scale-1"'));
 });
