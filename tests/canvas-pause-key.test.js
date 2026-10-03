@@ -76,7 +76,7 @@ test('shortcut is scoped to the canvas and has visible wrapping help associated 
 
 
 test('runtime canvas metadata combines shared pause help with mode-specific shortcuts after every return',async()=>{
- for(const initial of worlds){const h=await setup('?experiment='+initial);for(const world of [initial,...worlds,...[...worlds].reverse()]){if(world!==initial)click(h,'tab-'+world);else click(h,'tab-'+initial);assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Escape'+(world==='life'?' Control+z Meta+z':world==='fractal'?' ArrowLeft ArrowRight':''));assert.equal(h.el('canvas').getAttribute('aria-describedby'),'canvas-pause-help'+(world==='life'?' life-edit-help':world==='fractal'?' fractal-touch-help':''));}}
+ for(const initial of worlds){const h=await setup('?experiment='+initial);for(const world of [initial,...worlds,...[...worlds].reverse()]){if(world!==initial)click(h,'tab-'+world);else click(h,'tab-'+initial);assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Escape'+(world==='life'?' Home Control+z Meta+z':world==='fractal'?' ArrowLeft ArrowRight':''));assert.equal(h.el('canvas').getAttribute('aria-describedby'),'canvas-pause-help'+(world==='life'?' life-center-help life-edit-help':world==='fractal'?' fractal-touch-help':''));}}
 });
 
 test('modified, composing and repeated Escape cannot interrupt an active Life stroke',async()=>{

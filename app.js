@@ -163,7 +163,7 @@ function changeMode(next,sharedValues=null,saved=null){
  experimentSessions.delete(next);
  paused=true;animation?.sync();
  mode=next;paused=previousPause;
- renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts','Escape'+(mode==='life'?' Control+z Meta+z':mode==='fractal'?' ArrowLeft ArrowRight':''));canvas.setAttribute('aria-describedby','canvas-pause-help'+(mode==='life'?' life-edit-help':mode==='fractal'?' fractal-touch-help':''));$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-transition-legend').hidden=true;$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#fractal-regions').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
+ renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts','Escape'+(mode==='life'?' Home Control+z Meta+z':mode==='fractal'?' ArrowLeft ArrowRight':''));canvas.setAttribute('aria-describedby','canvas-pause-help'+(mode==='life'?' life-center-help life-edit-help':mode==='fractal'?' fractal-touch-help':''));$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-transition-legend').hidden=true;$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#fractal-regions').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
  if(saved){
   restoreExperiment(saved);
   choosePreset(saved.presetChoice||'');
@@ -483,6 +483,11 @@ if(mode==='wave'){
   return;
 }
 if(mode!=='life')return;
+// Select a predictable central cell without drawing or advancing a generation.
+// Home belongs only to this canvas; leave modified and IME events to the browser.
+if(e.key==='Home'&&!e.isComposing&&!e.altKey&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){
+ e.preventDefault();if(!e.repeat)centerLifeSelection();return;
+}
 // Undo belongs only to the focused drawing canvas. Do not intercept text fields,
 // redo, AltGr or IME input; a held shortcut cannot consume a later edit.
 if(!e.isComposing&&!e.altKey&&!e.shiftKey&&(e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){
@@ -916,6 +921,16 @@ function touchLife(dx,dy,toggle=false){
  if(toggle){rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}
  draw();announce('已暂停；'+lifeReading());
 }
+function centerLifeSelection(){
+ if(mode!=='life')return;
+ // Finish an old stroke, retaining its edits and undo; its release cannot paint.
+ interruptPainting();paused=true;updatePause();focusCell={x:24,y:16};
+ draw();announce('已暂停，框选回到中央，未改动图案；'+lifeReading());
+}
+$('#life-center').addEventListener('click',centerLifeSelection);
+$('#life-center').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function renderLifeDragTool(){
  $('#life-erase').setAttribute('aria-pressed',String(lifeErasing));
  setReadingText($('#life-drag-status'),'当前拖动：'+(lifeErasing?'擦除':'点亮'));

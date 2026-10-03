@@ -884,3 +884,12 @@ Life’s selected-cell inspector now changes its six text readings and nine neig
 The renderer compares the actual DOM, without a separate cached model. Unchanged redraws preserve text nodes through resizing, focus changes, display-density updates, context recovery and retained-world returns. The same rule, simultaneous model evolution, history, edit/clear recovery, comparison, sharing and completed discoveries remain intact. No new UI, live announcement, storage, dependency or domain change is introduced.
 
 `tests/life-inspector-writes.test.js` checks write counts and exact readings against independently counted rendered neighborhoods, all alive/dead neighbor counts, wrapped cursor moves, evolving blinkers, rewind and recovery, retained worlds, DOM repair, interruptions, sharing and discovery integrity. All ten new checks fail on the preceding renderer and pass with change-only updates. These controlled write counts do not establish real-device performance or assistive-technology behavior; physical touch, screen-reader speech, device rotation, hardware graphics loss and downloaded-file receipt remain unverified.
+
+
+## Return Life’s cursor to the center
+
+The near-canvas “框选回中央” button and unmodified canvas Home key select the same default central cell (column 25, row 17) and pause. Visitors can return from an edge in one action instead of repeated arrow presses, while the board, generation, history, comparison, edit/clear recovery and discoveries remain intact. The explicit help states the exact cell in the even-sized 48 × 32 board. Focus remains on the initiating control, and the button sits outside the compact arrow grid so it can wrap at narrow widths.
+
+An active pointer gesture ends through the existing interruption path: completed drawing and its undo remain available, and the interrupted release/click cannot add a later edit. A pending tap does not become a cell edit. Held Home and held button Enter do not repeat the command; modified/composing Home remains native. The other worlds keep their existing Home and batch-step behavior. No physics, random sequence, share content, storage, dependency or domain setting changes.
+
+`tests/life-center.test.js` covers both inputs, running and paused boards, edges, resize, native-key exclusions, comparison and edit/clear recovery, interrupted gestures, notes and retained sessions, visibility/density/context restoration and markup. Deterministic interruption checks do not establish physical touch or hardware graphics behavior.

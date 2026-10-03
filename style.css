@@ -383,6 +383,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 #life-test-result:focus-visible{outline:3px solid var(--focus-ring);outline-offset:5px}
 
 /* An explicit drag eraser leaves tap/keyboard toggles unchanged. */
+/* Keep central selection outside the compact five-way drawing grid. */
+.life-touch .life-center-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+.life-touch #life-center{flex:0 1 auto;min-height:44px;white-space:normal;font-size:13px}
+.life-touch #life-center-help{flex:1 1 150px;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+
 .life-touch .life-drag-tool{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
 .life-touch #life-erase{flex:0 1 auto;min-height:44px;white-space:normal;font-size:13px}
 .life-touch #life-erase[aria-pressed="true"]{background:#ffac86;border-color:#ffac86;color:#122e29}

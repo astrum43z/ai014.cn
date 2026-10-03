@@ -117,8 +117,8 @@ test('Fractal exposes both keys and their existing help only while its canvas is
  check();
  for(const mode of ['life','wave','walk','orbit']){
   click(h,'tab-'+mode);
-  assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),mode==='life'?'Escape Control+z Meta+z':'Escape');
-  assert.equal(h.el('canvas').getAttribute('aria-describedby'),mode==='life'?'canvas-pause-help life-edit-help':'canvas-pause-help');
+  assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),mode==='life'?'Escape Home Control+z Meta+z':'Escape');
+  assert.equal(h.el('canvas').getAttribute('aria-describedby'),mode==='life'?'canvas-pause-help life-center-help life-edit-help':'canvas-pause-help');
   click(h,'tab-fractal');check();
  }
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');

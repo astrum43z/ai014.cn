@@ -74,7 +74,7 @@ test('retained recovery and shortcut description follow tab and anchor returns w
  h.tabs[2].handlers.click();assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'','Escape');assert.equal(h.el('canvas').getAttribute('aria-describedby')||'','canvas-pause-help');
  h.tabs[1].handlers.click();h.navigate(location.search+'#canvas');h.el('canvas').focus();const url=location.href,writes=h.writes();
  key(h);assert.deepEqual(board(h),before);assert.equal(location.href,url);assert.equal(h.writes(),writes);assert.equal(new URL(shared).searchParams.has('undo'),false);
- assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Escape Control+z Meta+z');assert.equal(h.el('canvas').getAttribute('aria-describedby'),'canvas-pause-help life-edit-help');
+ assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Escape Home Control+z Meta+z');assert.equal(h.el('canvas').getAttribute('aria-describedby'),'canvas-pause-help life-center-help life-edit-help');
 });
 
 test('expired undo cannot roll back a model step, a Clear recovery or a replacement URL',async()=>{
@@ -103,5 +103,5 @@ test('shortcut is canvas-scoped with quiet visible help and no global keyboard l
  assert.doesNotMatch(source,/(?:document\.|window\.)?addEventListener\('keydown',.*undoLifeEdit/);
  assert.equal((source.match(/function undoLifeEdit\(/g)||[]).length,1);
  assert.match(source,/\$\('#life-undo-edit'\)\.addEventListener\('click',undoLifeEdit\)/);
- assert.match(html,/app\.js\?v=life-inspector-2/);
+ assert.match(html,/app\.js\?v=life-center-1/);
 });
