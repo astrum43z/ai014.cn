@@ -8,7 +8,7 @@ import {paintLifeLine} from './painting.js?v=edit-recovery-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
 import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} from './walk.js?v=walk-distance-1';
 import {discoveries} from './journeys.js?v=random-walk-1';
-import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js?v=jump-trace-1';
+import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js?v=vertex-counts-1';
 import {experimentGuides} from './guides.js?v=wave-paths-1';
 import {createSnapshotSaver} from './snapshot.js?v=context-safe-save-1';
 import {createAnimationLoop} from './animation.js';
@@ -1088,6 +1088,8 @@ function fractalReading(){
  return `第 ${fractal.count} 点，抽中顶点 ${vertex}；向它前进 ${values.jump}%，余下 ${100-values.jump}%`;
 }
 function renderFractalJump(){
+ const counts=fractal.vertexCounts;
+ setReadingText($('#fractal-choice-reading'),`当前序列前 ${fractal.count} 次 · A ${counts[0]} 次，B ${counts[1]} 次，C ${counts[2]} 次`);
  $('#fractal-jump-reading').textContent=fractalReading();
  $('#fractal-touch-reading').textContent=fractalReading()+(fractal.count>=FRACTAL_LIMIT?'；已达 12,000 点上限，可退回一点或重置。':fractal.count<=300?'；已回到 300 点起点。':'。');
  // Native disabled would discard focus on the key press that reaches a limit.
