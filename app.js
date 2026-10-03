@@ -1054,6 +1054,10 @@ $('#life-undo-clear').addEventListener('click',()=>{
  ({cells,generation,lifeHistory,focusCell,lifeTrial}=lifeCleared);acc=lifeCleared.fraction/values.rate;lifeCleared=null;lifeEdited=null;
  draw();announce('已撤销清空，恢复原图案并暂停；'+observationReading());
 });
+// Explicitly visiting the readonly URL is the manual recovery path, even if
+// an automatic copy reported success. Selection never reads the clipboard or
+// changes the fixed link, current experiment, feedback or pending request.
+for(const event of ['focus','click'])$('#share-link').addEventListener(event,()=>$('#share-link').select());
 // Both copy actions share request ownership; delayed clipboard feedback must
 // never replace a newer copy, return, parameter change or another world's UI.
 async function copyExperimentLink(description,saved=false){

@@ -215,6 +215,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 #save[aria-disabled="true"]{background:#e8ebe0;color:#526451;cursor:wait}
 .controls>p.save-status{grid-column:1/-1;margin:0 0 8px;color:var(--ink);font-size:13px;line-height:1.8}
 
+
+/* Manual recovery remains available alongside a visible copyable URL. */
+.controls>p.share-manual{grid-column:1/-1;margin:0 0 8px;color:var(--ink);font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+#share-link[hidden]+#share-manual{display:none}
+
 /* Clipboard recovery stays visible; the existing action region speaks results. */
 .controls>p.share-status{grid-column:1/-1;margin:0 0 8px;color:var(--ink);font-size:13px;line-height:1.8}
 
