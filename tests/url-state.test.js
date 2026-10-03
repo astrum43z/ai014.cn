@@ -88,7 +88,7 @@ test('updated assets have explicit cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.ok(html.includes('href="style.css?v=surface-focus-1"'));
- assert.ok(html.includes('src="app.js?v=context-recovery-1"'));
+ assert.ok(html.includes('src="app.js?v=context-safe-save-1"'));
 });
 
 test('re-selecting any active tab preserves parameters, canvas progress, and pause state',async()=>{
