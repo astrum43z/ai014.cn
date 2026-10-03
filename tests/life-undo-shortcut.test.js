@@ -71,10 +71,10 @@ test('shortcut restores recorded generations and comparison overlays through the
 
 test('retained recovery and shortcut description follow tab and anchor returns without rewriting a link',async()=>{
  const h=await blank(),before=board(h);h.key('Enter');await click(h,'share');const shared=h.el('share-link').value;
- h.tabs[2].handlers.click();assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'','');assert.equal(h.el('canvas').getAttribute('aria-describedby')||'','');
+ h.tabs[2].handlers.click();assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'','Escape');assert.equal(h.el('canvas').getAttribute('aria-describedby')||'','canvas-pause-help');
  h.tabs[1].handlers.click();h.navigate(location.search+'#canvas');h.el('canvas').focus();const url=location.href,writes=h.writes();
  key(h);assert.deepEqual(board(h),before);assert.equal(location.href,url);assert.equal(h.writes(),writes);assert.equal(new URL(shared).searchParams.has('undo'),false);
- assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Control+z Meta+z');assert.equal(h.el('canvas').getAttribute('aria-describedby'),'life-edit-help');
+ assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Escape Control+z Meta+z');assert.equal(h.el('canvas').getAttribute('aria-describedby'),'canvas-pause-help life-edit-help');
 });
 
 test('expired undo cannot roll back a model step, a Clear recovery or a replacement URL',async()=>{
@@ -86,8 +86,8 @@ test('expired undo cannot roll back a model step, a Clear recovery or a replacem
 for(const experiment of ['orbit','wave','fractal','walk'])test(`undo shortcut is not intercepted in ${experiment}`,async()=>{
  const h=await setup('?experiment='+experiment,'',false),before=state(h);
  assert.equal(key(h),false);assert.equal(key(h,{ctrlKey:false,metaKey:true}),false);assert.deepEqual(state(h),before);
- assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'',experiment==='fractal'?'ArrowLeft ArrowRight':'');
- assert.equal(h.el('canvas').getAttribute('aria-describedby')||'',experiment==='fractal'?'fractal-touch-help':'');
+ assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'',experiment==='fractal'?'Escape ArrowLeft ArrowRight':'Escape');
+ assert.equal(h.el('canvas').getAttribute('aria-describedby')||'',experiment==='fractal'?'canvas-pause-help fractal-touch-help':'canvas-pause-help');
 });
 
 test('shortcut never checks an exploration or rewrites earned notebook entries',async()=>{
@@ -103,5 +103,5 @@ test('shortcut is canvas-scoped with quiet visible help and no global keyboard l
  assert.doesNotMatch(source,/(?:document\.|window\.)?addEventListener\('keydown',.*undoLifeEdit/);
  assert.equal((source.match(/function undoLifeEdit\(/g)||[]).length,1);
  assert.match(source,/\$\('#life-undo-edit'\)\.addEventListener\('click',undoLifeEdit\)/);
- assert.match(html,/app\.js\?v=orbit-recall-1/);
+ assert.match(html,/app\.js\?v=canvas-pause-1/);
 });

@@ -62,7 +62,7 @@ for(const key of ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '])te
 });
 
 test('unhandled keys and suppressed held toggles leave the current stroke intact',async()=>{
- for(const [key,extra] of [['Tab',{}],['Home',{}],['Escape',{}],['ArrowRight',{altKey:true}],['ArrowLeft',{ctrlKey:true}],['Enter',{metaKey:true}],['Enter',{repeat:true}],[' ',{repeat:true}]]){
+ for(const [key,extra] of [['Tab',{}],['Home',{}],['ArrowRight',{altKey:true}],['ArrowLeft',{ctrlKey:true}],['Enter',{metaKey:true}],['Enter',{repeat:true}],[' ',{repeat:true}]]){
   const h=await drawing();const before=state(h);h.key(key,extra);
   assert.equal(h.captures.has(1),true,key);assert.deepEqual(state(h),before,key);
   pointer(h,'pointermove',1,6,4);assert.match(h.el('metrics').textContent,/5 个活格子/);

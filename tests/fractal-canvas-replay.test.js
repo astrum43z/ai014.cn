@@ -73,7 +73,7 @@ test('modified arrows and unrelated keys keep browser defaults and the running c
   assert.equal(key(h,name,{[modifier]:true,repeat}),false);
   assert.deepEqual(state(h),before);
  }
- for(const name of ['ArrowUp','ArrowDown','Home','End','Enter',' ','Tab','Escape']){
+ for(const name of ['ArrowUp','ArrowDown','Home','End','Enter',' ','Tab']){
   assert.equal(key(h,name),false);assert.deepEqual(state(h),before);
  }
 });
@@ -109,16 +109,16 @@ test('keyboard replay does not award a discovery or change recorded notes',async
 test('Fractal exposes both keys and their existing help only while its canvas is active',async()=>{
  const h=await setup('?experiment=fractal');
  const check=()=>{
-  assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'ArrowLeft ArrowRight');
-  assert.equal(h.el('canvas').getAttribute('aria-describedby'),'fractal-touch-help');
+  assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),'Escape ArrowLeft ArrowRight');
+  assert.equal(h.el('canvas').getAttribute('aria-describedby'),'canvas-pause-help fractal-touch-help');
   assert.match(h.el('hint').textContent,/← 退一点.*→ 添一点/);
   assert.match(h.el('canvas').getAttribute('aria-label'),/← 退一点.*→ 添一点/);
  };
  check();
  for(const mode of ['life','wave','walk','orbit']){
   click(h,'tab-'+mode);
-  assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),mode==='life'?'Control+z Meta+z':'');
-  assert.equal(h.el('canvas').getAttribute('aria-describedby'),mode==='life'?'life-edit-help':'');
+  assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts'),mode==='life'?'Escape Control+z Meta+z':'Escape');
+  assert.equal(h.el('canvas').getAttribute('aria-describedby'),mode==='life'?'canvas-pause-help life-edit-help':'canvas-pause-help');
   click(h,'tab-fractal');check();
  }
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
