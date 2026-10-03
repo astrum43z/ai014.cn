@@ -145,5 +145,5 @@ test('undo has a quiet described native control beside drawing tools, with a wra
  assert.match(group,/<button id="life-undo-edit" type="button" aria-disabled="true" aria-controls="canvas" aria-describedby="life-edit-status life-edit-help">撤销上一笔 ↶<\/button>/);
  assert.match(group,/<span id="life-edit-status" aria-live="off">/);assert.doesNotMatch(group,/aria-live="polite"|role="status"/);
  assert.match(group,/继续、推进、对比、清空或载入图案后失效/);assert.match(css,/\.life-touch \.life-edit-actions\{[^}]*flex-wrap:wrap/);assert.match(css,/\.life-touch #life-undo-edit\{[^}]*min-height:44px;white-space:normal/);
- assert.match(html,/app\.js\?v=orbit-motion-arrow-1/);assert.match(html,/style\.css\?v=wave-cycle-traces-1/);
+ assert.match(html,/app\.js\?v=fractal-regions-1/);assert.match(html,/style\.css\?v=fractal-regions-1/);
 });

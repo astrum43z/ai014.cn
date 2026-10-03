@@ -1,3 +1,4 @@
+import {fractalRegions} from './fractal-regions.js';
 import {fieldNotesText,saveFieldNotes} from './field-notes.js';
 import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-passport-1';
 import {createOrbitPreview} from './orbit-preview.js';
@@ -160,7 +161,7 @@ function changeMode(next,sharedValues=null,saved=null){
  experimentSessions.delete(next);
  paused=true;animation?.sync();
  mode=next;paused=previousPause;
- renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts',mode==='life'?'Control+z Meta+z':mode==='fractal'?'ArrowLeft ArrowRight':'');canvas.setAttribute('aria-describedby',mode==='life'?'life-edit-help':mode==='fractal'?'fractal-touch-help':'');$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
+ renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts',mode==='life'?'Control+z Meta+z':mode==='fractal'?'ArrowLeft ArrowRight':'');canvas.setAttribute('aria-describedby',mode==='life'?'life-edit-help':mode==='fractal'?'fractal-touch-help':'');$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#fractal-regions').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
  if(saved){
   restoreExperiment(saved);
   choosePreset(saved.presetChoice||'');
@@ -751,7 +752,7 @@ function renderMission(){
  renderMissionEntries();
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
  $('#orbit-measurement').hidden=mode!=='orbit';$('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#fractal-gap').hidden=mode!=='fractal';$('#fractal-touch').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
- $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开最后一步的随机落点',walk:'一位漫步者的路程与位移'}[mode];
+ $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开随机落点，理解空隙',walk:'一位漫步者的路程与位移'}[mode];
  renderFieldNotes();
 }
 function inspectMission(fromCanvas=false){
@@ -1108,7 +1109,20 @@ function fractalReading(){
  const vertex='ABC'[fractal.lastVertex];
  return `第 ${fractal.count} 点，抽中顶点 ${vertex}；向它前进 ${values.jump}%，余下 ${100-values.jump}%`;
 }
+// Images of the whole outer triangle under one jump, not point samples or
+// the final attractor. Seed and count never affect this first-level geometry.
+function renderFractalRegions(){
+ const regions=fractalRegions(values.jump);
+ regions.forEach((vertices,index)=>{
+  const element=$('#fractal-region-'+index);
+  const points=vertices.map(([x,y])=>`${160+x*140},${166+y*140}`).join(' ');
+  if(element.getAttribute?.('points')!==points)element.setAttribute('points',points);
+ });
+ const relation=values.jump<50?'三块范围部分重叠；重叠处不一定被实际落点填满。':values.jump===50?'三块只在外框的边中点相接，中央留空。':'三块范围彼此分离，中间留有空隙。';
+ setReadingText($('#fractal-regions-reading'),`前进 ${values.jump}% → 每块边长为外框的 ${100-values.jump}%。${relation}`);
+}
 function renderFractalJump(){
+ renderFractalRegions();
  const counts=fractal.vertexCounts;
  setReadingText($('#fractal-choice-reading'),`当前序列前 ${fractal.count} 次 · A ${counts[0]} 次，B ${counts[1]} 次，C ${counts[2]} 次`);
  $('#fractal-jump-reading').textContent=fractalReading();

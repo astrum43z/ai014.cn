@@ -82,6 +82,23 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .fractal-jump #fractal-jump-note,.fractal-jump small{font-size:10px;line-height:1.7;color:#a9bfab}.fractal-jump small{display:block;margin-top:8px}
 @media(max-width:720px){.fractal-jump{padding:12px}}
 
+/* First-level chaos-game regions preserve aspect ratio and label each map. */
+.fractal-regions{border-top:1px solid #486358;min-width:0}
+.fractal-regions h4{margin:0 0 14px;font-weight:500}
+.fractal-regions-body{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:center;max-width:850px}
+.fractal-regions svg{display:block;width:100%;height:auto;max-width:300px;justify-self:center;overflow:visible}
+.fractal-regions polygon{stroke-width:2;stroke-linejoin:round;vector-effect:non-scaling-stroke;fill-opacity:.14}
+.fractal-region-outer{fill:none;stroke:#adc3a6;stroke-dasharray:3 5}
+.fractal-region-a{fill:#d3f35b;stroke:#d3f35b}
+.fractal-region-b{fill:#f59c80;stroke:#f59c80;stroke-dasharray:8 4}
+.fractal-region-c{fill:#c7b1e8;stroke:#c7b1e8;stroke-dasharray:2 4}
+.fractal-regions text{fill:#e7eee1;font:14px ui-monospace,monospace}
+.fractal-regions p{margin:0 0 10px;overflow-wrap:anywhere}
+.fractal-regions small{display:block;color:#b7cbae;overflow-wrap:anywhere}
+.fractal-regions-key{color:#d9e4cf}
+@media(max-width:720px){.fractal-regions-body{grid-template-columns:minmax(0,1fr);gap:14px}}
+
+
 /* One recorded walk separates distance traveled from displacement. */
 .walk-distance{padding:12px 18px;background:#1b3931;border-top:1px solid #345046;color:#d9e4cf}
 .walk-distance h4{font-size:11px;font-weight:500;margin:0 0 10px}
