@@ -17,7 +17,7 @@ function rectangles(h){
   if(name==='strokeRect')result.push({...style,args,index});
  });return result;
 }
-const neighbors=h=>rectangles(h).filter(r=>r.color==='#c7d9eb'||r.color==='#122e29');
+const neighbors=h=>rectangles(h).filter(r=>(r.color==='#c7d9eb'||r.color==='#122e29')&&r.dash.join(',')==='2,2');
 function board(h){
  const {width,height}=h.el('canvas').getBoundingClientRect(),cw=width/48,ch=height/32;
  const cells=new Uint8Array(48*32);let color;
