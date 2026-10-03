@@ -1054,8 +1054,33 @@ $('#life-undo-clear').addEventListener('click',()=>{
  ({cells,generation,lifeHistory,focusCell,lifeTrial}=lifeCleared);acc=lifeCleared.fraction/values.rate;lifeCleared=null;lifeEdited=null;
  draw();announce('已撤销清空，恢复原图案并暂停；'+observationReading());
 });
+// Both copy actions share request ownership; delayed clipboard feedback must
+// never replace a newer copy, return, parameter change or another world's UI.
+async function copyExperimentLink(description,saved=false){
+ const sharedMode=mode,input=$('#share-link');input.hidden=false;input.value=location.href;
+ // Copying an existing checkpoint does not move focus away from its control.
+ // The visible readonly field remains available if clipboard access fails.
+ if(!saved){input.focus();input.select();}
+ const request=++shareRequest,url=input.value;
+ showShareStatus(saved?'正在复制链接中的观测；也可手动复制上方链接。':'正在复制'+(canShareObservation(mode)?'观测':'参数')+'链接；也可手动复制下方链接。');
+ const finish=message=>{
+  if(request!==shareRequest||mode!==sharedMode||input.hidden||input.value!==url)return;
+  showShareStatus(message);announce(message);
+ };
+ try{await navigator.clipboard.writeText(url);finish('已复制'+description);}
+ catch{finish(saved?'自动复制未完成，请手动复制上方观测链接；当前实验未改变。':'自动复制未完成，请复制下方'+description);}
+}
+$('#observation-copy').addEventListener('click',()=>{
+ // Read the fixed checkpoint, even if the current model moved outside the
+ // shareable range. Do not capture, pause, redraw or consume return recovery.
+ if(!readObservation(addressObservation,mode))return;
+ return copyExperimentLink('链接中的观测；当前实验未改变。',true);
+});
+$('#observation-copy').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 $('#share').addEventListener('click',async()=>{
- const observation=currentObservation(),sharedMode=mode;
+ const observation=currentObservation();
  // A valid imported checkpoint can move beyond the bounded URL format. Do not
  // replace its saved observation with a parameter-only link and promise replay.
  if(observation&&!writeObservation(mode,observation)){
@@ -1066,16 +1091,7 @@ $('#share').addEventListener('click',async()=>{
  observationRecovery=null;
  if(observation){paused=true;updatePause();draw();}
  updateAddress(observation);
- const input=$('#share-link');input.hidden=false;input.value=location.href;input.focus();input.select();
- const request=++shareRequest,url=input.value,description=observation?'观测链接；打开后暂停复现这一刻':'参数链接；不包含画布图案、轨道或运行进度';
- showShareStatus('正在复制'+(observation?'观测':'参数')+'链接；也可手动复制下方链接。');
- const finish=message=>{
-  // Ignore old attempts, including a tab round trip or a retry of the same URL.
-  if(request!==shareRequest||mode!==sharedMode||input.hidden||input.value!==url)return;
-  showShareStatus(message);announce(message);
- };
- try{await navigator.clipboard.writeText(url);finish('已复制'+description);}
- catch{finish('自动复制未完成，请复制下方'+description);}
+ return copyExperimentLink(observation?'观测链接；打开后暂停复现这一刻':'参数链接；不包含画布图案、轨道或运行进度');
 });
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document,canCapture:()=>contextAvailable});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));

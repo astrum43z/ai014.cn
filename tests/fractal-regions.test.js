@@ -129,5 +129,5 @@ test('diagram is quiet, color-independent, responsive and confined to the existi
  assert.match(css,/\.fractal-regions svg\{[^}]*width:100%;height:auto/);
  assert.match(css,/\.fractal-region-b\{[^}]*stroke-dasharray:8 4/);assert.match(css,/\.fractal-region-c\{[^}]*stroke-dasharray:2 4/);
  assert.match(css,/@media\(max-width:720px\)\{\.fractal-regions-body\{grid-template-columns:minmax\(0,1fr\)/);
- assert.match(html,/app\.js\?v=observation-return-recovery-1/);assert.match(html,/style\.css\?v=observation-return-recovery-1/);
+ assert.match(html,/app\.js\?v=saved-observation-copy-1/);assert.match(html,/style\.css\?v=saved-observation-copy-1/);
 });

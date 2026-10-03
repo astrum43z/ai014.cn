@@ -373,7 +373,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 /* Restore a shared observation without leaving the page-only notebook. */
 .saved-observation{grid-column:1/-1;margin-top:14px;padding:14px;border:1px solid var(--line);background:#edf1e7;min-width:0}
 .saved-observation p{margin:0 0 8px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
-.saved-observation button{width:100%;text-align:left}
+.saved-observation button{width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+#observation-return{margin-top:12px}
 .saved-observation small{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.7}
 
 /* One-level recovery stays reachable when unavailable and wraps in its panel. */
