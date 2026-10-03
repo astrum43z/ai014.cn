@@ -579,6 +579,23 @@ function renderLifeHistory(){
  setReadingText($('#history-start'),'第 '+first.generation+' 代');
  setReadingText($('#history-end'),'第 '+last.generation+' 代');
  renderLifeRewind();
+ renderLifeTurnover();
+}
+// A flat population can hide changed cells. Compare only two consecutive
+// recorded boards, never a manual edit or an invented intermediate generation.
+function renderLifeTurnover(){
+ const previous=previousLifeGeneration(),last=lifeHistory.at(-1);
+ if(!previous){
+  setReadingText($('#life-turnover'),'本段还没有相邻两代记录；前进一代后可比较新生、消失与存活。');
+  return;
+ }
+ let born=0,died=0,survived=0;
+ for(let i=0;i<last.key.length;i++){
+  if(last.key[i]==='1'){if(previous.key[i]==='1')survived++;else born++;}
+  else if(previous.key[i]==='1')died++;
+ }
+ const outcome=born+died===0?(last.count?'图案保持不变。':'空棋盘保持不变。'):previous.count===last.count?`总数仍为 ${last.count} 格，但位置已改变。`:`总数 ${previous.count} → ${last.count} 格。`;
+ setReadingText($('#life-turnover'),`第 ${previous.generation} → ${last.generation} 代 · 新生 ${born}，消失 ${died}，存活 ${survived} 格。${outcome}`);
 }
 // Reuse the recorded boards; rewinding follows actual observations, never an
 // invented inverse of Life's many-to-one rule. New edits start a new history.
