@@ -6,7 +6,8 @@ function setup(clipboard) {
   const button={hidden:true,disabled:false,attributes:{},setAttribute(n,v){this.attributes[n]=v;},addEventListener(n,f){this[n]=f;}};
   const field={value:'goodmorning2you',focus(){this.focused=true;},select(){this.selected=true;},setSelectionRange(start,end){this.selection=[start,end];}};
   const status={textContent:''};
-  const copy=bindContactCopy({button,field,status,getClipboard:()=>clipboard});
+  const document={activeElement:button};
+  const copy=bindContactCopy({button,field,status,document,getClipboard:()=>clipboard});
   return {button,field,status,copy};
 }
 test('contact is present once, at the bottom, with a read-only manual fallback',()=>{
@@ -27,7 +28,7 @@ test('copy succeeds without moving focus or changing the contact',async()=>{
 });
 test('pending repeated clicks create one write and later retries work',async()=>{
   let resolve;let writes=0;const s=setup({writeText:()=>{writes++;return new Promise(r=>resolve=r);}});
-  const first=s.copy();await s.copy();assert.equal(writes,1);assert.equal(s.button.disabled,true);
+  const first=s.copy();await s.copy();assert.equal(writes,1);assert.equal(s.button.disabled,false);assert.equal(s.button.attributes['aria-disabled'],'true');
   assert.equal(s.button.attributes['aria-busy'],'true');resolve();await first;assert.equal(s.button.disabled,false);
   const next=s.copy();assert.equal(writes,2);resolve();await next;
 });

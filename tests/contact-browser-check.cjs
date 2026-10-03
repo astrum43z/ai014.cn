@@ -16,7 +16,7 @@ const base=process.env.BASE_URL||'http://127.0.0.1:8140';
   assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),'goodmorning2you');
   assert.equal(await page.locator('#metrics').textContent(),metrics);assert.equal(page.url(),url);
   assert.equal(await button.evaluate(el=>document.activeElement===el),true);
-  await page.keyboard.press('Space');await page.waitForFunction(()=>!document.querySelector('#copy-wechat').disabled);
+  await page.keyboard.press('Space');await page.waitForFunction(()=>document.querySelector('#copy-wechat').getAttribute('aria-busy')==='false');
   assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),'goodmorning2you');
   await page.screenshot({path:'/tmp/cn-contact-desktop.png',fullPage:true});
   for(const width of [390,320]){

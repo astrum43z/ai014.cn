@@ -87,7 +87,7 @@ test('reading navigation has native links, reachable focus targets and visible r
 test('updated assets have explicit cache versions',async()=>{
  const {readFile}=await import('node:fs/promises');
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('href="style.css?v=focus-safe-save-1"'));
+ assert.ok(html.includes('href="style.css?v=focus-safe-copy-1"'));
  assert.ok(html.includes('src="app.js?v=focus-safe-save-1"'));
 });
 

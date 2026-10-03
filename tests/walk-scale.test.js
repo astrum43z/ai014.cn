@@ -122,5 +122,5 @@ test('the ruler text wraps within the existing legend without controls or live a
  assert.doesNotMatch(legend,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/#walk-scale-reading\{[^}]*flex-basis:100%[^}]*min-width:0[^}]*overflow-wrap:anywhere/);
  assert.match(css,/\.walk-legend span:last-of-type\{color:#d9e4cf\}/);
- assert.ok(html.includes('app.js?v=focus-safe-save-1'));assert.ok(html.includes('style.css?v=focus-safe-save-1'));
+ assert.ok(html.includes('app.js?v=focus-safe-save-1'));assert.ok(html.includes('style.css?v=focus-safe-copy-1'));
 });
