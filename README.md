@@ -54,6 +54,12 @@ The animation loop stops while paused, when the document is hidden, or when the 
 
 Optional Chromium regression checks: `node tests/browser-check.cjs` and `node tests/performance-check.cjs` while the local server is running. These scripts use the Playwright and Chromium paths configured in their headers.
 
+## Input-method-safe canvas and tabs
+
+Canvas shortcuts and experiment-tab arrow/Home/End navigation ignore input-method composition events, including the legacy key-code 229 boundary where `isComposing` may already be false. Choosing or confirming a Chinese/Japanese/Korean candidate therefore cannot trigger the custom handler to launch a planet, edit a cell, move a probe, replay a step, pause a model or switch worlds. These events are left to the browser without preventing their default. Normal shortcuts work again on the next non-composing event; no persistent input lock is introduced. Held positioning and intentional Fractal/Walk batch repeats keep their existing behavior.
+
+`tests/composition-input.test.js` covers both signals, all five worlds while running and paused, tab focus, Life gesture and recovery continuity, fixed checkpoints, launch recall, and discovery notes. These are simulated event checks; physical IME candidate-window behavior and assistive-technology input remain unverified. The boundary guard follows [MDN's keydown/IME guidance](https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event#keydown_events_with_ime).
+
 ## Touch drawing
 
 Life drawing tracks one primary pointer. With the default drawing tool, crossing into another cell paints a continuous, one-cell-wide line between event samples, including the initial contact and the final release cell, so fast mouse and touch strokes do not leave gaps. Segments are clamped to the board rather than wrapped. Small movements within one cell remain a tap and toggle that cell once; drawing back over a stroke keeps it alive. Pointer cancellation, capture loss, clearing, resetting, or switching experiments ends the active stroke, so later hover/move events cannot accidentally keep painting. The click following a drag does not erase the painted cell. Drawing pauses the simulation; normal stroke completion announces the current measurements once. These paths have simulated event regression tests; they are not a substitute for real-device touch checks.

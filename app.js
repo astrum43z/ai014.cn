@@ -450,6 +450,9 @@ function drawOrbitLauncher(scale){
  ctx.restore();
 }
 canvas.addEventListener('focus',()=>{canvasFocused=true;draw();});canvas.addEventListener('blur',()=>{canvasFocused=false;draw();});canvas.addEventListener('keydown',e=>{
+// Candidate-selection keys belong to the input method, not the experiment.
+// 229 covers composition boundaries where isComposing can already be false.
+if(e.isComposing||e.keyCode===229)return;
 // Canvas-only, one-way pause: inspect the current moment without launching,
 // editing, moving a probe or taking a replay step. Never consume IME/modifiers.
 if(e.key==='Escape'&&!e.isComposing&&!e.altKey&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){
@@ -1120,7 +1123,7 @@ canvas.addEventListener('pointermove',e=>{
 for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,endPainting);
 // Re-selecting the active tab must not discard a drawing or simulation progress.
 function selectTab(next){if(next===mode)return;const saved=experimentSessions.get(next);changeMode(next,saved?.values||null,saved);}
-document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>selectTab(tab.dataset.mode));tab.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();selectTab(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();loadAddress(shared);new ResizeObserver(fit).observe(canvas);
+document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>selectTab(tab.dataset.mode));tab.addEventListener('keydown',e=>{if(e.isComposing||e.keyCode===229||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();selectTab(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();loadAddress(shared);new ResizeObserver(fit).observe(canvas);
 animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>contextAvailable&&!paused&&!document.hidden&&stageVisible});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)interruptPainting();animation.sync();});
 if(typeof IntersectionObserver!=='undefined')new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;animation.sync();}).observe(canvas);
