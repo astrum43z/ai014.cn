@@ -30,7 +30,7 @@ test('wave color key is adjacent to the field, quiet, labelled without color and
  assert.match(css,/\.wave-key-scale\{[^}]*flex-wrap:wrap/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
  assert.match(css,/\.wave-key output\{[^}]*font-variant-numeric:tabular-nums/);
- assert.ok(html.includes('app.js?v=fractal-canvas-replay-1')&&html.includes('style.css?v=discovery-badges-1'));
+ assert.ok(html.includes('app.js?v=life-step-key-1')&&html.includes('style.css?v=discovery-badges-1'));
 });
 test('legend swatches match actual field colors at negative, zero and positive displacement',async()=>{
  const h=await setup('?experiment=wave&at=v1,0,0,0'),darkTime=(50/32*2*Math.PI)/3;

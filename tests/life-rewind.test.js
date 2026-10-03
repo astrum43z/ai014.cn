@@ -155,5 +155,5 @@ test('the described native rewind control is near Step, quiet, wrapping and touc
  assert.ok(html.indexOf('id="step"')<html.indexOf('id="life-back"'));assert.ok(html.indexOf('id="life-back"')<html.indexOf('id="reset"'));
  assert.match(css,/#life-back\{min-height:44px;white-space:normal\}/);assert.match(css,/\.stage-controls\{[^}]*flex-wrap:wrap/);
  assert.match(css,/\.life-clear-status\{[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=fractal-canvas-replay-1'));assert.ok(html.includes('style.css?v=discovery-badges-1'));
+ assert.ok(html.includes('app.js?v=life-step-key-1'));assert.ok(html.includes('style.css?v=discovery-badges-1'));
 });
