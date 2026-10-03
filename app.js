@@ -616,7 +616,7 @@ function renderMission(){
  $('#mission-notes').hidden=!complete;
  renderMissionEntries();
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
- $('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#fractal-touch').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
+ $('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#fractal-gap').hidden=mode!=='fractal';$('#fractal-touch').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
  $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开最后一步的随机落点',walk:'一位漫步者的路程与位移'}[mode];
  renderFieldNotes();
 }
@@ -950,6 +950,16 @@ function drawFractal(){
  ctx.closePath();ctx.stroke();ctx.fillStyle='#d3f35b';ctx.beginPath();
  for(let i=0;i<fractal.count;i++)ctx.rect(cx+fractal.points[i*2]*scale,cy+fractal.points[i*2+1]*scale,1.3,1.3);
  ctx.fill();
+ // Keep the comparison region fixed at the outer triangle's side midpoints.
+ // This is the same open central triangle counted by discovery checks, even
+ // when another jump percentage puts points inside it. It consumes no RNG.
+ ctx.save();ctx.strokeStyle='#8bbaca';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();
+ fractalVertices.forEach(([x,y],i)=>{
+  const next=fractalVertices[(i+1)%3],px=cx+(x+next[0])*scale/2,py=cy+(y+next[1])*scale/2;
+  if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py);
+ });
+ ctx.closePath();ctx.stroke();ctx.restore();
+ setReadingText($('#fractal-gap-reading'),`中央参考区 · 内部 ${centralGapCount(fractal)} / ${fractal.count} 点`);
  // Only the final jump is highlighted, and only while paused. Seed replay
  // reconstructs its endpoints exactly; this overlay never consumes randomness.
  if(paused){

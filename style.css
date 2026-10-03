@@ -227,6 +227,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 #walk-step-one[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 #walk-back[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 
+/* One fixed reference area makes the fractal seed comparison measurable. */
+#fractal-gap{flex-basis:100%;min-width:0;border-top:1px solid #b4c2a8;padding-top:8px}
+#fractal-gap-reading{margin:0 0 4px;font-size:13px;line-height:1.7;color:#213b36;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#fractal-gap small{display:block;font-size:12px}
+
 /* Seed replay controls remain beside the canvas when instruments are closed. */
 .fractal-touch{padding:14px 20px;border-top:1px solid #385046}
 .fractal-touch p{margin:0 0 10px;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}

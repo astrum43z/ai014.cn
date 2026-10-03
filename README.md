@@ -582,3 +582,11 @@ The 16/64-step comparison now keeps the whole group's measured and theoretical s
 The reading reuses already computed statistics, follows animation, exact replay, parameters, resets, presets, saved observations and retained tabs, and skips unchanged text replacements. It introduces no controls, extra live announcements, model rules, state, timers, storage or dependencies. Discoveries still require an explicit successful check.
 
 `tests/walk-spread-reading.test.js` covers 16/64 comparison, biased/seeded moments, exact replay and bounds, quiet animation, unchanged redraws, responsive restoration, fixed checkpoints, parameter changes and notebook boundaries. All eight new cases fail without the new reading. Public cloud-browser checks cover real controls, accessible text and zoomed layouts; physical touch, rotation and screen-reader speech remain separate verification limits.
+
+## A fixed central reference for the fractal comparison
+
+The fractal canvas outlines the triangle joining the three side midpoints with a thin pale-blue dashed line. Its geometry is fixed when the seed or jump percentage changes. The quiet reading beside “比较 1,000 点” reports how many of the currently displayed samples are strictly inside that reference area, using the same boundary tolerance as the measured discovery check. For seed 14 at 1,000 points, half-jumps leave 0 interior points; 38% jumps leave 285. The denominator always follows the live sample count. This is a finite-sample observation, not a claim that other jump percentages share the half-jump attractor or its dimension.
+
+The outline neither fills the region nor changes the random sequence. Reading and outline follow replay, growth, resets, presets, parameter edits, fixed observation returns, history and retained tabs. Unchanged text is not replaced, animation adds no live announcements, and discovery completion still requires an explicit successful check. No controls, dependencies, timers or persistent storage were added.
+
+`tests/fractal-gap-reading.test.js` covers measured overlap versus empty half-jumps, matching geometry at narrow and wide layouts, excluded boundary samples, exact replay and limits, quiet updates, parameter and preset changes, checkpoint/history restoration, and notebook integrity. Physical touch, device rotation and screen-reader speech remain separate verification limits.
