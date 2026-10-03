@@ -86,7 +86,8 @@ test('expired undo cannot roll back a model step, a Clear recovery or a replacem
 for(const experiment of ['orbit','wave','fractal','walk'])test(`undo shortcut is not intercepted in ${experiment}`,async()=>{
  const h=await setup('?experiment='+experiment,'',false),before=state(h);
  assert.equal(key(h),false);assert.equal(key(h,{ctrlKey:false,metaKey:true}),false);assert.deepEqual(state(h),before);
- assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'','');assert.equal(h.el('canvas').getAttribute('aria-describedby')||'','');
+ assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'',experiment==='fractal'?'ArrowLeft ArrowRight':'');
+ assert.equal(h.el('canvas').getAttribute('aria-describedby')||'',experiment==='fractal'?'fractal-touch-help':'');
 });
 
 test('shortcut never checks an exploration or rewrites earned notebook entries',async()=>{
@@ -102,5 +103,5 @@ test('shortcut is canvas-scoped with quiet visible help and no global keyboard l
  assert.doesNotMatch(source,/(?:document\.|window\.)?addEventListener\('keydown',.*undoLifeEdit/);
  assert.equal((source.match(/function undoLifeEdit\(/g)||[]).length,1);
  assert.match(source,/\$\('#life-undo-edit'\)\.addEventListener\('click',undoLifeEdit\)/);
- assert.match(html,/app\.js\?v=discovery-badges-1/);
+ assert.match(html,/app\.js\?v=fractal-canvas-replay-1/);
 });

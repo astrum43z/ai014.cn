@@ -546,3 +546,12 @@ The compact five-world selector now keeps a checkmark beside each world that has
 The status comes from completed notebook entries, not the currently active exploration. It appears only after a successful final check, survives tab changes, restarts and URL-based mission replacement, and clears on a fresh page along with the notebook. There are no new controls, Tab stops, live regions, model changes, persistent storage or dependencies.
 
 `tests/discovery-badges.test.js` covers all five verified completions, incomplete and standalone comparisons, historical retention, fresh-page clearing, unchanged tab semantics, fixed observations and quiet animation. Public cloud-browser checks cover accessible associations and visible compact navigation at ordinary and zoomed layouts; physical touch, rotation and screen-reader speech remain unverified.
+
+
+## Replay Fractal without leaving the canvas
+
+With the Fractal canvas focused, Left Arrow now rewinds exactly one seeded point and Right Arrow adds it back. Both directions reuse the existing replay actions, pause on a successful step and keep canvas focus, so visitors can inspect a jump in both directions without tabbing to another control. The canvas hint, accessible key shortcuts and existing nearby help describe the pair. Other worlds retain their own keys.
+
+Holding either key still performs only one action, and modified arrows retain browser defaults. The existing 300–12,000 point bounds, exact seed/ratio replay, fixed shared checkpoints, tab memory, parameter resets and explicitly checked discoveries remain unchanged. An unavailable action does not redraw, announce or interrupt animation. No extra controls, timers, model archives, storage or dependencies are introduced.
+
+`tests/fractal-canvas-replay.test.js` covers exact drawing restoration at several seeds and ratios, button equivalence, focus, running interruption, key repeats, modifiers, boundaries, tab/resize/history restoration, checkpoint integrity and notebook behavior. The public cloud browser reproduced the old one-way keyboard behavior before the change. Physical touch, hardware keyboards on other operating systems and screen-reader speech remain separate verification limits.
