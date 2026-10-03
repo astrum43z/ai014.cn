@@ -901,6 +901,13 @@ $('#life-undo-clear').addEventListener('click',()=>{
 });
 $('#share').addEventListener('click',async()=>{
  const observation=currentObservation(),sharedMode=mode;
+ // A valid imported checkpoint can move beyond the bounded URL format. Do not
+ // replace its saved observation with a parameter-only link and promise replay.
+ if(observation&&!writeObservation(mode,observation)){
+  clearShareStatus();
+  const message='当前观测超出链接可保存的范围，未生成或复制新链接。可保存图片，或重置后再分享。';
+  showShareStatus(message);announce(message);return;
+ }
  if(observation){paused=true;updatePause();draw();}
  updateAddress(observation);
  const input=$('#share-link');input.hidden=false;input.value=location.href;input.focus();input.select();
