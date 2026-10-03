@@ -1105,16 +1105,34 @@ function drawWalk(){
  if(paused){
   ctx.strokeStyle='#82d6dd';ctx.lineWidth=2;ctx.setLineDash([7,4]);ctx.beginPath();
   ctx.moveTo(px(0),py(0));ctx.lineTo(px(walk.positions[0]),py(walk.positions[1]));ctx.stroke();ctx.setLineDash([]);
-  ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(px(0),py(0),6,0,Math.PI*2);ctx.stroke();
  }
  ctx.fillStyle='#d3f35ba6';ctx.beginPath();
  for(let i=0;i<WALK_COUNT;i++){ctx.moveTo(px(walk.positions[i*2])+2.1,py(walk.positions[i*2+1]));ctx.arc(px(walk.positions[i*2]),py(walk.positions[i*2+1]),2.1,0,Math.PI*2);}ctx.fill();
- ctx.strokeStyle='#f59c80';ctx.lineWidth=2;const mx=px(stats.meanX),my=py(stats.meanY);ctx.beginPath();ctx.moveTo(mx-7,my);ctx.lineTo(mx+7,my);ctx.moveTo(mx,my-7);ctx.lineTo(mx,my+7);ctx.stroke();
- ctx.fillStyle='#e7eee1';ctx.beginPath();ctx.arc(px(walk.positions[0]),py(walk.positions[1]),4,0,Math.PI*2);ctx.fill();
- ctx.font='11px sans-serif';ctx.fillStyle='#a9bfab';ctx.fillText('起点',px(0)+6,py(0)+17);
+ drawWalkMarkers(px,py,stats);
+ ctx.font='11px sans-serif';
  drawWalkScale(scale);
  ctx.fillStyle='#d9e4cf';ctx.fillText(`${walk.steps} 步 / ${WALK_LIMIT}`,22,25);
  $('#metrics').textContent=`${WALK_COUNT} 位漫步者 · ${walk.steps} 步 · 偏向 ${values.bias}%`;
+}
+
+// Measurements must stay identifiable inside a crowded ensemble. Keep the
+// origin hollow and the centroid/representative geometry unchanged, but paint
+// their opaque dark edges above the points and path. Exact overlaps stay exact.
+function drawWalkMarkers(px,py,stats){
+ ctx.save();ctx.setLineDash([]);ctx.lineJoin='round';
+ if(paused){
+  ctx.beginPath();ctx.arc(px(0),py(0),6,0,Math.PI*2);
+  ctx.strokeStyle='#122e29';ctx.lineWidth=4.5;ctx.stroke();
+  ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5;ctx.stroke();
+ }
+ const mx=px(stats.meanX),my=py(stats.meanY);
+ ctx.beginPath();ctx.moveTo(mx-7,my);ctx.lineTo(mx+7,my);ctx.moveTo(mx,my-7);ctx.lineTo(mx,my+7);
+ ctx.strokeStyle='#122e29';ctx.lineWidth=5;ctx.stroke();
+ ctx.strokeStyle='#f59c80';ctx.lineWidth=2;ctx.stroke();
+ ctx.beginPath();ctx.arc(px(walk.positions[0]),py(walk.positions[1]),4,0,Math.PI*2);
+ ctx.strokeStyle='#122e29';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#e7eee1';ctx.fill();
+ ctx.font='11px sans-serif';ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.strokeText('起点',px(0)+6,py(0)+17);
+ ctx.fillStyle='#a9bfab';ctx.fillText('起点',px(0)+6,py(0)+17);ctx.restore();
 }
 
 // Drift and outliers can zoom the view out. Keep a useful ruler length while
