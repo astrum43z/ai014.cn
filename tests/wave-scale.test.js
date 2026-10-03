@@ -9,6 +9,8 @@ function ruler(h,scale,height){
  const marks=h.drawing(),label=marks.find(item=>item[0]==='fillText'&&/^\d+(?:\.\d+)? 模型单位$/.test(item[1]));
  assert.ok(label,'the canvas has a model-unit ruler');
  const units=Number(label[1].split(' ')[0]),at=marks.indexOf(label);
+ const pathMark=marks.findIndex(item=>item[0]==='setLineDash'&&JSON.stringify(item[1])==='[7,5]');
+ if(pathMark>=0)assert.ok(pathMark<at,'measuring paths cannot cross the readable ruler label');
  const path=marks.slice(at+1).find(item=>item[0]==='lineTo');
  assert.ok(path);assert.equal(path[2],height-21);
  assert.ok(Math.abs(path[1]-24-units*scale)<1e-9,'drawn length equals the labelled model length times the actual view scale');
@@ -93,5 +95,5 @@ test('the text equivalent wraps beside the field without new controls or live an
  assert.match(key,/<small id="wave-scale-reading" aria-live="off"><\/small>/);
  assert.doesNotMatch(key,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=wave-scale-1'));
+ assert.ok(html.includes('app.js?v=wave-scale-2'));
 });
