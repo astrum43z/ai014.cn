@@ -46,7 +46,7 @@ let lifeTrial=null,lifeCleared=null,lifeEdited=null;
 // Page-only drawing tool, independent of simulation state and shared links.
 let lifeErasing=false;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0},orbitView=null;
-let animation, stageVisible=true, addressObservation='';
+let animation, stageVisible=true, addressObservation='',canvasDpr=1;
 // At most one bounded model per inactive experiment; no persistent storage.
 const experimentSessions=new Map();
 const missionRuns=new Map(),fieldNotes=new Map();
@@ -246,7 +246,8 @@ function restoreAddress(){
   if(['#home','#lab','#field-notes','#about'].includes(location.hash))$(location.hash).focus({preventScroll:true});
 }
 addEventListener('popstate',restoreAddress);
-function fit(){const rect=canvas.getBoundingClientRect();if(rect.width!==width||rect.height!==height)interruptPainting();width=rect.width;height=rect.height;if(mode==='wave')fitWaveProbe();if(mode==='orbit')fitOrbitPoint();const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+function fit(){const rect=canvas.getBoundingClientRect();if(rect.width!==width||rect.height!==height)interruptPainting();width=rect.width;height=rect.height;if(mode==='wave')fitWaveProbe();if(mode==='orbit')fitOrbitPoint();resizeCanvas();}
+function resizeCanvas(){const dpr=Math.min(devicePixelRatio||1,2);canvasDpr=dpr;canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
 // Fit the current measurement after a resize or tab return, without moving it.
 // Keep any wider shared view; normal probe movement must not continuously zoom.
 function fitWaveProbe(){
@@ -1007,6 +1008,23 @@ animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback)
 document.addEventListener('visibilitychange',()=>{if(document.hidden)interruptPainting();animation.sync();});
 if(typeof IntersectionObserver!=='undefined')new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;animation.sync();}).observe(canvas);
 animation.sync();
+
+// Display density can change without a CSS-size change. Re-arm against the raw
+// ratio, but redraw only when the capped backing-store ratio needs updating.
+// Keep one listener and no polling; fit preserves the current model and clock.
+let densityQuery;
+function watchPixelDensity(){
+ densityQuery?.removeEventListener?.('change',watchPixelDensity);
+ const dpr=devicePixelRatio||1;
+ densityQuery=matchMedia(`(resolution: ${dpr}dppx)`);
+ densityQuery.addEventListener?.('change',watchPixelDensity);
+ if(Math.min(dpr,2)!==canvasDpr){
+  const rect=canvas.getBoundingClientRect();
+  // A density-only refresh must not expand an edge probe's fitted view.
+  if(rect.width!==width||rect.height!==height)fit();else resizeCanvas();
+ }
+}
+watchPixelDensity();
 
 // A newly enabled motion preference pauses immediately; disabling it never
 // overrides an intentional pause. The Continue button remains an explicit opt-in.
