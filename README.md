@@ -564,3 +564,12 @@ Life’s “下一代 +1” button now ignores repeated Enter keydowns, so holdi
 The guard runs before the native click, leaving running boards, interrupted drawing gestures, comparisons, recovery snapshots and history unchanged when only a repeated key arrives. It adds no held-key state, timer, control, model rule, storage or dependency. Actual steps still pause, clear expired recovery and follow the existing deterministic rules. Saved parameter links, retained sessions and explicitly earned discoveries stay intact.
 
 `tests/life-step-key.test.js` covers glider, blinker and pulsar transitions and exact rewinds; running starts; repeated input with comparisons, recoveries and unfinished strokes; sharing, tab/history/resize restoration; notebook boundaries; native defaults; and unchanged other-world batches. Eight regression cases fail on the previous code. The original public cloud-browser behavior advanced from generation 1 to 16 during one native held-Enter input; the corrected behavior is checked after publication. Physical touch, other operating systems’ hardware keyboards and screen-reader speech remain unverified.
+
+
+## Read the Wave field at a known scale
+
+The Wave canvas now includes a compact model-unit ruler, with the same reading in quiet text beside the field. Its line uses the exact CSS-pixel scale shared by the wave field, sources and probe. A readable 1/2/5 length adapts to ordinary layouts and wide saved observations. The ruler makes apparent spacing comparable when resizing or returning to a fitted checkpoint; its help explicitly distinguishes view scaling from changed model parameters or probe coordinates.
+
+A dark backing keeps the label legible over both wave colors. Paths, sources and the probe are painted afterward, keeping corner measurements above the ruler. It is included in canvas snapshots, appears only in Wave, and updates without extra live announcements or repeated unchanged text writes. There are no new controls, timers, model rules, persistent state or dependencies.
+
+`tests/wave-scale.test.js` checks exact labelled lengths at ordinary and extreme checkpoint scales, responsive resizing, parameter and phase changes, center/reset recovery, animation, tab returns, fixed links and earned discoveries. All eight new cases fail on the previous code. Public cloud-browser checks cover the visible ruler and quiet text at ordinary and zoomed layouts; hardware touch, rotation and screen-reader speech remain separate verification limits.
