@@ -150,7 +150,7 @@ function changeMode(next,sharedValues=null,saved=null){
  experimentSessions.delete(next);
  paused=true;animation?.sync();
  mode=next;paused=previousPause;
- renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
+ renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;$('#hint').textContent=c.hint;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts',mode==='life'?'Control+z Meta+z':'');canvas.setAttribute('aria-describedby',mode==='life'?'life-edit-help':'');$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
  if(saved){
   restoreExperiment(saved);
   choosePreset(saved.presetChoice||'');
@@ -360,7 +360,13 @@ if(mode==='wave'){
   e.preventDefault();moveWaveProbe(e.key);
   return;
 }
-if(mode!=='life')return;if(e.altKey||e.ctrlKey||e.metaKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){
+if(mode!=='life')return;
+// Undo belongs only to the focused drawing canvas. Do not intercept text fields,
+// redo, AltGr or IME input; a held shortcut cannot consume a later edit.
+if(!e.isComposing&&!e.altKey&&!e.shiftKey&&(e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){
+ e.preventDefault();if(!e.repeat)undoLifeEdit();return;
+}
+if(e.altKey||e.ctrlKey||e.metaKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){
 e.preventDefault();
 // A held toggle key must not repeatedly erase and repaint the same cell.
 // Arrow repeats remain useful for moving across the board.
@@ -747,12 +753,13 @@ function renderLifeEdit(){
  $('#life-undo-edit').setAttribute('aria-disabled',String(!lifeEdited));
  setReadingText($('#life-edit-status'),lifeEdited?'可撤销上一笔：恢复本次轻点、逐格切换或整段拖动前的图案。':'暂无可撤销的绘制。');
 }
-$('#life-undo-edit').addEventListener('click',()=>{
+function undoLifeEdit(){
  if(mode!=='life'||!lifeEdited)return;
  cancelPainting();paused=true;updatePause();
  ({cells,generation,lifeHistory,focusCell,lifeTrial}=lifeEdited);acc=lifeEdited.fraction/values.rate;lifeEdited=null;lifeCleared=null;
  draw();announce('已撤销上一笔并暂停；'+observationReading());
-});
+}
+$('#life-undo-edit').addEventListener('click',undoLifeEdit);
 
 // Selecting is reversible and never replaces an experiment. Load is explicit,
 // so native keyboard browsing and reloading the same choice are both safe.
