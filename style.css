@@ -209,6 +209,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 @media(max-width:720px){.wave-touch{padding:12px}.wave-touch>div{gap:5px}}
 
 /* Touch visitors can inspect the next orbit before committing a launch. */
+/* The currently measured planet is separate from the next-launch controls. */
+.orbit-measurement{padding:12px 18px;background:#122e29;color:#e7eee1;border-top:1px solid #345046}
+.orbit-measurement p{margin:0 0 5px;font-size:14px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.orbit-measurement small{display:block;color:#b7cbae;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+@media(max-width:720px){.orbit-measurement{padding:12px}.orbit-measurement small{font-size:13px}}
 .orbit-touch{padding:12px 18px;background:#1b3931;border-top:1px solid #345046}
 .orbit-touch p{margin:0 0 10px;color:#e6ecd8;font-size:13px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .orbit-touch>div{display:flex;gap:7px;margin-bottom:8px}
