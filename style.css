@@ -326,3 +326,10 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .life-touch #life-undo-edit[aria-disabled="true"]{opacity:.6;cursor:default}
 .life-touch #life-edit-status,.life-touch #life-edit-help{color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 .life-touch #life-edit-help{display:block}
+
+
+/* Keep earned findings recognizable in the compact selector without relying
+   on border color. The short label is already decorative to assistive tech. */
+@media(max-width:720px){
+ .tab[data-discovered="true"]>.tab-short::after{content:' ✓';font-size:11px;white-space:nowrap}
+}

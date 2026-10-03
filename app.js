@@ -652,7 +652,11 @@ function renderFieldNotes(){
  $('#passport-count').textContent='本次发现 '+count+' / 5';$('#notes-count').textContent=count+' / 5';$('#notes-empty').hidden=count>0;
  $('#field-notes-list').innerHTML=[...fieldNotes].map(([name,note])=>`<li><span>✓ ${configs[name].title}</span><h3>${missions[name].finding}</h3><p>${note}</p><button data-return-world="${name}" aria-label="回到这个世界：${configs[name].title}，保留当前进度" aria-describedby="notes-return-help">回到这个世界 ↑</button></li>`).join('');
  for(const name of Object.keys(configs)){
-  $('#seal-'+name).hidden=!fieldNotes.has(name);$('#tab-'+name).setAttribute('data-discovered',String(fieldNotes.has(name)));
+  const discovered=fieldNotes.has(name),tab=$('#tab-'+name);
+  $('#seal-'+name).hidden=!discovered;tab.setAttribute('data-discovered',String(discovered));
+  // The fixed tab name excludes its descendants. Describe the earned badge
+  // explicitly, including when the compact layout hides its long label.
+  tab.setAttribute('aria-describedby',discovered?'seal-'+name:'');
  }
 }
 // Notes describe past findings; returning opens the current in-memory world,

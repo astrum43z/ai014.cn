@@ -537,3 +537,12 @@ The handler is attached only to the canvas, leaving text fields and the rest of 
 Life's focused canvas now leaves Shift-modified navigation to the browser, matching the other four experiments. In particular, Shift+Space can scroll back up the page without toggling a cell, discarding a comparison or replacing the last drawing recovery. Shift+arrows and Shift+Enter likewise leave selection, animation, pointer gestures, history, shared parameters and earned notes untouched. Plain arrows, Enter and Space still edit normally; Ctrl/Command+Z retains its existing canvas-only undo.
 
 The fix adds only the missing modifier guard, with no new controls, state, timers or dependencies. `tests/life-browser-keys.test.js` covers running and paused boards, repeated keys, modifier combinations, comparison and Clear recovery, pointer continuity, retained sessions and discoveries. Eleven cases fail on the previous code. The original Shift+Space collision was reproduced in the public cloud browser; native scrolling after the fix is checked there separately. Hardware touch, physical simultaneous input and screen-reader speech remain unverified.
+
+
+## Recognize worlds with earned discoveries
+
+The compact five-world selector now keeps a checkmark beside each world that has a recorded discovery. Previously the phone layout hid its full badge and left only a border-color difference. The existing badge also supplies the tab's accessible description, while the concise world name, selected state and keyboard navigation remain unchanged. It is available even when the full badge is hidden by the compact layout. The checkmark lives inside the already decorative short label, so it adds no duplicate spoken label.
+
+The status comes from completed notebook entries, not the currently active exploration. It appears only after a successful final check, survives tab changes, restarts and URL-based mission replacement, and clears on a fresh page along with the notebook. There are no new controls, Tab stops, live regions, model changes, persistent storage or dependencies.
+
+`tests/discovery-badges.test.js` covers all five verified completions, incomplete and standalone comparisons, historical retention, fresh-page clearing, unchanged tab semantics, fixed observations and quiet animation. Public cloud-browser checks cover accessible associations and visible compact navigation at ordinary and zoomed layouts; physical touch, rotation and screen-reader speech remain unverified.
