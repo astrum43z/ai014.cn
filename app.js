@@ -1090,9 +1090,23 @@ function drawWalk(){
  ctx.strokeStyle='#f59c80';ctx.lineWidth=2;const mx=px(stats.meanX),my=py(stats.meanY);ctx.beginPath();ctx.moveTo(mx-7,my);ctx.lineTo(mx+7,my);ctx.moveTo(mx,my-7);ctx.lineTo(mx,my+7);ctx.stroke();
  ctx.fillStyle='#e7eee1';ctx.beginPath();ctx.arc(px(walk.positions[0]),py(walk.positions[1]),4,0,Math.PI*2);ctx.fill();
  ctx.font='11px sans-serif';ctx.fillStyle='#a9bfab';ctx.fillText('起点',px(0)+6,py(0)+17);
- ctx.strokeStyle='#a9bfab';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(22,height-23);ctx.lineTo(22+10*scale,height-23);ctx.stroke();ctx.fillText('10 步长',22,height-32);
+ drawWalkScale(scale);
  ctx.fillStyle='#d9e4cf';ctx.fillText(`${walk.steps} 步 / ${WALK_LIMIT}`,22,25);
  $('#metrics').textContent=`${WALK_COUNT} 位漫步者 · ${walk.steps} 步 · 偏向 ${values.bias}%`;
+}
+
+// Drift and outliers can zoom the view out. Keep a useful ruler length while
+// preserving the exact model-to-screen scale used by every walker and path.
+function drawWalkScale(scale){
+ if(!Number.isFinite(scale)||scale<=0){setReadingText($('#walk-scale-reading'),'');return;}
+ const capacity=80/scale,power=10**Math.floor(Math.log10(capacity));
+ const units=Number(([5,2,1].map(n=>n*power).find(n=>n<=capacity)).toPrecision(6));
+ const x=22,y=height-23,length=units*scale;
+ ctx.save();ctx.strokeStyle='#a9bfab';ctx.fillStyle='#a9bfab';ctx.lineWidth=1;ctx.setLineDash([]);
+ ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+length,y);
+ ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.moveTo(x+length,y-4);ctx.lineTo(x+length,y+4);ctx.stroke();
+ ctx.font='11px sans-serif';ctx.fillText(`${units} 步长`,x,height-32);ctx.restore();
+ setReadingText($('#walk-scale-reading'),`左下标尺：${units} 步长；1 步长是每次移动的长度。视图缩放不改变实际位置。`);
 }
 
 // The ruler uses the exact same CSS-pixel scale as the field and probe.
