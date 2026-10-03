@@ -508,16 +508,21 @@ const lifeOutcomes={
 function renderLifeInspector(){
  renderLifeDragTool();renderLifeEdit();
  const cell=inspectLifeCell(cells,48,32,focusCell.x,focusCell.y),[outcome,reason]=lifeOutcomes[cell.rule];
- $('#life-cell-position').textContent=`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行`;
- $('#life-cell-state').textContent=`当前：${cell.alive?'活格':'空格'} · 活邻居 ${cell.neighbors} / 8`;
- $('#life-cell-next').textContent=`下一代：${outcome}`;
- $('#life-cell-reason').textContent=reason+'。';
+ // Generations, focus and bitmap recovery often leave this local reading
+ // unchanged. Preserve readable text nodes and the mini-grid's attributes.
+ setReadingText($('#life-cell-position'),`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行`);
+ setReadingText($('#life-cell-state'),`当前：${cell.alive?'活格':'空格'} · 活邻居 ${cell.neighbors} / 8`);
+ setReadingText($('#life-cell-next'),`下一代：${outcome}`);
+ setReadingText($('#life-cell-reason'),reason+'。');
  // Keep precise editing readable without opening the detailed instruments.
- $('#life-selection').textContent=`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行 · ${cell.alive?'活格':'空格'} · ${cell.neighbors} 个活邻居`;
+ setReadingText($('#life-selection'),`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行 · ${cell.alive?'活格':'空格'} · ${cell.neighbors} 个活邻居`);
  setReadingText($('#life-next-reading'),`下一代：${outcome}。${reason}。`);
  setReadingText($('#life-neighbor-help'),`${paused?'虚线框标出':'暂停可显示'} 8 个邻居（含斜角），不含橙色实框本格；边缘相连，邻居可能在画面对侧。所有格子同时更新。`);
- $('#life-toggle').textContent=cell.alive?'熄灭所选格':'点亮所选格';
- cell.neighborhood.forEach((alive,i)=>$('#life-neighbor-'+i).setAttribute('data-alive',String(alive)));
+ setReadingText($('#life-toggle'),cell.alive?'熄灭所选格':'点亮所选格');
+ cell.neighborhood.forEach((alive,i)=>{
+  const element=$('#life-neighbor-'+i),value=String(alive);
+  if(element.getAttribute?.('data-alive')!==value)element.setAttribute('data-alive',value);
+ });
 }
 // Optional construction challenge. One bounded trial snapshot survives tab
 // switches, but a new edit or model advance discards the old comparison.
