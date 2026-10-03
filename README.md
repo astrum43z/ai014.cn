@@ -627,3 +627,12 @@ The existing precision probe now shows the path difference divided by wavelength
 The classification uses the same unrounded geometry and shared labels as the observation panel. Display rounding does not determine the threshold. Quiet text updates only when its contents change, so phase-only stepping or animation does not rewrite the comparison or add announcements. Probe movement, parameter/preset changes, guides, shared observations, history, retained tabs, reduced motion and view resizing keep it current. It adds no controls, model changes, timers, persistence or dependencies and does not record a discovery without an explicit successful check.
 
 `tests/wave-path-context.test.js` covers center/mixed/cancellation states, both sides of classification boundaries, source and far-checkpoint geometry, exact input paths, quiet phase-only updates, resets and presets, shared/history/tab restoration and notebook integrity. Public cloud-browser checks supplement deterministic tests; hardware touch, device rotation and screen-reader speech remain separate verification limits.
+
+
+## Read Orbit distances at a known scale
+
+A compact lower-left model-unit ruler now connects Orbit's measured distances to its canvas. The labelled 1/2/5 interval stays 32–80 CSS pixels long as the viewport or retained launch view changes. A quiet text equivalent beside the existing first-planet reading identifies the current interval and the four concentric-ring radii (50, 100, 150, 200), and explains that view scaling does not change physical distances. No new control or live announcement is added.
+
+The ruler uses the same transform as the planets, launch point and preview. Its dark backing is painted after trails and the radial measuring line, keeping the label readable; all planet dots, the first planet's identity diamond and the launch marker are painted afterward. This only separates their existing drawing layers. Model positions, speeds, time, view fitting, random sequences, sharing and discovery checks are unchanged. The scale appears in canvas snapshots and follows animation, resize, retained tabs, reset, presets, guides and URL restoration.
+
+`tests/orbit-scale.test.js` verifies exact units, tick and text size, default and fitted views, pointer-selected corners, narrow/fractional layouts, quiet redraws, drawing-layer order, recovery paths, parameter-only sharing and notebook integrity. Public cloud-browser checks complement those deterministic tests; hardware touch, rotation and screen-reader speech remain separate verification limits.

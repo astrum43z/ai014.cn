@@ -69,11 +69,11 @@ test('ruler updates quietly without repeated DOM writes while Wave animates',asy
  h.resize(1000,1000);assert.equal(writes,1);ruler(h,1000/280,1000);assert.equal(h.frames.size,1);
 });
 
-test('ruler follows hidden-world resizes and remains Wave-only through all tab returns',async()=>{
+test('Wave ruler follows hidden-world resizes and returns with its field',async()=>{
  const h=await setup('?experiment=wave&at=v1,800,-300,2.5'),before=state(h);
  for(const index of [0,1,3,4]){
   h.tabs[index].handlers.click();assert.equal(h.el('wave-key').hidden,true);
-  assert.ok(!h.drawing().some(item=>item[0]==='fillText'&&/模型单位$/.test(item[1])));
+  if(index!==0)assert.ok(!h.drawing().some(item=>item[0]==='fillText'&&/模型单位$/.test(item[1])),'only Orbit also has a model-unit ruler');
   h.resize(259,240);h.tabs[2].handlers.click();assert.equal(h.el('wave-key').hidden,false);
   ruler(h,Math.min((259/2-18)/800,(240/2-18)/300),240);assert.deepEqual(state(h),before);
  }
@@ -95,5 +95,5 @@ test('the text equivalent wraps beside the field without new controls or live an
  assert.match(key,/<small id="wave-scale-reading" aria-live="off"><\/small>/);
  assert.doesNotMatch(key,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=wave-path-context-1'));
+ assert.ok(html.includes('app.js?v=orbit-scale-1'));
 });
