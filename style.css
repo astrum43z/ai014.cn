@@ -376,6 +376,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .saved-observation button{width:100%;text-align:left}
 .saved-observation small{display:block;margin-top:8px;color:var(--muted);font-size:12px;line-height:1.7}
 
+/* One-level recovery stays reachable when unavailable and wraps in its panel. */
+#observation-undo{margin-top:12px;white-space:normal;overflow-wrap:anywhere}
+#observation-undo[aria-disabled="true"]{background:#e8ebe0;color:#526451;cursor:not-allowed}
+#observation-undo-status{margin-top:8px}
+
 /* Read the comparison overlay without undoing the one-generation trial. */
 .life-trial-view{margin:0 0 12px}
 .life-trial-view .return-to-canvas{margin-top:0;max-width:100%;color:#d3f35b;white-space:normal;overflow-wrap:anywhere;font-size:13px}

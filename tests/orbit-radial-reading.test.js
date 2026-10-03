@@ -143,5 +143,5 @@ test('near-canvas radial text stays quiet, wraps and explains the distinction wi
  assert.ok(section.indexOf('id="orbit-measured-reading"')<section.indexOf('id="orbit-radial-reading"'));
  assert.doesNotMatch(section,/button|tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.orbit-measurement p\{[^}]*overflow-wrap:anywhere/);
- assert.match(html,/app\.js\?v=position-geometry-1/);
+ assert.match(html,/app\.js\?v=observation-return-recovery-1/);
 });

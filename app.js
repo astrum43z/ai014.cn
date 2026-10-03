@@ -51,6 +51,8 @@ let lifeTrial=null,lifeCleared=null,lifeEdited=null;
 let lifeErasing=false;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0},orbitView=null;
 let animation, stageVisible=true, contextAvailable=true, addressObservation='',canvasDpr=1;
+// One small page-only return recovery per world; seeded models replay on demand.
+let observationRecovery=null;
 // At most one bounded model per inactive experiment; no persistent storage.
 const experimentSessions=new Map();
 const missionRuns=new Map(),fieldNotes=new Map();
@@ -87,9 +89,9 @@ function renderCanvasAvailability(){
  setReadingText($('#hint'),contextAvailable?configs[mode].hint:'实验仍在本页，等待浏览器恢复画面；刷新会清空进度');
 }
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';renderCanvasAvailability();$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
-function reset(){cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;lastOrbitLaunch=null;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
+function reset(){observationRecovery=null;renderObservationRecovery();cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;lastOrbitLaunch=null;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
 function rememberExperiment(){
- const state={values,paused,t,acc,preset,presetChoice:$('#preset-select').value,addressObservation,shareVisible:!$('#share-link').hidden};
+ const state={values,paused,t,acc,preset,presetChoice:$('#preset-select').value,addressObservation,observationRecovery,shareVisible:!$('#share-link').hidden};
  if(mode==='orbit')Object.assign(state,{bodies,orbitPoint,orbitView,lastOrbitLaunch});
  if(mode==='life')Object.assign(state,{cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared,lifeEdited});
  if(mode==='wave')Object.assign(state,{probe,waveView});
@@ -98,7 +100,7 @@ function rememberExperiment(){
  experimentSessions.set(mode,state);
 }
 function restoreExperiment(state){
- ({values,paused,t,acc,preset}=state);
+ ({values,paused,t,acc,preset,observationRecovery}=state);
  if(mode==='orbit'){({bodies,orbitPoint,orbitView,lastOrbitLaunch}=state);fitOrbitPoint();}
  if(mode==='life')({cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared,lifeEdited}=state);
  if(mode==='wave'){({probe,waveView}=state);fitWaveProbe();}
@@ -131,6 +133,7 @@ function setParameter(id,next){
  if(next===values[id])return false;
  // Preserve Life's completed fraction of a generation when its speed changes.
  if(mode==='life'&&id==='rate')acc*=values.rate/next;
+ observationRecovery=null;renderObservationRecovery();
  values[id]=next;syncParameterControls();
  if(mode==='fractal'||mode==='walk')reset();else draw();updateAddress();
  return true;
@@ -209,12 +212,22 @@ function currentObservation(){
 // snapshot. Parameter replacement already clears it; ordinary progress does not.
 function renderSavedObservation(){
  const observation=readObservation(addressObservation,mode);
+ renderObservationRecovery();
  $('#saved-observation').hidden=!observation;
- $('#saved-observation-reading').textContent=observation?'链接中的观测：'+(mode==='wave'?`探针 x ${observation.x.toFixed(1)}，y ${observation.y.toFixed(1)} · t ${observation.time.toFixed(2)} s`:mode==='fractal'?`${observation.count} 点`:`${observation.count} 步`):'';
+ $('#saved-observation-reading').textContent=observation?'链接中的观测：'+observationSummary(observation):'';
 }
-function applyObservation(observation){
- paused=true;acc=0;
- if(mode==='wave'){probe={x:observation.x,y:observation.y};waveView={...probe};t=observation.time;}
+function observationSummary(observation){
+ return mode==='wave'?`探针 x ${observation.x.toFixed(1)}，y ${observation.y.toFixed(1)} · t ${observation.time.toFixed(2)} s`:mode==='fractal'?`${observation.count} 点`:`${observation.count} 步`;
+}
+function renderObservationRecovery(){
+ const available=Boolean(observationRecovery)&&canShareObservation(mode);
+ $('#observation-undo').setAttribute('aria-disabled',String(!available));
+ setReadingText($('#observation-undo-status'),available?'可撤销：返回前的'+observationSummary(observationRecovery.observation)+'。':'暂无可撤销的返回。');
+}
+function applyObservation(observation,recovery=null){
+ paused=true;acc=recovery?.acc??0;
+ if(recovery)t=recovery.time;
+ if(mode==='wave'){probe={x:observation.x,y:observation.y};waveView=recovery?(recovery.waveView?{...recovery.waveView}:null):{...probe};t=observation.time;if(recovery&&(width!==recovery.width||height!==recovery.height))fitWaveProbe();}
  if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),observation.count);
  if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),observation.count);
  updatePause();draw();
@@ -222,15 +235,28 @@ function applyObservation(observation){
 $('#observation-return').addEventListener('click',()=>{
  const observation=readObservation(addressObservation,mode);
  if(!observation)return;
+ const current=currentObservation();
+ // Repeated returns at the checkpoint must not erase a useful recovery.
+ if(Object.keys(observation).some(key=>current[key]!==observation[key])||(mode==='wave'&&waveScale()!==waveScale(observation))){
+  observationRecovery={observation:current,time:t,acc,width,height,waveView:waveView?{...waveView}:null};
+ }
  clearShareStatus();
- applyObservation(observation);
+ applyObservation(observation);renderObservationRecovery();
  canvas.scrollIntoView?.({block:'center'});
  canvas.focus({preventScroll:true});
  announce('已回到链接中的观测并暂停；保留探索进度与本次发现；'+observationReading());
 });
-$('#observation-return').addEventListener('keydown',event=>{
- if(event.repeat&&event.key==='Enter')event.preventDefault();
+$('#observation-undo').addEventListener('click',()=>{
+ if(!observationRecovery||!canShareObservation(mode))return;
+ const recovery=observationRecovery;observationRecovery=null;
+ clearShareStatus();applyObservation(recovery.observation,recovery);renderObservationRecovery();
+ announce('已撤销返回，恢复返回前的观测并暂停；保留链接与本次发现；'+observationReading());
 });
+for(const id of ['observation-return','observation-undo']){
+ $('#'+id).addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
+}
 function addressSettings(){
   if(location.search)return {...parseSettings(location.search,configs),search:location.search};
   const next=Object.hasOwn(configs,location.hash.slice(1))?location.hash.slice(1):'orbit';
@@ -271,7 +297,7 @@ function fitOrbitPoint(){
  orbitView={x:Math.max(Math.abs(orbitView?.x||0),Math.abs(orbitPoint.x)),y:Math.max(Math.abs(orbitView?.y||0),Math.abs(orbitPoint.y))};
 }
 function orbitScale(){return Math.min(Math.min(width,height)/450,(width/2-34)/Math.max(1,Math.abs(orbitView?.x||0)),(height/2-34)/Math.max(1,Math.abs(orbitView?.y||0)));}
-function waveScale(){return Math.min(Math.min(width,height)/280,(width/2-18)/Math.max(1,Math.abs(waveView?.x||0)),(height/2-18)/Math.max(1,Math.abs(waveView?.y||0)));}
+function waveScale(view=waveView){return Math.min(Math.min(width,height)/280,(width/2-18)/Math.max(1,Math.abs(view?.x||0)),(height/2-18)/Math.max(1,Math.abs(view?.y||0)));}
 function coordinates(event,scale){
  const r=canvas.getBoundingClientRect();
  // A delayed click can arrive during collapsed layout. Reject unusable input
@@ -1037,6 +1063,7 @@ $('#share').addEventListener('click',async()=>{
   const message='当前观测超出链接可保存的范围，未生成或复制新链接。可保存图片，或重置后再分享。';
   showShareStatus(message);announce(message);return;
  }
+ observationRecovery=null;
  if(observation){paused=true;updatePause();draw();}
  updateAddress(observation);
  const input=$('#share-link');input.hidden=false;input.value=location.href;input.focus();input.select();
