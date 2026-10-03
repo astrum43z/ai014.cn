@@ -55,6 +55,8 @@ let animation, stageVisible=true, contextAvailable=true, addressObservation='',c
 const experimentSessions=new Map();
 const missionRuns=new Map(),fieldNotes=new Map();
 let orbitRevision=0;
+// One page-only reference: recall the newest user launch without rewinding time.
+let lastOrbitLaunch=null;
 const palette=['#d3f35b','#f59c80','#e7eee1','#87c2b1','#c7b1e8'];
 function announce(text){$('#announcement').textContent=text;}
 // Continuous readings remain available in the document without becoming a
@@ -85,10 +87,10 @@ function renderCanvasAvailability(){
  setReadingText($('#hint'),contextAvailable?configs[mode].hint:'实验仍在本页，等待浏览器恢复画面；刷新会清空进度');
 }
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';renderCanvasAvailability();$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
-function reset(){cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
+function reset(){cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;lastOrbitLaunch=null;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
 function rememberExperiment(){
  const state={values,paused,t,acc,preset,presetChoice:$('#preset-select').value,addressObservation,shareVisible:!$('#share-link').hidden};
- if(mode==='orbit')Object.assign(state,{bodies,orbitPoint,orbitView});
+ if(mode==='orbit')Object.assign(state,{bodies,orbitPoint,orbitView,lastOrbitLaunch});
  if(mode==='life')Object.assign(state,{cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared,lifeEdited});
  if(mode==='wave')Object.assign(state,{probe,waveView});
  if(mode==='fractal')state.fractal=fractal;
@@ -97,7 +99,7 @@ function rememberExperiment(){
 }
 function restoreExperiment(state){
  ({values,paused,t,acc,preset}=state);
- if(mode==='orbit'){({bodies,orbitPoint,orbitView}=state);fitOrbitPoint();}
+ if(mode==='orbit'){({bodies,orbitPoint,orbitView,lastOrbitLaunch}=state);fitOrbitPoint();}
  if(mode==='life')({cells,generation,lifeHistory,focusCell,lifeTrial,lifeCleared,lifeEdited}=state);
  if(mode==='wave'){({probe,waveView}=state);fitWaveProbe();}
  if(mode==='fractal')fractal=state.fractal;
@@ -287,18 +289,34 @@ function renderOrbitLaunch(){
  const prediction=orbitPrediction();
  $('#orbit-preview-reading').hidden=!prediction;
  setReadingText($('#orbit-preview-reading'),prediction?`预演 10 秒后：x ${prediction.end.x.toFixed(1)}，y ${prediction.end.y.toFixed(1)} · 距中心 ${Math.hypot(prediction.end.x,prediction.end.y).toFixed(1)}`:'');
- setReadingText($('#orbit-launch-note'),bodies.length>=24?'已达到 24 颗上限，请先重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。');
+ setReadingText($('#orbit-launch-note'),bodies.length>=24?'已达到 24 颗上限，可撤回最近发射或重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。');
  setReadingText($('#orbit-touch-reading'),$('#orbit-position').textContent+'；'+$('#orbit-speed').textContent);
  setReadingText($('#orbit-touch-status'),$('#orbit-launch-note').textContent);
  $('#orbit-fire').setAttribute('aria-disabled',String(!launch.valid||bodies.length>=24));
+ const canRecall=orbitCanRecall();
+ $('#orbit-recall').setAttribute('aria-disabled',String(!canRecall));
+ setReadingText($('#orbit-recall-status'),canRecall?`可撤回最近发射的第 ${bodies.length} 颗行星。`:'没有可撤回的发射；初始行星不能逐颗撤回。');
 }
 function launchOrbit(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
- if(bodies.length>=24){draw();announce('最多放入 24 颗行星，请重置后重试');return;}
+ if(bodies.length>=24){draw();announce('最多放入 24 颗行星，可撤回最近发射或重置后重试');return;}
  if(!launch.valid){draw();announce('请在恒星外侧放入行星；'+orbitLaunchReading());return;}
- bodies.push({...orbitPoint,vx:launch.vx,vy:launch.vy,trail:[],color:palette[bodies.length%palette.length]});
+ lastOrbitLaunch={...orbitPoint,vx:launch.vx,vy:launch.vy,trail:[],color:palette[bodies.length%palette.length]};
+ bodies.push(lastOrbitLaunch);
  draw();announce(`已添加第 ${bodies.length} 颗行星；`+orbitLaunchReading());
 }
+function orbitCanRecall(){return Boolean(lastOrbitLaunch&&bodies.at(-1)===lastOrbitLaunch);}
+$('#orbit-recall').addEventListener('click',()=>{
+ // Unavailable actions leave motion and feedback untouched. Retaining the
+ // actual object across tabs avoids mistaking an initial body for a launch.
+ if(mode!=='orbit'||!orbitCanRecall())return;
+ const number=bodies.length;
+ bodies.pop();lastOrbitLaunch=null;paused=true;updatePause();draw();
+ announce(`已撤回第 ${number} 颗行星并暂停；其余 ${bodies.length} 颗保留当前位置与轨迹，时间不回退`);
+});
+$('#orbit-recall').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 // Buttons and canvas keys share positioning, pause, bounds and launch semantics.
 function orbitCommand(key){
  if(mode!=='orbit')return;

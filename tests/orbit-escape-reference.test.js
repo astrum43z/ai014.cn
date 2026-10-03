@@ -15,7 +15,7 @@ const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
 function renderOnly(point,values){
  const elements=new Map(),$=selector=>{if(!elements.has(selector))elements.set(selector,{textContent:'',setAttribute(){}});return elements.get(selector);};
  const renderSource=source.slice(source.indexOf('function renderOrbitLaunch('),source.indexOf('function launchOrbit('));
- const render=new Function('$','setReadingText','orbitLaunchState','orbitPoint','values','orbitPrediction','bodies','paused',renderSource+'; return renderOrbitLaunch;')($,(el,text)=>el.textContent=text,orbitLaunchState,point,values,()=>null,[],true);
+ const render=new Function('$','setReadingText','orbitLaunchState','orbitPoint','values','orbitPrediction','bodies','paused','orbitCanRecall',renderSource+'; return renderOrbitLaunch;')($,(el,text)=>el.textContent=text,orbitLaunchState,point,values,()=>null,[],true,()=>false);
  return {render,reading:()=>$('#orbit-escape-reading').textContent};
 }
 
@@ -113,5 +113,5 @@ test('the quiet reference stays in the existing launch instrument with scope and
  assert.match(section,/<p id="orbit-escape-reading" aria-live="off" aria-describedby="orbit-escape-help"><\/p>/);
  assert.match(section,/id="orbit-escape-help"/);assert.match(section,/引力保持不变/);assert.match(section,/√2，对应速度滑块约 141\.4%/);assert.match(section,/只针对橙色标记的新发射/);assert.match(section,/不判断已有行星/);assert.match(section,/数值模拟存在近似/);
  assert.doesNotMatch(section,/<button|tabindex|role="status"|aria-live="polite"/);
- assert.match(html,/src="app\.js\?v=life-transition-1"/);
+ assert.match(html,/src="app\.js\?v=orbit-recall-1"/);
 });

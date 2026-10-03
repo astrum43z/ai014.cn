@@ -110,5 +110,5 @@ test('the quiet reference explanation wraps beside the existing comparison witho
  assert.match(section,/三边中点.*内部落点.*不含边界.*参数变化时参考区不变.*当前样本/);
  assert.doesNotMatch(section,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/#fractal-gap-reading\{[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=life-transition-1'));assert.ok(html.includes('style.css?v=life-transition-1'));
+ assert.ok(html.includes('app.js?v=orbit-recall-1'));assert.ok(html.includes('style.css?v=orbit-recall-1'));
 });

@@ -129,6 +129,6 @@ test('sampling explanation remains quiet, readable and inside the existing instr
  assert.doesNotMatch(section,/aria-live|role="status"|<svg|<canvas/);
  assert.equal((section.match(/<button/g)||[]).length,1,'no new control');
  assert.match(css,/\.fractal-jump p\{[^}]*line-height:1\.7/);assert.match(css,/\.fractal-jump small\{display:block/);
- assert.match(html,/app\.js\?v=life-transition-1/);
+ assert.match(html,/app\.js\?v=orbit-recall-1/);
  const app=readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.match(app,/fractal\.js\?v=vertex-counts-1/);
 });

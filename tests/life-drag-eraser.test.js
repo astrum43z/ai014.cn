@@ -151,6 +151,6 @@ test('eraser is a described native toggle with a quiet visible state and wrappin
  assert.ok(group.includes('id="life-erase"'));assert.doesNotMatch(group,/aria-live="polite"|role="status"/);
  assert.match(css,/\.life-touch \.life-drag-tool\{[^}]*flex-wrap:wrap/);
  assert.match(css,/\.life-touch #life-erase\{[^}]*min-height:44px;white-space:normal/);
- assert.match(html,/app\.js\?v=life-transition-1/);assert.match(html,/style\.css\?v=life-transition-1/);
+ assert.match(html,/app\.js\?v=orbit-recall-1/);assert.match(html,/style\.css\?v=orbit-recall-1/);
  const app=await readFile(new URL('../app.js',import.meta.url),'utf8');assert.match(app,/painting\.js\?v=edit-recovery-1/);
 });

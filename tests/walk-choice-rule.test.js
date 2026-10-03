@@ -138,5 +138,5 @@ test('chart has labeled text alternatives, common scale, quiet semantics and rea
  assert.match(css,/\.walk-choice-bars li\{[^}]*grid-template-columns:4.5em minmax\(0,1fr\) 5ch[^}]*font-size:13px/);
  assert.match(css,/\.walk-choices small\{[^}]*font-size:13px[^}]*overflow-wrap:anywhere/);
  assert.match(css,/@media\(max-width:720px\)\{\.walk-choices h5,\.walk-choices #walk-choice-reading\{font-size:14px\}/);
- assert.ok(html.includes('app.js?v=life-transition-1'));assert.ok(html.includes('style.css?v=life-transition-1'));
+ assert.ok(html.includes('app.js?v=orbit-recall-1'));assert.ok(html.includes('style.css?v=orbit-recall-1'));
 });

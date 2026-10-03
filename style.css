@@ -271,9 +271,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .orbit-touch p{margin:0 0 10px;color:#e6ecd8;font-size:13px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .orbit-touch>div{display:flex;gap:7px;margin-bottom:8px}
 .orbit-touch button{flex:1;min-width:44px;min-height:44px;padding:10px;background:#e6ecd8;border-color:#6b875e;color:var(--ink);font-size:16px}
-.orbit-touch .orbit-actions button{font-size:12px}
+.orbit-touch .orbit-actions{flex-wrap:wrap}
+.orbit-touch .orbit-actions button{flex:1 1 130px;font-size:12px;white-space:normal;overflow-wrap:anywhere}
+.orbit-touch #orbit-recall-help{margin-bottom:10px}
 .orbit-touch #orbit-fire{background:#d3f35b}
-.orbit-touch #orbit-fire[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
+.orbit-touch #orbit-recall[aria-disabled="true"],.orbit-touch #orbit-fire[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 .orbit-touch small{display:block;color:#b7cbae;font-size:12px;line-height:1.6}
 @media(max-width:720px){.orbit-touch{padding:12px}.orbit-touch>div{gap:5px}}
 

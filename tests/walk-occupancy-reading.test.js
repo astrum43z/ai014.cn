@@ -134,5 +134,5 @@ test('the existing quiet wrapping legend explains lattice positions without clai
  assert.equal((html.match(/id="walk-occupancy-reading"/g)||[]).length,1);
  assert.doesNotMatch(legend,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/#walk-scale-reading,#walk-occupancy-reading\{[^}]*flex-basis:100%[^}]*min-width:0[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=life-transition-1'));assert.ok(html.includes('style.css?v=life-transition-1'));
+ assert.ok(html.includes('app.js?v=orbit-recall-1'));assert.ok(html.includes('style.css?v=orbit-recall-1'));
 });
