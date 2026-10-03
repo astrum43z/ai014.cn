@@ -51,7 +51,7 @@ test('Continue, visibility and world changes cannot restart animation before the
  const h=await setup('?experiment=orbit');h.loseContext();click(h,'pause');
  h.setHidden(true);h.setHidden(false);h.setVisible(false);h.setVisible(true);
  assert.equal(h.frames.size,0);h.tabs[2].handlers.click();assert.equal(h.frames.size,0);
- const before=readings(h);h.restoreContext();assert.deepEqual(readings(h),before);assert.equal(h.frames.size,1);
+ const before=readings(h);assert.equal(before[1],'画布待恢复');before[1]='运行中';h.restoreContext();assert.deepEqual(readings(h),before);assert.equal(h.frames.size,1);
 });
 
 test('recovery uses current density and pending layout without fitting unchanged edge views',async()=>{
@@ -84,7 +84,7 @@ test('saved observations, retained worlds and explicit changes during loss survi
  assert.match(h.el('metrics').textContent,/64/);h.tabs[3].handlers.click();assert.match(h.el('metrics').textContent,/1001/);
  assert.equal(location.href,url);click(h,'observation-return');assert.deepEqual(picture(h),original);
  const notes=h.el('passport-count').textContent;h.loseContext();click(h,'mission-start');click(h,'mission-check');
- const changed=picture(h),before=readings(h);h.restoreContext();assert.deepEqual(picture(h),changed);assert.deepEqual(readings(h),before);
+ const changed=picture(h),before=readings(h);assert.equal(before[1],'画布待恢复');before[1]='已暂停';h.restoreContext();assert.deepEqual(picture(h),changed);assert.deepEqual(readings(h),before);
  assert.equal(h.el('passport-count').textContent,notes);
 });
 
