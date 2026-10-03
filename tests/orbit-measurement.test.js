@@ -37,9 +37,9 @@ test('the first planet gets a non-color marker and exact radial measurement besi
  const size=9/scale(h),paths=measurementPaths(h);
  assert.deepEqual(paths[0],[['moveTo',12,0],['lineTo',75-size,0]]);
  assert.deepEqual(paths[1],[['moveTo',75,-size],['lineTo',75+size,0],['lineTo',75,size],['lineTo',75-size,0],['closePath']]);
- assert.ok(labels(h).includes('首颗行星 · 实线量距离'));assert.ok(labels(h).includes('下一颗 · 10 s 预演'));
+ assert.ok(labels(h).includes('首颗 · 线量距，箭头仅方向'));assert.ok(labels(h).includes('下一颗 · 10 s 预演'));
  assert.equal(h.el('orbit-measurement').hidden,false);assert.equal(h.frames.size,0);
- const commands=h.drawing(),legend=commands.findIndex(c=>c[0]==='fillText'&&c[1]==='首颗行星 · 实线量距离');
+ const commands=h.drawing(),legend=commands.findIndex(c=>c[0]==='fillText'&&c[1]==='首颗 · 线量距，箭头仅方向');
  assert.ok(legend>commands.findLastIndex(c=>c[0]==='arc'),'legend is above planet trails and launch marker');
 });
 
@@ -98,7 +98,7 @@ test('resizes fit marker size to pixels without changing body measurements or th
 test('retained worlds, parameter-only links, presets and reduced motion keep measurements current',async()=>{
  const h=await setup('?experiment=orbit');click(h,'step');const before={reading:reading(h),draw:h.drawing()};
  await click(h,'share');const shared=h.el('share-link').value;assert.equal(new URL(shared).searchParams.has('at'),false);
- for(const index of [1,2,3,4]){h.tabs[index].handlers.click();assert.equal(h.el('orbit-measurement').hidden,true);assert.equal(labels(h).includes('首颗行星 · 实线量距离'),false);h.tabs[0].handlers.click();assert.equal(h.el('orbit-measurement').hidden,false);assert.equal(reading(h),before.reading);assert.deepEqual(h.drawing(),before.draw);}
+ for(const index of [1,2,3,4]){h.tabs[index].handlers.click();assert.equal(h.el('orbit-measurement').hidden,true);assert.equal(labels(h).includes('首颗 · 线量距，箭头仅方向'),false);h.tabs[0].handlers.click();assert.equal(h.el('orbit-measurement').hidden,false);assert.equal(reading(h),before.reading);assert.deepEqual(h.drawing(),before.draw);}
  h.el('preset-select').handlers.change({target:{value:'elliptic'}});click(h,'load-preset');check(h,expectedBody(80,.65));
  h.navigate('?experiment=orbit&gravity=160&speed=150');check(h,expectedBody(160));
  click(h,'pause');assert.equal(h.frames.size,1);h.motion.change({matches:true});assert.equal(h.frames.size,0);assert.match(help(h),/白色实线/);
@@ -108,10 +108,10 @@ test('retained worlds, parameter-only links, presets and reduced motion keep mea
 test('invalid launch positions and the planet cap do not hide the existing measured planet',async()=>{
  const h=await setup('?experiment=orbit');for(let i=0;i<28;i++)click(h,'orbit-left');
  assert.equal(h.el('orbit-fire').getAttribute('aria-disabled'),'true');assert.equal(h.el('orbit-preview-reading').hidden,true);
- check(h,expectedBody());assert.ok(labels(h).includes('首颗行星 · 实线量距离'));
+ check(h,expectedBody());assert.ok(labels(h).includes('首颗 · 线量距，箭头仅方向'));
  click(h,'orbit-home');for(let i=0;i<21;i++)click(h,'orbit-fire');
  assert.match(h.el('metrics').textContent,/24 颗/);check(h,expectedBody());assert.equal(measurementPaths(h).length,3);
- assert.equal(h.el('orbit-preview-reading').hidden,true);assert.ok(labels(h).includes('首颗行星 · 实线量距离'));
+ assert.equal(h.el('orbit-preview-reading').hidden,true);assert.ok(labels(h).includes('首颗 · 线量距，箭头仅方向'));
 });
 
 test('visible measurement never completes a discovery or rewrites a recorded finding',async()=>{

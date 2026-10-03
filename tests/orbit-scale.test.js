@@ -124,5 +124,5 @@ test('a dark ruler backing stays above crossing trails while every planet and ma
  const after=marks.slice(plateIndex),diamond=after.findIndex(row=>row[0]==='closePath');
  assert.ok(diamond>0,'the first-body diamond remains visible above the plate');
  assert.ok(after.some(row=>row[0]==='arc'&&Math.abs(row[3]-8/s)<1e-8),'the launch marker also stays above the plate');
- assert.ok(after.some(row=>row[0]==='fillText'&&row[1]==='首颗行星 · 实线量距离'));
+ assert.ok(after.some(row=>row[0]==='fillText'&&row[1]==='首颗 · 线量距，箭头仅方向'));
 });
