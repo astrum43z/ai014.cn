@@ -9,6 +9,12 @@ let drawCount=0,frameId=0,intersect,resize,lastProbe;const drawing=[];let rect={
  densityQueries.push(media);return media;
 };const windowHandlers={};globalThis.addEventListener=(name,handler)=>windowHandlers[name]=handler;globalThis.location=new URL('https://example.org/'+search+hash);let writes=0;globalThis.history={state:{anchor:true},replaceState(state,title,url){writes++;globalThis.location=new URL(url,location.href);this.state=state;}};globalThis.devicePixelRatio=initialDpr;globalThis.requestAnimationFrame=callback=>{frames.set(++frameId,callback);return frameId;};globalThis.cancelAnimationFrame=id=>frames.delete(id);globalThis.IntersectionObserver=class{constructor(callback){intersect=callback;}observe(){}};globalThis.ResizeObserver=class{constructor(callback){resize=callback;}observe(){}};globalThis.setTimeout=noop;
 await import('../app.js?tabs='+instance++);
-return {el,tabs,frames,motion,transforms,densityQueries,setDpr(value){const old=densityQueries.map(media=>[media,media.matches]);globalThis.devicePixelRatio=value;for(const [media,before] of old)if(media.matches!==before)for(const callback of [...media.listeners])callback({matches:media.matches});},drawCount:()=>drawCount,drawing:()=>structuredClone(drawing),windowHandlers,tick,probe:()=>lastProbe,resize(width,height){rect={width,height,left:0,top:0};resize();},writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
+return {el,tabs,frames,motion,transforms,densityQueries,
+loseContext(){drawing.length=0;let prevented=false;el('canvas').handlers.contextlost?.({preventDefault(){prevented=true;}});return prevented;},
+restoreContext(){drawing.length=0;transforms.push([1,0,0,1,0,0]);el('canvas').handlers.contextrestored?.();},
+setHidden(hidden){document.hidden=hidden;documentHandlers.visibilitychange();},
+setVisible(visible){intersect([{isIntersecting:visible}]);},
+setRect(width,height){rect={width,height,left:0,top:0};},
+setDpr(value){const old=densityQueries.map(media=>[media,media.matches]);globalThis.devicePixelRatio=value;for(const [media,before] of old)if(media.matches!==before)for(const callback of [...media.listeners])callback({matches:media.matches});},drawCount:()=>drawCount,drawing:()=>structuredClone(drawing),windowHandlers,tick,probe:()=>lastProbe,resize(width,height){rect={width,height,left:0,top:0};resize();},writes:()=>writes,navigate(url){globalThis.location=new URL(url,location.href);windowHandlers.popstate();},key:(key,extra={})=>el('canvas').handlers.keydown({key,preventDefault(){},...extra})};
 }
 

@@ -46,7 +46,7 @@ let lifeTrial=null,lifeCleared=null,lifeEdited=null;
 // Page-only drawing tool, independent of simulation state and shared links.
 let lifeErasing=false;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0},orbitView=null;
-let animation, stageVisible=true, addressObservation='',canvasDpr=1;
+let animation, stageVisible=true, contextAvailable=true, addressObservation='',canvasDpr=1;
 // At most one bounded model per inactive experiment; no persistent storage.
 const experimentSessions=new Map();
 const missionRuns=new Map(),fieldNotes=new Map();
@@ -1004,10 +1004,24 @@ for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.add
 // Re-selecting the active tab must not discard a drawing or simulation progress.
 function selectTab(next){if(next===mode)return;const saved=experimentSessions.get(next);changeMode(next,saved?.values||null,saved);}
 document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>selectTab(tab.dataset.mode));tab.addEventListener('keydown',e=>{if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;const modes=Object.keys(configs),i=modes.indexOf(mode);let n;if(e.key==='ArrowRight')n=(i+1)%modes.length;if(e.key==='ArrowLeft')n=(i+modes.length-1)%modes.length;if(e.key==='Home')n=0;if(e.key==='End')n=modes.length-1;if(n!==undefined){e.preventDefault();selectTab(modes[n]);$('#tab-'+modes[n]).focus();}});});const shared=addressSettings();loadAddress(shared);new ResizeObserver(fit).observe(canvas);
-animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>!paused&&!document.hidden&&stageVisible});
+animation=createAnimationLoop({request:callback=>requestAnimationFrame(callback),cancel:id=>cancelAnimationFrame(id),update:advance,canRun:()=>contextAvailable&&!paused&&!document.hidden&&stageVisible});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)interruptPainting();animation.sync();});
 if(typeof IntersectionObserver!=='undefined')new IntersectionObserver(entries=>{stageVisible=entries[0].isIntersecting;animation.sync();}).observe(canvas);
 animation.sync();
+
+// The browser may reclaim the 2D backing store. Leave its default recovery
+// enabled, stop unseen animation and finish any interrupted drawing gesture.
+canvas.addEventListener('contextlost',()=>{
+ contextAvailable=false;interruptPainting();animation.sync();
+});
+canvas.addEventListener('contextrestored',()=>{
+ contextAvailable=true;
+ const rect=canvas.getBoundingClientRect();
+ // Restoration resets the drawing state, including its density transform.
+ // A same-size repaint must not expand an unchanged edge probe's fitted view.
+ if(rect.width!==width||rect.height!==height)fit();else resizeCanvas();
+ animation.sync();
+});
 
 // Display density can change without a CSS-size change. Re-arm against the raw
 // ratio, but redraw only when the capped backing-store ratio needs updating.
