@@ -120,7 +120,7 @@ test('the ruler text wraps within the existing legend without controls or live a
  const legend=html.slice(html.indexOf('<div id="walk-legend"'),html.indexOf('<div class="stage-bottom"'));
  assert.match(legend,/<small id="walk-scale-reading" aria-live="off"><\/small>/);
  assert.doesNotMatch(legend,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
- assert.match(css,/#walk-scale-reading\{[^}]*flex-basis:100%[^}]*min-width:0[^}]*overflow-wrap:anywhere/);
+ assert.match(css,/#walk-scale-reading,#walk-occupancy-reading\{[^}]*flex-basis:100%[^}]*min-width:0[^}]*overflow-wrap:anywhere/);
  assert.match(css,/\.walk-legend span:last-of-type\{color:#d9e4cf\}/);
- assert.ok(html.includes('app.js?v=fractal-choice-reading-1'));assert.ok(html.includes('style.css?v=life-turnover-1'));
+ assert.ok(html.includes('app.js?v=walk-occupancy-reading-1'));assert.ok(html.includes('style.css?v=walk-occupancy-reading-1'));
 });

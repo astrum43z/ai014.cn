@@ -111,5 +111,5 @@ test('walk distance uses quiet readable text, existing controls, and a refreshed
  const panel=html.match(/<section id="walk-distance".*?<\/section>/s)?.[0];assert.ok(panel);
  assert.match(panel,/aria-labelledby="walk-distance-title"/);assert.doesNotMatch(panel,/aria-live|role="status"|<button|<output/);
  assert.match(panel,/不是下方整群的散开程度/);assert.match(panel,/直线距离却可能缩短/);
- assert.ok(app.includes("./walk.js?v=walk-distance-1"));
+ assert.ok(app.includes("./walk.js?v=occupancy-reading-1"));
 });

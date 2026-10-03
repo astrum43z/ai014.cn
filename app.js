@@ -6,7 +6,7 @@ import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.j
 import {orbitLaunchState,clampOrbitPoint,orbitRadialVelocity} from './orbit.js?v=radial-reading-1';
 import {paintLifeLine} from './painting.js?v=edit-recovery-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
-import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} from './walk.js?v=walk-distance-1';
+import {createWalk,advanceWalk,walkStats,walkPathStats,walkOccupancy,WALK_COUNT,WALK_LIMIT} from './walk.js?v=occupancy-reading-1';
 import {discoveries} from './journeys.js?v=random-walk-1';
 import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js?v=vertex-counts-1';
 import {experimentGuides} from './guides.js?v=wave-paths-1';
@@ -1328,6 +1328,8 @@ function renderWaveComponents(){
 function waveReading(){return $('#wave-distances').textContent+'；'+$('#wave-difference').textContent+'；左源 A '+$('#wave-value-left').textContent+'，右源 B '+$('#wave-value-right').textContent+'，画面合成 '+$('#wave-value-combined').textContent+'；'+$('#wave-envelope').textContent;}
 
 function renderWalkDistance(){
+ const occupancy=walkOccupancy(walk);
+ setReadingText($('#walk-occupancy-reading'),`${WALK_COUNT} 位漫步者 · 占据 ${occupancy.sites} 个格点 · 单格最多 ${occupancy.maximum} 位。多个漫步者可重合；按模型位置计数，不是屏幕上可分辨的点数。`);
  const path=walkPathStats(walk);
  const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
  const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';

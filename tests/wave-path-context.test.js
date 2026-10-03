@@ -108,5 +108,5 @@ test('the new context is quiet wrapping text within the existing precision group
  assert.match(group,/暂停时，A 实线、B 虚线.*整数个波长.*半整数.*不到 0.1 个波长/);
  assert.equal((group.match(/<button /g)||[]).length,4);assert.doesNotMatch(group,/aria-live="polite"|aria-live="assertive"|tabindex|role="status"/);
  assert.match(css,/\.wave-touch p\{[^}]*font-variant-numeric:tabular-nums;overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=fractal-choice-reading-1'));assert.ok(html.includes('style.css?v=life-turnover-1'));
+ assert.ok(html.includes('app.js?v=walk-occupancy-reading-1'));assert.ok(html.includes('style.css?v=walk-occupancy-reading-1'));
 });

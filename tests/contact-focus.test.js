@@ -82,5 +82,5 @@ test('the existing copy button has described feedback, pending styling and a fre
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<button id="copy-wechat" type="button" aria-label="复制微信号" aria-controls="contact-status" aria-describedby="contact-status" hidden>/);
  assert.match(css,/#copy-wechat\[aria-disabled="true"\]\{cursor:wait;opacity:\.65\}/);
- assert.match(html,/contact\.js\?v=focus-safe-copy-1/);assert.match(html,/style\.css\?v=life-turnover-1/);
+ assert.match(html,/contact\.js\?v=focus-safe-copy-1/);assert.match(html,/style\.css\?v=walk-occupancy-reading-1/);
 });

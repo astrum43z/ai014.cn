@@ -46,3 +46,15 @@ export function walkPathStats(state){
  const x=state.path[state.steps*2],y=state.path[state.steps*2+1];
  return {right,left,up,down,x,y,distance:Math.hypot(x,y),length:state.steps};
 }
+
+// Count model lattice positions, never projected pixels. Walkers at the same
+// site remain distinct members of the ensemble; this is a read-only summary.
+export function walkOccupancy(state){
+ const sites=new Map();let maximum=0;
+ for(let i=0;i<WALK_COUNT;i++){
+  const key=state.positions[i*2]+','+state.positions[i*2+1];
+  const count=(sites.get(key)||0)+1;
+  sites.set(key,count);maximum=Math.max(maximum,count);
+ }
+ return {sites:sites.size,maximum};
+}
