@@ -90,6 +90,6 @@ test('result remains a quiet programmatic focus target with a visible keyboard f
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
  const css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<p id="mission-result" tabindex="-1" aria-live="off" hidden><\/p>/);
- assert.match(css,/#mission-result:focus-visible\{outline:3px solid #ec8867;outline-offset:5px\}/);
+ assert.match(css,/#mission-result:focus-visible\{outline:3px solid var\(--focus-ring\);outline-offset:5px\}/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{html\{scroll-behavior:auto\}/);
 });

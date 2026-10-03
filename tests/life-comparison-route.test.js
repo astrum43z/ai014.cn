@@ -38,7 +38,7 @@ test('native Life routes identify reading-only navigation and a focusable result
  assert.doesNotMatch(app,/\$\('#life-trial-(?:view|result-link)'\)\.addEventListener/,'native navigation has no model-changing handler');
  assert.match(css,/\.reading-nav a,\.return-to-canvas\{[^}]*min-height:44px/);
  assert.match(css,/\.experiment-shortcuts a\{[^}]*min-height:44px/);
- assert.match(css,/#life-test-result:focus-visible\{outline:3px solid #ffac86/);
+ assert.match(css,/#life-test-result:focus-visible\{outline:3px solid var\(--focus-ring\)/);
  assert.match(css,/\.life-trial-view \.return-to-canvas\{[^}]*max-width:100%;[^}]*white-space:normal;overflow-wrap:anywhere/);
 });
 

@@ -88,6 +88,6 @@ test('the notebook route wraps, has a 44px target and visible keyboard focus wit
  assert.ok(markup);assert.doesNotMatch(markup,/aria-live|role="status"|tabindex|target=/);
  const css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  assert.match(css,/\.mission-notes a\{[^}]*min-height:44px;[^}]*max-width:100%;[^}]*white-space:normal;[^}]*overflow-wrap:anywhere/);
- assert.match(css,/\.mission-notes a:focus-visible\{outline:3px solid #ec8867;outline-offset:3px\}/);
+ assert.match(css,/\.mission-notes a:focus-visible\{outline:3px solid var\(--focus-ring\);outline-offset:3px\}/);
  assert.match(css,/\.mission-notes small\{display:block;[^}]*font-size:12px;[^}]*line-height:1\.8/);
 });
