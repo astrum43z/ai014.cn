@@ -114,5 +114,5 @@ test('guides never earn discoveries or change saved notebook evidence without an
 });
 
 test('the new application asset keeps the existing stylesheet and has no new controls',()=>{
- const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('app.js?v=walk-occupancy-reading-1'));assert.ok(html.includes('style.css?v=walk-occupancy-reading-1'));
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('app.js?v=wave-cycle-traces-1'));assert.ok(html.includes('style.css?v=wave-cycle-traces-1'));
 });

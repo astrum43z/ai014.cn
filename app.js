@@ -3,6 +3,7 @@ import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-p
 import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
 import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.js';
+import {createWaveCycleCache,waveCyclePosition} from './wave-cycle.js';
 import {orbitLaunchState,clampOrbitPoint,orbitRadialVelocity} from './orbit.js?v=radial-reading-1';
 import {paintLifeLine} from './painting.js?v=edit-recovery-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
@@ -15,6 +16,8 @@ import {createAnimationLoop} from './animation.js';
 import {lifeStep,inspectLifeCell,orbitStep,waveComponents,population,repeatPeriod,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1';
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
 const getWaveField=createWaveFieldCache();
+const getWaveCycle=createWaveCycleCache();
+let renderedWaveCycle=null;
 const getOrbitPreview=createOrbitPreview();
 // The field, probe readings and manual quarter-cycle step share one clock.
 const WAVE_ANGULAR_SPEED=3,WAVE_QUARTER_PERIOD=Math.PI/(2*WAVE_ANGULAR_SPEED);
@@ -1305,6 +1308,22 @@ function drawWavePaths(scale){
 }
 
 function waveNumber(value){const rounded=Math.abs(value)<.005?0:value;return (rounded>0?'+':'')+rounded.toFixed(2);}
+function setWaveCycleAttribute(id,name,value){
+ const element=$('#'+id),text=String(value);
+ if(element.getAttribute?.(name)!==text)element.setAttribute(name,text);
+}
+function renderWaveCycle(paths,parts){
+ const cycle=getWaveCycle(paths.leftDistance,paths.rightDistance,values.wavelength);
+ const x=waveCyclePosition(t*WAVE_ANGULAR_SPEED);
+ for(const name of ['left','right','combined']){
+  if(cycle!==renderedWaveCycle)$('#wave-cycle-'+name).setAttribute('points',cycle[name]);
+  setWaveCycleAttribute('wave-cycle-cursor-'+name,'transform',`translate(${x} 0)`);
+  setWaveCycleAttribute('wave-cycle-dot-'+name,'cx',x);
+  setWaveCycleAttribute('wave-cycle-dot-'+name,'cy',28-parts[name]*24);
+ }
+ renderedWaveCycle=cycle;
+ setReadingText($('#wave-cycle-period'),`一周期 T ≈ ${(2*Math.PI/WAVE_ANGULAR_SPEED).toFixed(3)} 模型秒 · 当前周期位置约 ${(x/6).toFixed(1)}%。`);
+}
 function renderWaveComponents(){
  const paths=wavePathDifference(probe.x,probe.y,values.separation,values.wavelength);
  setReadingText($('#wave-distances'),`A 路程 ${paths.leftDistance.toFixed(2)} · B 路程 ${paths.rightDistance.toFixed(2)}`);
@@ -1323,6 +1342,7 @@ function renderWaveComponents(){
  setReadingText($('#wave-path-context'),`波程差 ${paths.difference.toFixed(2)} ÷ 波长 ${values.wavelength} ≈ ${paths.cycles.toFixed(2)} 个波长 · ${waveMeetingNames[paths.kind]}`);
  setReadingText($('#wave-instant-reading'),'探针此刻 (A+B)/2 · '+waveNumber(parts.combined));
  setReadingText($('#wave-envelope'),'完整周期最大 |(A+B)/2| · '+parts.envelope.toFixed(2));
+ renderWaveCycle(paths,parts);
 }
 
 function waveReading(){return $('#wave-distances').textContent+'；'+$('#wave-difference').textContent+'；左源 A '+$('#wave-value-left').textContent+'，右源 B '+$('#wave-value-right').textContent+'，画面合成 '+$('#wave-value-combined').textContent+'；'+$('#wave-envelope').textContent;}

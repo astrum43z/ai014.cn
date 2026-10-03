@@ -97,6 +97,20 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 /* Geometry stays beside the existing signed wave contributions, without extra controls. */
 .wave-path-reading{border-top:1px solid #345046;margin-top:10px;padding-top:3px}
+.wave-cycle{margin:18px 0 14px;padding-top:15px;border-top:1px solid #486358;max-width:650px;min-width:0}
+.wave-cycle figcaption{font-size:13px;line-height:1.7;margin-bottom:12px}
+.wave-cycle-row{display:grid;grid-template-columns:76px 24px minmax(0,1fr);gap:6px;align-items:center;margin:8px 0;font:12px ui-monospace,monospace}
+.wave-cycle-scale{height:56px;display:flex;flex-direction:column;justify-content:space-between;text-align:right;font-size:11px;line-height:1;color:#b7cbae;padding:0 0}
+.wave-cycle-row svg{display:block;width:100%;height:56px;overflow:visible}
+.wave-cycle-grid{fill:none;stroke:#486358;stroke-width:1}
+.wave-cycle-trace{fill:none;stroke-width:2;stroke:#c7b1e8;stroke-linejoin:round}
+.wave-cycle-trace.right{stroke:#f59c80;stroke-dasharray:5 3}
+.wave-cycle-trace.combined{stroke:#d3f35b;stroke-width:2.5}
+.wave-cycle-cursor{stroke:#e7eee1;stroke-width:1;stroke-dasharray:2 3}
+.wave-cycle-dot{fill:#1b3931;stroke:#e7eee1;stroke-width:1.5}
+.wave-cycle-row svg>*{vector-effect:non-scaling-stroke}
+.wave-cycle-axis{display:flex;justify-content:space-between;gap:3px;margin-left:112px;font:11px ui-monospace,monospace;color:#b7cbae}
+@media(max-width:720px){.wave-cycle figcaption{font-size:14px}.wave-cycle-row{grid-template-columns:68px 22px minmax(0,1fr);gap:5px}.wave-cycle-axis{margin-left:100px}}
 .wave-path-reading p{color:#e7eee1;font-size:10px;line-height:1.6;overflow-wrap:anywhere}
 
 /* Keep all five worlds visible in one compact mobile row. Full names remain

@@ -95,5 +95,5 @@ test('the text equivalent wraps beside the field without new controls or live an
  assert.match(key,/<small id="wave-scale-reading" aria-live="off"><\/small>/);
  assert.doesNotMatch(key,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=walk-occupancy-reading-1'));
+ assert.ok(html.includes('app.js?v=wave-cycle-traces-1'));
 });
