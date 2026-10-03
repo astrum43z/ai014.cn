@@ -3,7 +3,7 @@ import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-p
 import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
 import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.js';
-import {orbitLaunchState,clampOrbitPoint} from './orbit.js?v=resize-stable-1';
+import {orbitLaunchState,clampOrbitPoint,orbitRadialVelocity} from './orbit.js?v=radial-reading-1';
 import {paintLifeLine} from './painting.js?v=edit-recovery-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
 import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} from './walk.js?v=walk-distance-1';
@@ -59,7 +59,7 @@ function observationReading(){
  const progress=mode==='life'?`第 ${generation} 代；`:mode==='walk'?`${walk.steps} 步；`:'';
  const readings=['a','b','c'].map(key=>$('#observation-'+key).textContent).join('；');
  const atLimit=(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT)||(mode==='walk'&&walk.steps>=WALK_LIMIT);
- return progress+readings+(mode==='orbit'?'；'+orbitLaunchReading():mode==='wave'?'；'+waveReading():mode==='life'?'；'+lifeReading():mode==='fractal'?'；'+fractalReading():mode==='walk'?'；'+walkReading():'')+(atLimit?(mode==='walk'?'；已达到上限，可退回一步或重置后继续':'；已达到上限，请重置后继续'):'');
+ return progress+readings+(mode==='orbit'?'；'+$('#orbit-radial-reading').textContent+'；'+orbitLaunchReading():mode==='wave'?'；'+waveReading():mode==='life'?'；'+lifeReading():mode==='fractal'?'；'+fractalReading():mode==='walk'?'；'+walkReading():'')+(atLimit?(mode==='walk'?'；已达到上限，可退回一步或重置后继续':'；已达到上限，请重置后继续'):'');
 }
 
 // Progress-limited worlds keep their primary controls focusable at the cap.
@@ -341,6 +341,11 @@ function orbitMeasuredBodyVisible(scale=orbitScale()){
 function renderOrbitMeasurement(radius,speed){
  const visible=orbitMeasuredBodyVisible();
  setReadingText($('#orbit-measured-reading'),`首颗行星 · 距中心 ${radius.toFixed(1)} · 速率 ${speed.toFixed(1)}${visible?'':'（当前在画外）'}`);
+ const radial=orbitRadialVelocity(bodies[0]);
+ // Classify the displayed precision, avoiding a misleading -0.0 or a claim
+ // that a rounded zero proves the body has stopped or follows a circle.
+ const rounded=radial===null?null:Number(radial.toFixed(1));
+ setReadingText($('#orbit-radial-reading'),rounded===null?'首颗行星 · 距离变化率暂不可定义（中心处没有径向方向）':`距离变化率 ${rounded>0?'+':''}${rounded.toFixed(1)} 模型单位/秒 · ${rounded>0?'此刻远离中心':rounded<0?'此刻靠近中心':'此刻径向变化接近 0'}`);
  setReadingText($('#orbit-measured-help'),`白色菱形标记首颗行星；${paused?'白色实线量到中心的距离':'暂停可显示到中心的距离线'}。距离与速率使用模型单位；${visible?'橙色空心圆用于下一次发射':'画外仍继续计算，离开画面不代表逃逸'}。`);
 }
 function drawOrbitMeasurement(scale){

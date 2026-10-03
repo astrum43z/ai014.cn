@@ -1,6 +1,15 @@
 // Launches use the same inverse-square field as orbitStep outside its softened
 // core. The cursor stays at least 22 model units from the center before launch.
 export const ORBIT_LAUNCH_MIN=22;
+// Project the current velocity onto the outward radial unit vector. This is
+// d|r|/dt, not total speed, a finite-step difference or an escape prediction.
+// No radial direction exists at the center; never invent a zero there.
+export function orbitRadialVelocity({x,y,vx,vy}){
+ const radius=Math.hypot(x,y);
+ if(!Number.isFinite(radius)||radius===0)return null;
+ const radial=x/radius*vx+y/radius*vy;
+ return Number.isFinite(radial)?radial:null;
+}
 export function orbitLaunchState({x,y},gravity,speedPercent){
  const radius=Math.hypot(x,y);
  const valid=Number.isFinite(radius)&&radius>=ORBIT_LAUNCH_MIN;

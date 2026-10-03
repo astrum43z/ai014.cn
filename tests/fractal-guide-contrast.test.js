@@ -114,5 +114,5 @@ test('guides never earn discoveries or change saved notebook evidence without an
 });
 
 test('the new application asset keeps the existing stylesheet and has no new controls',()=>{
- const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('app.js?v=life-turnover-1'));assert.ok(html.includes('style.css?v=life-turnover-1'));
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('app.js?v=orbit-radial-reading-1'));assert.ok(html.includes('style.css?v=life-turnover-1'));
 });
