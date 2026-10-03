@@ -14,6 +14,10 @@
 /* Five compact exhibits stay in one row on wide screens; the last mobile tile
    is a quiet full-width invitation rather than a third pair of empty cards. */
 .tabs{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.tab{padding:18px 14px}.tab strong{font-size:17px;line-height:1.5}.tab small{display:block;line-height:1.6}
+/* Paused Life changes use shapes as well as color and wrap below the board. */
+#life-transition-legend{margin:0;padding:10px 18px;border-top:1px solid #345046;color:#e6ecd8;font-size:14px;line-height:1.7;overflow-wrap:anywhere}
+@media(max-width:720px){#life-transition-legend{padding:10px 12px}}
+
 .walk-legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:12px 22px;font-size:10px;border-top:1px solid #345046;color:#d3f35b}.walk-legend span:nth-child(2){color:#f59c80}.walk-legend span:nth-child(3){color:#c7b1e8}.walk-legend span:last-of-type{color:#d9e4cf}
 #walk-scale-reading,#walk-occupancy-reading{flex-basis:100%;min-width:0;font-size:12px;line-height:1.65;color:#b7cbae;overflow-wrap:anywhere}
 .walk-comparison{margin:18px 0 8px;padding:12px;background:#eaf0dc}.walk-comparison>span{font-size:11px}.walk-comparison .button-row{margin-top:10px}.walk-comparison small{display:block;font-size:9px;line-height:1.7;color:#526451;margin-top:8px}
@@ -400,3 +404,4 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 @media(max-width:720px){
  .tab[data-discovered="true"]>.tab-short::after{content:' ✓';font-size:11px;white-space:nowrap}
 }
+
