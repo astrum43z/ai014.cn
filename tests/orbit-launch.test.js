@@ -108,7 +108,7 @@ test('modified keys and unrelated keys remain available; mode changes hide and r
 test('launcher is a quiet labeled reading with direction, units and keyboard guidance',async()=>{
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  const panel=html.match(/<section id="orbit-launch".*?<\/section>/s)?.[0];assert.ok(panel);
- assert.match(panel,/aria-labelledby="orbit-launch-title"/);assert.doesNotMatch(panel,/aria-live|role="status"|<button/);
+ assert.match(panel,/aria-labelledby="orbit-launch-title"/);assert.doesNotMatch(panel,/aria-live="(?:polite|assertive)"|role="status"|<button/);
  for(const id of ['position','speed','launch-note'])assert.ok(panel.includes('id="orbit-'+id+'"'));
  assert.match(panel,/方向键每次移动 5/);assert.match(panel,/Enter 或空格/);assert.match(panel,/模型单位/);
 });
@@ -175,6 +175,6 @@ test('preview remains a quiet reading and makes its finite constant-gravity limi
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  const panel=html.match(/<section id="orbit-launch".*?<\/section>/s)[0];
  assert.match(panel,/id="orbit-preview-reading" hidden/);assert.match(panel,/预演不添加行星/);
- assert.doesNotMatch(panel,/aria-live|role="status"|<button/);
+ assert.doesNotMatch(panel,/aria-live="(?:polite|assertive)"|role="status"|<button/);
  const h=await setup(true);assert.match(h.el('orbit-launch-note').textContent,/10 秒.*方框.*引力不变.*不代表逃逸/);
 });

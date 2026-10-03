@@ -274,11 +274,16 @@ function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(eve
 // Legacy MouseEvent clicks follow the latest accepted pointer sequence. Keyboard
 // activation (detail 0) and unrelated pointer IDs never consume another guard.
 canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
-function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
+function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+'；'+$('#orbit-escape-reading').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
  setReadingText($('#orbit-position'),`发射位置 x ${orbitPoint.x.toFixed(1)}，y ${orbitPoint.y.toFixed(1)} · 距中心 ${launch.radius.toFixed(1)}`);
  setReadingText($('#orbit-speed'),launch.valid?`发射速率 ${launch.speed.toFixed(1)} · 同半径圆轨道 ${launch.circularSpeed.toFixed(1)} × ${values.speed}%`:'离中心太近，暂不能发射');
+ // Valid launches are outside the softened core: the fixed-field escape
+ // reference is sqrt(2) times the same-radius circular speed. It describes
+ // the proposed launch, never the already moving measured first body.
+ const escape=launch.circularSpeed*Math.SQRT2;
+ setReadingText($('#orbit-escape-reading'),launch.valid?`下一次发射 · 逃逸参考 ${escape.toFixed(1)} 模型单位/秒 · 当前 ${values.speed}% ${launch.speed<escape?'低于':'高于'}参考`:'下一次发射 · 移到有效发射位置后显示逃逸参考');
  const prediction=orbitPrediction();
  $('#orbit-preview-reading').hidden=!prediction;
  setReadingText($('#orbit-preview-reading'),prediction?`预演 10 秒后：x ${prediction.end.x.toFixed(1)}，y ${prediction.end.y.toFixed(1)} · 距中心 ${Math.hypot(prediction.end.x,prediction.end.y).toFixed(1)}`:'');
