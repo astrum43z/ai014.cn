@@ -11,9 +11,9 @@ document.hidden=false;documentHandlers.visibilitychange();assert.equal(frames.si
 const resumed=drawCount;tick(90000);assert.equal(drawCount,resumed,'resume does not fast-forward');
 intersect([{isIntersecting:false}]);assert.equal(frames.size,0);
 intersect([{isIntersecting:true}]);assert.equal(frames.size,1);
-el('pause').handlers.click();assert.equal(frames.size,0);
+el('pause').handlers.click();assert.equal(frames.size,0);assert.equal(drawCount,resumed+1,'pausing shows the neighbor outline once');
 intersect([{isIntersecting:false}]);intersect([{isIntersecting:true}]);assert.equal(frames.size,0,'scrolling must not override manual pause');
-el('step').handlers.click();assert.equal(drawCount,resumed+1,'manual step still draws while paused');
+el('step').handlers.click();assert.equal(drawCount,resumed+2,'manual step still draws while paused');
 // Snapshot callbacks may finish after an experiment switch.
 let encoded;
 el('canvas').toBlob=callback=>{encoded=callback;};
