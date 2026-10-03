@@ -94,8 +94,8 @@ test('Space, navigation and native clicks remain unchanged on the Life step butt
  for(let n=1;n<=3;n++){click(h,'step');assert.equal(generation(h),n);}
 });
 
-test('other worlds retain their existing repeatable primary-step behavior',async()=>{
- for(const mode of ['orbit','wave','fractal','walk']){
+test('Orbit and seeded batch worlds retain their repeatable primary-step behavior',async()=>{
+ for(const mode of ['orbit','fractal','walk']){
   const h=await setup('?experiment='+mode);h.el('step').focus();
   assert.equal(enter(h),false);const first=h.el('metrics').textContent;
   assert.equal(enter(h,true),false);assert.notEqual(h.el('metrics').textContent,first);

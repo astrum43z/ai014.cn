@@ -873,10 +873,11 @@ $('#preset').addEventListener('click',()=>{
  applyPreset(next);
 });
 $('#step').addEventListener('click',()=>{if(progressAtLimit()){announce('已暂停；'+observationReading());return;}interruptPainting();paused=true;updatePause();if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;cells=lifeStep(cells,48,32);generation++;}else if(mode==='fractal'){growFractal();}else if(mode==='walk'){growWalk();}else{t+=mode==='wave'?WAVE_QUARTER_PERIOD:.1;if(mode==='orbit')bodies.forEach(b=>{for(let i=0;i<10;i++)orbitStep(b,values.gravity*1000,.01);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}draw();announce((mode==='wave'?'已暂停，推进四分之一周期；':'已暂停；')+observationReading());});
-// Inspect exactly one Life generation per Enter press, matching its rewind.
-// Other worlds keep their existing primary-step repeat behavior.
+// Keep one Life generation or Wave quarter-cycle per Enter press. Repeated
+// phases can return to the same-looking field and hide the intended comparison.
+// Orbit and the two batch-growth controls retain their repeat behavior.
 $('#step').addEventListener('keydown',event=>{
- if(mode==='life'&&event.repeat&&event.key==='Enter')event.preventDefault();
+ if((mode==='life'||mode==='wave')&&event.repeat&&event.key==='Enter')event.preventDefault();
 });
 // One bounded recovery for an explicit Clear; fresh work cannot be overwritten.
 function renderLifeClear(){
