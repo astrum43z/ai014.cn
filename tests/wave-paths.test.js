@@ -105,5 +105,5 @@ test('path readings are quiet text inside the existing panel and preserve primar
  for(const id of ['wave-distances','wave-difference','wave-path-note'])assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
  const reading=html.match(/<div class="wave-path-reading">(.*?)<\/div>/)[1];assert.doesNotMatch(reading,/aria-live|role="status"|<button|<input/);
  assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('class="wave-path-reading"'));
- assert.ok(html.includes('app.js?v=walk-marker-contrast-2'));assert.ok(html.includes('style.css?v=walk-scale-1'));
+ assert.ok(html.includes('app.js?v=fractal-guide-contrast-1'));assert.ok(html.includes('style.css?v=walk-scale-1'));
 });

@@ -103,5 +103,5 @@ test('shortcut is canvas-scoped with quiet visible help and no global keyboard l
  assert.doesNotMatch(source,/(?:document\.|window\.)?addEventListener\('keydown',.*undoLifeEdit/);
  assert.equal((source.match(/function undoLifeEdit\(/g)||[]).length,1);
  assert.match(source,/\$\('#life-undo-edit'\)\.addEventListener\('click',undoLifeEdit\)/);
- assert.match(html,/app\.js\?v=walk-marker-contrast-2/);
+ assert.match(html,/app\.js\?v=fractal-guide-contrast-1/);
 });

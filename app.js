@@ -1028,12 +1028,15 @@ function drawFractal(){
  // Keep the comparison region fixed at the outer triangle's side midpoints.
  // This is the same open central triangle counted by discovery checks, even
  // when another jump percentage puts points inside it. It consumes no RNG.
- ctx.save();ctx.strokeStyle='#8bbaca';ctx.lineWidth=1;ctx.setLineDash([3,5]);ctx.beginPath();
+ ctx.save();ctx.setLineDash([3,5]);ctx.beginPath();
  fractalVertices.forEach(([x,y],i)=>{
   const next=fractalVertices[(i+1)%3],px=cx+(x+next[0])*scale/2,py=cy+(y+next[1])*scale/2;
   if(i)ctx.lineTo(px,py);else ctx.moveTo(px,py);
  });
- ctx.closePath();ctx.stroke();ctx.restore();
+ ctx.closePath();
+ // A narrow opaque edge preserves the dashed reference over dense samples.
+ ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.stroke();
+ ctx.strokeStyle='#8bbaca';ctx.lineWidth=1;ctx.stroke();ctx.restore();
  setReadingText($('#fractal-gap-reading'),`中央参考区 · 内部 ${centralGapCount(fractal)} / ${fractal.count} 点`);
  // Only the final jump is highlighted, and only while paused. Seed replay
  // reconstructs its endpoints exactly; this overlay never consumes randomness.
@@ -1041,12 +1044,15 @@ function drawFractal(){
   const fromX=cx+fractal.previousX*scale,fromY=cy+fractal.previousY*scale;
   const toX=cx+fractal.x*scale,toY=cy+fractal.y*scale;
   const [vx,vy]=fractalVertices[fractal.lastVertex];
-  ctx.save();ctx.strokeStyle='#d9e4cf';ctx.lineWidth=1;ctx.setLineDash([4,4]);
-  ctx.beginPath();ctx.moveTo(fromX,fromY);ctx.lineTo(cx+vx*scale,cy+vy*scale);ctx.stroke();ctx.setLineDash([]);
-  ctx.strokeStyle='#ffac86';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fromX,fromY);ctx.lineTo(toX,toY);ctx.stroke();
+  ctx.save();ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(fromX,fromY);ctx.lineTo(cx+vx*scale,cy+vy*scale);
+  ctx.strokeStyle='#122e29';ctx.lineWidth=4;ctx.stroke();ctx.strokeStyle='#d9e4cf';ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(fromX,fromY);ctx.lineTo(toX,toY);
+  ctx.strokeStyle='#122e29';ctx.lineWidth=5;ctx.stroke();ctx.strokeStyle='#ffac86';ctx.lineWidth=2;ctx.stroke();
   ctx.fillStyle='#122e29';ctx.strokeStyle='#e7eee1';ctx.beginPath();ctx.arc(fromX,fromY,5,0,Math.PI*2);ctx.fill();ctx.stroke();
-  ctx.fillStyle='#ffac86';ctx.beginPath();ctx.arc(toX,toY,4,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#ffac86';ctx.beginPath();ctx.arc(cx+vx*scale,cy+vy*scale,8,0,Math.PI*2);ctx.stroke();ctx.restore();
+  ctx.beginPath();ctx.arc(toX,toY,4,0,Math.PI*2);ctx.strokeStyle='#122e29';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#ffac86';ctx.fill();
+  ctx.beginPath();ctx.arc(cx+vx*scale,cy+vy*scale,8,0,Math.PI*2);
+  ctx.strokeStyle='#122e29';ctx.lineWidth=5;ctx.stroke();ctx.strokeStyle='#ffac86';ctx.lineWidth=2;ctx.stroke();ctx.restore();
  }
  ctx.font='12px ui-monospace,monospace';
  fractalVertices.forEach(([x,y],i)=>{

@@ -20,7 +20,7 @@ function outline(h,width=600,height=414){
  assert.ok(start>=0,'reference triangle has its own dashed outline');
  const end=drawing.findIndex((row,i)=>i>start&&row[0]==='restore'),path=drawing.slice(start,end);
  assert.equal(path.filter(row=>row[0]==='closePath').length,1);
- assert.equal(path.filter(row=>row[0]==='stroke').length,1);
+ assert.equal(path.filter(row=>row[0]==='stroke').length,2,'matching dark backing and pale dashed foreground');
  assert.equal(path.filter(row=>row[0]==='fill').length,0,'reference area never covers the actual sample');
  const coords=path.filter(row=>['moveTo','lineTo'].includes(row[0])),scale=Math.min(width/2.1,height/1.85),cx=width/2,cy=height/2+scale*.25;
  assert.equal(coords.length,3);
@@ -110,5 +110,5 @@ test('the quiet reference explanation wraps beside the existing comparison witho
  assert.match(section,/三边中点.*内部落点.*不含边界.*参数变化时参考区不变.*当前样本/);
  assert.doesNotMatch(section,/<button|<a |tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/#fractal-gap-reading\{[^}]*overflow-wrap:anywhere/);
- assert.ok(html.includes('app.js?v=walk-marker-contrast-2'));assert.ok(html.includes('style.css?v=walk-scale-1'));
+ assert.ok(html.includes('app.js?v=fractal-guide-contrast-1'));assert.ok(html.includes('style.css?v=walk-scale-1'));
 });
