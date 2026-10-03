@@ -83,5 +83,6 @@ test('readonly link instructions are quiet, associated, wrapping and follow fiel
  assert.doesNotMatch(help[0],/role=|aria-live=|tabindex=|button/);
  assert.match(html,/<input id="share-link"[^>]*><p id="share-manual"/);
  assert.match(css,/#share-link\[hidden\]\+#share-manual\{display:none\}/);
+ assert.match(css,/\.controls>p\.share-manual\{[^}]*margin:8px 0/);
  assert.match(css,/\.controls>p\.share-manual\{[^}]*grid-column:1\/-1[^}]*overflow-wrap:anywhere/);
 });
