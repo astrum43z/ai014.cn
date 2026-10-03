@@ -272,10 +272,18 @@ function fitOrbitPoint(){
 }
 function orbitScale(){return Math.min(Math.min(width,height)/450,(width/2-34)/Math.max(1,Math.abs(orbitView?.x||0)),(height/2-34)/Math.max(1,Math.abs(orbitView?.y||0)));}
 function waveScale(){return Math.min(Math.min(width,height)/280,(width/2-18)/Math.max(1,Math.abs(waveView?.x||0)),(height/2-18)/Math.max(1,Math.abs(waveView?.y||0)));}
-function coordinates(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)/r.width*width,y:(event.clientY-r.top)/r.height*height};}
+function coordinates(event,scale){
+ const r=canvas.getBoundingClientRect();
+ // A delayed click can arrive during collapsed layout. Reject unusable input
+ // before it can replace a good launch point or probe with NaN/Infinity.
+ if(![event.clientX,event.clientY,r.left,r.top,r.width,r.height,width,height,scale].every(Number.isFinite)||r.width<=0||r.height<=0||width<=0||height<=0||scale<=0)return null;
+ const x=((event.clientX-r.left)/r.width*width-width/2)/scale;
+ const y=((event.clientY-r.top)/r.height*height-height/2)/scale;
+ return Number.isFinite(x)&&Number.isFinite(y)?{x,y}:null;
+}
 // Legacy MouseEvent clicks follow the latest accepted pointer sequence. Keyboard
 // activation (detail 0) and unrelated pointer IDs never consume another guard.
-canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}const p=coordinates(e);if(mode==='wave'){paused=true;updatePause();const scale=waveScale();probe={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};draw();announce('已暂停；测量探针已移动；'+waveReading());}if(mode==='orbit'){const scale=orbitScale();orbitPoint={x:(p.x-width/2)/scale,y:(p.y-height/2)/scale};launchOrbit();}});
+canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}if(mode!=='wave'&&mode!=='orbit')return;const point=coordinates(e,mode==='wave'?waveScale():orbitScale());if(!point)return;if(mode==='wave'){paused=true;updatePause();probe=point;draw();announce('已暂停；测量探针已移动；'+waveReading());}else{orbitPoint=point;launchOrbit();}});
 function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+'；'+$('#orbit-escape-reading').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
