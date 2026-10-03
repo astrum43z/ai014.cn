@@ -366,7 +366,9 @@ if(mode!=='life')return;
 if(!e.isComposing&&!e.altKey&&!e.shiftKey&&(e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){
  e.preventDefault();if(!e.repeat)undoLifeEdit();return;
 }
-if(e.altKey||e.ctrlKey||e.metaKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){
+// Shift+Space scrolls up in the browser; modified navigation must not paint,
+// move selection, interrupt a stroke or replace the current recovery.
+if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key)){
 e.preventDefault();
 // A held toggle key must not repeatedly erase and repaint the same cell.
 // Arrow repeats remain useful for moving across the board.
