@@ -221,8 +221,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 /* Keep the fine-grained walk control and its quiet reading usable on phones. */
 .walk-comparison .button-row{flex-wrap:wrap}
-#walk-step-reading{margin:10px 0 0;font-size:12px;line-height:1.7;color:#e6ecd8;overflow-wrap:anywhere}
-#walk-step-help{display:block;margin:6px 0 0}
+#walk-spread-reading,#walk-step-reading{margin:10px 0 0;font-size:12px;line-height:1.7;color:#e6ecd8;overflow-wrap:anywhere}
+#walk-spread-help,#walk-step-help{display:block;margin:6px 0 0}
 
 #walk-step-one[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 #walk-back[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}

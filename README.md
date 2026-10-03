@@ -573,3 +573,12 @@ The Wave canvas now includes a compact model-unit ruler, with the same reading i
 A dark backing keeps the label legible over both wave colors. The ruler is painted above measuring paths to protect its label; sources and the probe are painted afterward, keeping corner markers visible. It is included in canvas snapshots, appears only in Wave, and updates without extra live announcements or repeated unchanged text writes. There are no new controls, timers, model rules, persistent state or dependencies.
 
 `tests/wave-scale.test.js` checks exact labelled lengths at ordinary and extreme checkpoint scales, responsive resizing, parameter and phase changes, center/reset recovery, animation, tab returns, fixed links and earned discoveries. All eight new cases fail on the previous code. Public cloud-browser checks cover the visible ruler and quiet text at ordinary and zoomed layouts; hardware touch, rotation and screen-reader speech remain separate verification limits.
+
+
+## Compare the whole walk ensemble beside the canvas
+
+The 16/64-step comparison now keeps the whole group's measured and theoretical spread beside its existing buttons, above the separate white-walker distance reading. Visitors can compare the relevant numbers while watching the point cloud, including with the instruments closed on narrow screens. The quiet text uses the same centered sample spread and population theory as the detailed observations below; drift from the origin and one walker's distance are not substituted for spreading. Nearby help explains the point-cloud center and finite-sample variation.
+
+The reading reuses already computed statistics, follows animation, exact replay, parameters, resets, presets, saved observations and retained tabs, and skips unchanged text replacements. It introduces no controls, extra live announcements, model rules, state, timers, storage or dependencies. Discoveries still require an explicit successful check.
+
+`tests/walk-spread-reading.test.js` covers 16/64 comparison, biased/seeded moments, exact replay and bounds, quiet animation, unchanged redraws, responsive restoration, fixed checkpoints, parameter changes and notebook boundaries. All eight new cases fail without the new reading. Public cloud-browser checks cover real controls, accessible text and zoomed layouts; physical touch, rotation and screen-reader speech remain separate verification limits.
