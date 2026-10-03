@@ -113,7 +113,7 @@ test('visual measurement never completes a discovery and preserves already earne
 
 test('the change refreshes only app loading and adds no controls or live messages',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
- assert.ok(html.includes('src="app.js?v=focus-safe-save-1"'));assert.ok(html.includes('href="style.css?v=focus-safe-copy-1"'));
+ assert.ok(html.includes('src="app.js?v=preset-key-1"'));assert.ok(html.includes('href="style.css?v=focus-safe-copy-1"'));
  const helper=app.slice(app.indexOf('function drawWaveMarkers'),app.indexOf('// Paused measuring lines'));
  assert.doesNotMatch(helper,/announce\(|\.textContent|addEventListener|setTimeout|requestAnimationFrame/);
 });

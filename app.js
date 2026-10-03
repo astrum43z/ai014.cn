@@ -850,7 +850,11 @@ function choosePreset(name){
 }
 $('#preset-select').addEventListener('change',e=>choosePreset(e.target.value));
 $('#load-preset').addEventListener('click',()=>applyPreset($('#preset-select').value));
-$('#load-preset').addEventListener('keydown',e=>{if(e.repeat&&e.key==='Enter')e.preventDefault();});
+// Both replacement controls act once per Enter press. Keep the first random
+// board or preset instead of replacing it on native held-key repeats.
+for(const id of ['load-preset','preset']){
+ $('#'+id).addEventListener('keydown',e=>{if(e.repeat&&e.key==='Enter')e.preventDefault();});
+}
 $('#preset').addEventListener('click',()=>{
  // Life's button promises a fresh random sow at the selected density.
  // Named patterns remain available in the select; other worlds keep cycling.
