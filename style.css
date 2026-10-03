@@ -112,6 +112,18 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .walk-distance #walk-distance-note{margin:5px 0}.walk-distance small{display:block;margin-top:7px}
 @media(max-width:720px){.walk-distance{padding:12px}.walk-distance-readings p{padding:7px 8px}.walk-distance-readings strong{font-size:17px}}
 
+/* Direction labels and numbers explain the rule even without decorative bars. */
+.walk-choices{margin-top:16px;padding-top:14px;border-top:1px solid #426055;min-width:0}
+.walk-choices h5{font-size:13px;line-height:1.7;font-weight:500;margin:0 0 8px;color:#e7eee1}
+.walk-choices #walk-choice-reading{font-size:13px;line-height:1.7;margin:0 0 10px;overflow-wrap:anywhere}
+.walk-choice-bars{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.walk-choice-bars li{display:grid;grid-template-columns:4.5em minmax(0,1fr) 5ch;align-items:center;gap:10px;font-size:13px;line-height:1.7}
+.walk-choice-bars li>span:last-child{text-align:right;font-variant-numeric:tabular-nums;color:#e7eee1}
+.walk-choice-track{display:block;height:8px;background:#122e29;border:1px solid #638373;border-radius:3px;overflow:hidden}
+.walk-choice-track>span{display:block;height:100%;background:#b5d99b}
+.walk-choices small{font-size:13px;line-height:1.7;overflow-wrap:anywhere;color:#b8cdbb}
+@media(max-width:720px){.walk-choices h5,.walk-choices #walk-choice-reading{font-size:14px}.walk-choice-bars li{gap:8px}}
+
 /* Geometry stays beside the existing signed wave contributions, without extra controls. */
 .wave-path-reading{border-top:1px solid #345046;margin-top:10px;padding-top:3px}
 .wave-cycle{margin:18px 0 14px;padding-top:15px;border-top:1px solid #486358;max-width:650px;min-width:0}

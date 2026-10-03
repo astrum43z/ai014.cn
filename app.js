@@ -752,7 +752,7 @@ function renderMission(){
  renderMissionEntries();
  $('#mission-result').hidden=!run?.feedback;$('#mission-result').textContent=run?.feedback||'';
  $('#orbit-measurement').hidden=mode!=='orbit';$('#orbit-touch').hidden=mode!=='orbit';$('#wave-home').hidden=mode!=='wave';$('#wave-touch').hidden=mode!=='wave';$('#fractal-1000').hidden=mode!=='fractal';$('#fractal-checkpoint-note').hidden=mode!=='fractal';$('#fractal-gap').hidden=mode!=='fractal';$('#fractal-touch').hidden=mode!=='fractal';$('#life-touch').hidden=mode!=='life';
- $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开随机落点，理解空隙',walk:'一位漫步者的路程与位移'}[mode];
+ $('#instrument-summary').textContent={orbit:'发射位置与 10 秒轨道预演',life:'逐格规则、下一代对比',wave:'分解两个波、比较传播路径',fractal:'拆开随机落点，理解空隙',walk:'每步方向概率与一位漫步者的路程'}[mode];
  renderFieldNotes();
 }
 function inspectMission(fromCanvas=false){
@@ -1379,7 +1379,19 @@ function renderWaveComponents(){
 
 function waveReading(){return $('#wave-distances').textContent+'；'+$('#wave-difference').textContent+'；左源 A '+$('#wave-value-left').textContent+'，右源 B '+$('#wave-value-right').textContent+'，画面合成 '+$('#wave-value-combined').textContent+'；'+$('#wave-envelope').textContent;}
 
+// Explain the existing branch widths, not frequencies sampled from the path.
+// Reading this rule never advances the ensemble or consumes a random draw.
+function renderWalkChoices(){
+ const percentages={right:25+walk.bias/2,left:25-walk.bias/2,up:25,down:25};
+ for(const [direction,percent] of Object.entries(percentages)){
+  setReadingText($('#walk-chance-'+direction+'-value'),percent.toFixed(1)+'%');
+  const bar=$('#walk-chance-'+direction),width=`width:${percent}%`;
+  if(bar.getAttribute?.('style')!==width)bar.setAttribute('style',width);
+ }
+ setReadingText($('#walk-choice-reading'),`偏向 ${walk.bias}%：在水平步中，向右机会从 50% 提高到 ${50+walk.bias}%；每一步都有 50% 的机会走水平方向。`);
+}
 function renderWalkDistance(){
+ renderWalkChoices();
  const occupancy=walkOccupancy(walk);
  setReadingText($('#walk-occupancy-reading'),`${WALK_COUNT} 位漫步者 · 占据 ${occupancy.sites} 个格点 · 单格最多 ${occupancy.maximum} 位。多个漫步者可重合；按模型位置计数，不是屏幕上可分辨的点数。`);
  const path=walkPathStats(walk);
