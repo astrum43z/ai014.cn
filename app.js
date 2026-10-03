@@ -10,7 +10,7 @@ import {createWalk,advanceWalk,walkStats,walkPathStats,WALK_COUNT,WALK_LIMIT} fr
 import {discoveries} from './journeys.js?v=random-walk-1';
 import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js?v=jump-trace-1';
 import {experimentGuides} from './guides.js?v=wave-paths-1';
-import {createSnapshotSaver} from './snapshot.js?v=visible-feedback-1';
+import {createSnapshotSaver} from './snapshot.js?v=focus-safe-save-1';
 import {createAnimationLoop} from './animation.js';
 import {lifeStep,inspectLifeCell,orbitStep,waveComponents,population,repeatPeriod,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1';
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
@@ -900,6 +900,11 @@ $('#share').addEventListener('click',async()=>{
 });
 const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));
+// Encoding can finish before Enter repeats. One physical press saves once,
+// while fresh Enter, native Space keyup and pointer activation stay available.
+$('#save').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 // A stroke belongs to one pointer and cannot survive interrupted capture.
 let paintingPointer=null,lastCanvasPointer=null,lastPaint=null,paintingBounds=null,paintingBefore=null,wasDragging=false;
 const suppressedClickPointers=new Set();

@@ -14,11 +14,11 @@ function setup(){
 }
 test('pending snapshots keep their original filename and reject repeated saves',()=>{
   const s=setup();s.save('small-worlds-orbit.png');
-  assert.equal(s.button.disabled,true);assert.equal(s.button['aria-busy'],'true');
+  assert.equal(s.button['aria-disabled'],'true');assert.equal(s.button['aria-busy'],'true');
   s.save('small-worlds-wave.png');assert.equal(s.callbacks.length,1);
   s.callbacks.shift()(new Blob(['png']));
   assert.deepEqual(s.downloads,['small-worlds-orbit.png']);
-  assert.equal(s.button.disabled,false);assert.equal(s.button['aria-busy'],'false');
+  assert.equal(s.button['aria-disabled'],'false');assert.equal(s.button['aria-busy'],'false');
   assert.equal(s.link.removed,true);assert.deepEqual(s.revoked,[]);
   s.timers.shift()();assert.deepEqual(s.revoked,['blob:snapshot']);
   assert.match(s.messages.at(-1),/已发起/);
@@ -27,13 +27,13 @@ test('pending snapshots keep their original filename and reject repeated saves',
 });
 test('null encoding result gives feedback and allows retry',()=>{
   const s=setup();s.save('first.png');s.callbacks.shift()(null);
-  assert.match(s.messages.at(-1),/失败.*重试/);assert.equal(s.button.disabled,false);
+  assert.match(s.messages.at(-1),/失败.*重试/);assert.equal(s.button['aria-disabled'],'false');
   assert.deepEqual(s.downloads,[]);assert.equal(s.timers.length,0);
   s.save('retry.png');s.callbacks.shift()(new Blob(['png']));assert.deepEqual(s.downloads,['retry.png']);
 });
 test('synchronous encoding errors restore the save control',()=>{
   const s=setup();s.canvas.toBlob=()=>{throw new Error('encoding unavailable');};
-  assert.doesNotThrow(()=>s.save('first.png'));assert.equal(s.button.disabled,false);
+  assert.doesNotThrow(()=>s.save('first.png'));assert.equal(s.button['aria-disabled'],'false');
   assert.match(s.messages.at(-1),/失败.*重试/);
   s.canvas.toBlob=callback=>callback(new Blob(['png']));s.save('retry.png');
   assert.deepEqual(s.downloads,['retry.png']);
@@ -43,7 +43,7 @@ for(const stage of ['object URL','download'])test(`${stage} errors do not leak a
   if(stage==='object URL')s.urlApi.createObjectURL=()=>{throw new Error('URL unavailable');};
   else s.link.click=()=>{throw new Error('download unavailable');};
   s.save('first.png');assert.doesNotThrow(()=>s.callbacks.shift()(new Blob(['png'])));
-  assert.equal(s.button.disabled,false);assert.match(s.messages.at(-1),/失败.*重试/);
+  assert.equal(s.button['aria-disabled'],'false');assert.match(s.messages.at(-1),/失败.*重试/);
   if(stage==='download'){assert.equal(s.link.removed,true);s.timers.shift()();assert.deepEqual(s.revoked,['blob:snapshot']);}
   else assert.equal(s.timers.length,0);
   s.urlApi.createObjectURL=()=> 'blob:retry';s.link.click=()=>s.downloads.push(s.link.download);
@@ -89,5 +89,5 @@ for(const stage of ['encoding','object URL','download'])test(`${stage} errors pr
   assert.equal(s.status.hidden,false);
   assert.match(s.status.textContent,/随机长出秩序.*失败.*重试/);
   assert.deepEqual(s.messages,[s.status.textContent]);
-  assert.equal(s.button.disabled,false);assert.equal(s.button['aria-busy'],'false');
+  assert.equal(s.button['aria-disabled'],'false');assert.equal(s.button['aria-busy'],'false');
 });

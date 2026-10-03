@@ -3,14 +3,16 @@ export function createSnapshotSaver({canvas,button,status,announce,document,urlA
   let busy=false;
   return (filename,title=filename)=>{
     if(busy)return;
-    busy=true;button.disabled=true;
+    // Native disabled drops keyboard focus while encoding. Keep the control
+    // in place; the busy guard above rejects every duplicate activation.
+    busy=true;button.setAttribute('aria-disabled','true');
     button.setAttribute('aria-busy','true');
     const report=(text,spoken=true)=>{
       status.textContent=text;status.hidden=false;
       if(spoken)announce(text);
     };
     report(`正在生成「${title}」PNG 图片…`,false);
-    const finish=()=>{busy=false;button.disabled=false;button.setAttribute('aria-busy','false');};
+    const finish=()=>{busy=false;button.setAttribute('aria-disabled','false');button.setAttribute('aria-busy','false');};
     const fail=()=>report(`「${title}」图片生成或下载失败，请再次点击“保存这一刻”重试`);
     try{
       canvas.toBlob(blob=>{

@@ -165,6 +165,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 @media(max-width:720px){.life-challenge{padding:0 12px}.life-challenge summary,.life-challenge p{font-size:14px}.life-challenge small,.life-challenge #life-trial-legend,.life-challenge-hint summary{font-size:13px}.life-challenge-actions button{flex:1;min-width:100px}}
 
 /* Visible PNG feedback uses the existing action live region for speech. */
+#save[aria-disabled="true"]{background:#e8ebe0;color:#526451;cursor:wait}
 .controls>p.save-status{grid-column:1/-1;margin:0 0 8px;color:var(--ink);font-size:13px;line-height:1.8}
 
 /* Clipboard recovery stays visible; the existing action region speaks results. */

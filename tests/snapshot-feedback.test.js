@@ -24,13 +24,13 @@ test('Save reports each captured experiment without changing simulation or obser
     h.el('canvas').toBlob=callback=>callbacks.push(callback);
     const before={metrics:h.el('metrics').textContent,status:h.el('status').textContent,url:location.href,frames:h.frames.size,drawing:h.drawing()};
     h.el('save').handlers.click();
-    assert.equal(h.el('save').disabled,true);
+    assert.equal(h.el('save').getAttribute('aria-disabled'),'true');
     assert.equal(h.el('save-status').textContent,`正在生成「${title}」PNG 图片…`);
     assert.equal(h.el('save-status').hidden,false);
     assert.deepEqual({metrics:h.el('metrics').textContent,status:h.el('status').textContent,url:location.href,frames:h.frames.size,drawing:h.drawing()},before);
     callbacks.shift()(new Blob(['png']));
     assert.equal(h.el('generated').download,`small-worlds-${mode}.png`);
-    assert.equal(h.el('save').disabled,false);
+    assert.equal(h.el('save').getAttribute('aria-disabled'),'false');
     assert.equal(h.el('save-status').textContent,`已发起「${title}」PNG 图片下载，请查看浏览器下载列表`);
     assert.equal(h.el('announcement').textContent,h.el('save-status').textContent);
     assert.equal(location.href,before.url);
@@ -48,7 +48,7 @@ test('late download feedback retains its experiment across tab changes and retry
   callbacks.shift()(null);
   assert.match(h.el('save-status').textContent,/生命的形状.*失败.*重试/);
   assert.doesNotMatch(h.el('save-status').textContent,/波与波相遇/);
-  assert.equal(h.el('save').disabled,false);
+  assert.equal(h.el('save').getAttribute('aria-disabled'),'false');
   h.el('save').handlers.click();
   assert.equal(h.el('save-status').textContent,'正在生成「波与波相遇」PNG 图片…');
   h.el('tab-fractal').handlers.click();h.el('reset').handlers.click();
@@ -56,6 +56,6 @@ test('late download feedback retains its experiment across tab changes and retry
   assert.equal(h.el('generated').download,'small-worlds-wave.png');
   assert.match(h.el('save-status').textContent,/已发起.*波与波相遇.*下载列表/);
   assert.equal(h.el('save-status').hidden,false);
-  assert.equal(h.el('save').disabled,false);
+  assert.equal(h.el('save').getAttribute('aria-disabled'),'false');
   assert.equal(h.el('status').textContent,'已暂停');
 });
