@@ -114,5 +114,5 @@ test('guides never earn discoveries or change saved notebook evidence without an
 });
 
 test('the new application asset keeps the existing stylesheet and has no new controls',()=>{
- const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('app.js?v=preset-key-1'));assert.ok(html.includes('style.css?v=focus-safe-copy-1'));
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('app.js?v=pointer-ownership-1'));assert.ok(html.includes('style.css?v=focus-safe-copy-1'));
 });

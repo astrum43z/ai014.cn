@@ -937,7 +937,12 @@ function endPainting(e){
   paintingPointer=null;lastPaint=null;paintingBounds=null;paintingBefore=null;wasDragging=false;
 }
 canvas.addEventListener('pointerdown',e=>{
-  if(paintingPointer!==null||e.isPrimary===false||e.button!==0)return;
+  if(paintingPointer!==null||e.isPrimary===false||e.button!==0){
+    // Ignoring a press must also ignore its later click, even after the owning
+    // stroke ends or another world opens. Never suppress the owner's own tap.
+    if(e.pointerId!==paintingPointer)suppressPaintingClick(e.pointerId);
+    return;
+  }
   // A genuine new interaction supersedes only this pointer's unconsumed click.
   suppressedClickPointers.delete(e.pointerId);lastCanvasPointer=e.pointerId;
   if(mode!=='life')return;
