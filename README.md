@@ -90,6 +90,14 @@ The animation loop stops while paused, when the document is hidden, or when the 
 
 Optional Chromium regression checks: `node tests/browser-check.cjs` and `node tests/performance-check.cjs` while the local server is running. These scripts use the Playwright and Chromium paths configured in their headers.
 
+### Count new Fractal points only once
+
+The central reference reading now accumulates only newly appended samples, using the same open-triangle test and Float32 boundary tolerance. Previously, growing from 300 to 12,000 points in 100-point batches examined 725,700 points for this statistic; it now examines 12,000. Unchanged redraws and discovery checks reuse the count. This is a deterministic reduction in counting work, not a measured whole-page frame-rate or battery improvement; drawing the point cloud still visits the visible sample.
+
+Each append-only model has a weakly held derived count. Replay, reset, presets, parameter edits and observation restoration create their own model; shrinking a count or replacing its point buffer rebuilds the statistic. The full-scan function remains available for independent checking. No point, random draw, discovery condition, control, timing, URL format, storage, dependency or domain configuration changes.
+
+`tests/fractal-gap-cache.test.js` checks coordinate-read counts, all supported jump percentages with representative seeds, boundary rounding, exact replay and continuation, animation/visibility gates, cap behavior, unchanged redraws, discovery checks, sharing, return undo, world retention and cache-version wiring. Public cloud-browser regression checks are reported separately. Physical input, screen-reader speech, hardware graphics loss and device-level performance remain unverified.
+
 ## Safe rendering during collapsed layout
 
 Orbit and Walk now omit only plot geometry while their computed drawing scale is nonpositive or nonfinite. Current model readings still update, and the ruler is cleared until a valid layout returns. This prevents negative-radius Canvas arcs from throwing and terminating a running animation chain during a temporary collapse; restoring usable dimensions redraws the same model without resetting its progress, pause choice, checkpoint, recovery or notebook. Visibility, reduced-motion and context-loss gates retain their existing behavior.

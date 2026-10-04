@@ -13,15 +13,29 @@ const wait=message=>({kind:'wait',message});
 const advance=(message,evidence)=>({kind:'advance',message,evidence});
 const complete=(message,note)=>({kind:'complete',message,note});
 const f=value=>Number(value).toFixed(2);
-export function centralGapCount(fractal){
+export function centralGapCount(fractal){return countCentralGapFrom(fractal,0);}
+function countCentralGapFrom(fractal,start){
  // The central open triangle has corners (±sqrt(3)/4,-.25),(0,.5).
  // A small tolerance avoids classifying Float32 boundary points as interior.
  let count=0;const h=Math.sqrt(3)/4,epsilon=1e-6;
- for(let i=0;i<fractal.count;i++){
+ for(let i=start;i<fractal.count;i++){
   const x=fractal.points[i*2],y=fractal.points[i*2+1];
   if(y>-.25+epsilon&&y<.5-epsilon&&Math.abs(x)<h*(.5-y)/.75-epsilon)count++;
  }
  return count;
+}
+// Model points are append-only; replay and parameter changes create a new model.
+// Keep derived counts out of the simulation and do not retain discarded models.
+export function createCentralGapCounter(){
+ const counts=new WeakMap();
+ return fractal=>{
+  let cached=counts.get(fractal);
+  if(!cached||cached.points!==fractal.points||cached.count>fractal.count)
+   cached={points:fractal.points,count:0,total:0};
+  cached.total+=countCentralGapFrom(fractal,cached.count);
+  cached.count=fractal.count;counts.set(fractal,cached);
+  return cached.total;
+ };
 }
 export function checkMission(mode,phase,current,baseline){
  const v=current.values;

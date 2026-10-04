@@ -1,6 +1,6 @@
 import {fractalRegions} from './fractal-regions.js';
 import {fieldNotesText,saveFieldNotes} from './field-notes.js';
-import {missions,checkMission,centralGapCount} from './missions.js?v=discovery-passport-1';
+import {missions,checkMission,createCentralGapCounter} from './missions.js?v=discovery-passport-1&gap=count-once-1';
 import {createOrbitPreview} from './orbit-preview.js';
 import {testStillLife} from './life-challenge.js';
 import {createWaveFieldCache,waveFieldValue,WAVE_GRID_STEP} from './wave-field.js';
@@ -16,6 +16,7 @@ import {createSnapshotSaver} from './snapshot.js?v=context-safe-save-1';
 import {createAnimationLoop} from './animation.js';
 import {lifeStep,inspectLifeCell,findLivingCell,orbitStep,waveComponents,population,repeatPeriod,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1&browse=living-cells-1';
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
+const centralGapCount=createCentralGapCounter();
 const getWaveField=createWaveFieldCache();
 const getWaveCycle=createWaveCycleCache();
 let renderedWaveCycle=null;
