@@ -40,7 +40,7 @@ test('small nonzero decimals remain valid after repeat submission and stay exact
 
 test('invalid targets never pause, redraw, clamp time or disturb recovery and pending frames',async()=>{
  const h=await setup('?experiment=wave&at=v1,13.75,-7.125,2.5');click(h,'step');click(h,'observation-return');click(h,'pause');h.tick(0);h.tick(50);
- for(const value of ['', ' ', '-', '.', '+', '-.5', '-1','1000000000.1','Infinity','NaN','1e+','0x10','０.５','1,25','12 seconds']){type(h,value);const before=state(h);click(h,'wave-time-seek');assert.deepEqual(state(h),before,value);assert.equal(h.el('wave-time').getAttribute('aria-invalid'),'true');assert.equal(h.el('wave-time-error').hidden,false);assert.equal(document.activeElement,h.el('wave-time'));}
+ for(const value of ['', ' ', '-', '.', '+', '-.5', '-1','1000000000.1','Infinity','NaN','1e+','0x10','⓪.５','1,25','12 seconds']){type(h,value);const before=state(h);click(h,'wave-time-seek');assert.deepEqual(state(h),before,value);assert.equal(h.el('wave-time').getAttribute('aria-invalid'),'true');assert.equal(h.el('wave-time-error').hidden,false);assert.equal(document.activeElement,h.el('wave-time'));}
  type(h,'.125');assert.equal(h.el('wave-time-error').hidden,true);assert.equal(h.el('wave-time').getAttribute('aria-invalid'),'false');click(h,'wave-time-seek');assert.equal(text(h,'wave-time-current'),current(.125));assert.equal(h.frames.size,0);
 });
 

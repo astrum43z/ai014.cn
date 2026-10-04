@@ -43,7 +43,7 @@ for(const [x,y,t,expected] of [
 
 test('malformed, overflowing, out-of-range and nonzero underflow targets are atomic while running',async()=>{
  const h=await setup('?experiment=wave&at=v1,13.75,-7.125,.004');click(h,'step');click(h,'observation-return');click(h,'pause');h.tick(0);h.tick(50);
- const bad=['1e','1e+','1e-','e2','.e2','1e2e3','1 e2','1e 2','1e2.5','1e+-2','Infinity','NaN','0x1e2','１e2','1e9999','1e-9999','1e-324','-1e-9999','1.0001e4'];
+ const bad=['1e','1e+','1e-','e2','.e2','1e2e3','1 e2','1e 2','1e2.5','1e+-2','Infinity','NaN','0x1e2','①e2','1e9999','1e-9999','1e-324','-1e-9999','1.0001e4'];
  for(const axis of ['x','y'])for(const value of bad){type(h,'wave-target-x','7.5e0');type(h,'wave-target-y','-1.25e1');type(h,'wave-target-'+axis,value);const before=state(h);click(h,'wave-position');assert.deepEqual(state(h),before,axis+': '+value);assert.equal(h.el('wave-target-'+axis).getAttribute('aria-invalid'),'true');assert.equal(document.activeElement,h.el('wave-target-'+axis));}
  for(const value of [...bad.filter(v=>v!=='1.0001e4'),'1.0001e9','-1e-7','-0e0']){type(h,'wave-time',value);const before=state(h);click(h,'wave-time-seek');assert.deepEqual(state(h),before,'time: '+value);assert.equal(h.el('wave-time').getAttribute('aria-invalid'),'true');assert.equal(document.activeElement,h.el('wave-time'));}
  // Underflow is equally unsafe in decimal notation: it must not quietly seek 0.

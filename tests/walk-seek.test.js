@@ -69,7 +69,7 @@ test('submitting the current step pauses without changing the seeded observation
 });
 test('invalid destinations leave running progress, pending frame, fixed link and recovery untouched',async()=>{
  const h=await setup('?experiment=walk&at=v1,73');click(h,'step');click(h,'observation-return');click(h,'pause');h.tick(0);h.tick(50);
- for(const value of ['', ' ', '15','513','137.5','137.0','1e2','0x100','-137','+137','Infinity','NaN','１３７','137 steps','9007199254740993']){
+ for(const value of ['', ' ', '15','513','137.5','137.0','1e2','0x100','-137','+137','Infinity','NaN','①③⑦','137 steps','9007199254740993']){
   type(h,value);const before=state(h);click(h,'walk-seek');assert.deepEqual(state(h),before,value);assert.equal(field(h).getAttribute('aria-invalid'),'true');assert.equal(h.el('walk-seek-error').hidden,false);assert.equal(document.activeElement,field(h));assert.match(h.el('announcement').textContent,/16 到 512/);
  }
  type(h,137);assert.equal(field(h).getAttribute('aria-invalid'),'false');assert.equal(h.el('walk-seek-error').hidden,true);assert.equal(h.el('walk-seek-error').textContent,'');click(h,'walk-seek');check(h,137);

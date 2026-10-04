@@ -963,11 +963,18 @@ function moveWaveProbe(key){
 }
 $('#wave-home').addEventListener('click',()=>moveWaveProbe('Home'));
 for(const direction of ['left','up','down','right'])$('#wave-'+direction).addEventListener('click',()=>moveWaveProbe('Arrow'+direction[0].toUpperCase()+direction.slice(1)));
+// Chinese input methods and copied readings can use these equivalent glyphs.
+// Normalize only numeric full-width forms and mathematical minus at submission;
+// do not use NFKC, accept grouped numbers or rewrite a composing visitor draft.
+function normalizeTargetNumber(raw){
+ return raw.trim().replace(/[０-９＋－．Ｅｅ−]/g,char=>char==='−'?'-':String.fromCharCode(char.charCodeAt(0)-0xFEE0));
+}
 // Targets are visitor drafts, separate from the live measurement. Validate both
 // coordinates before changing either axis, time, motion or the fixed checkpoint.
 // Accept the same scientific notation used by exact readings and shared links.
 // Never turn a nonzero target into zero when it is too small for Number.
 function readWaveTarget(raw){
+ raw=normalizeTargetNumber(raw);
  if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw))return NaN;
  const number=Number(raw);
  if(!Number.isFinite(number)||(number===0&&/[1-9]/.test(raw.split(/[eE]/)[0])))return NaN;
@@ -976,7 +983,7 @@ function readWaveTarget(raw){
 function positionWaveProbe(){
  if(mode!=='wave')return;
  const inputs=['x','y'].map(axis=>$('#wave-target-'+axis));
- const numbers=inputs.map(input=>readWaveTarget(input.value.trim()));
+ const numbers=inputs.map(input=>readWaveTarget(input.value));
  const invalid=numbers.map(number=>!Number.isFinite(number)||Math.abs(number)>10000);
  inputs.forEach((input,i)=>input.setAttribute('aria-invalid',String(invalid[i])));
  if(invalid.some(Boolean)){
@@ -986,7 +993,7 @@ function positionWaveProbe(){
  }
  $('#wave-position-error').hidden=true;setReadingText($('#wave-position-error'),'');
  // Preserve a tiny target’s entered notation; ordinary values stay normalized.
- inputs.forEach((input,i)=>input.value=String(numbers[i]).includes('e')?input.value.trim():String(numbers[i]));
+ inputs.forEach((input,i)=>input.value=String(numbers[i]).includes('e')?normalizeTargetNumber(input.value):String(numbers[i]));
  paused=true;updatePause();probe={x:numbers[0],y:numbers[1]};fitWaveProbe();draw();
  announce(`已暂停并定位探针：x ${numbers[0]}，y ${numbers[1]}；保留参数与时刻；`+waveReading());
 }
@@ -1015,7 +1022,7 @@ function clearWaveTimeError(){
 }
 function seekWaveTime(){
  if(mode!=='wave')return;
- const input=$('#wave-time'),raw=input.value.trim(),time=readWaveTarget(raw);
+ const input=$('#wave-time'),raw=normalizeTargetNumber(input.value),time=readWaveTarget(raw);
  if(raw.startsWith('-')||!Number.isFinite(time)||time<0||time>1e9){
   const message='请输入 0 到 1000000000 之间的模型秒数，可含小数或科学记数法（如 1e-7）；非零数不能过小而被舍入为 0。';
   input.setAttribute('aria-invalid','true');
@@ -1412,7 +1419,7 @@ function clearFractalSeekError(){
 }
 function seekFractalCount(){
  if(mode!=='fractal')return;
- const input=$('#fractal-count'),raw=input.value.trim(),count=Number(raw);
+ const input=$('#fractal-count'),raw=normalizeTargetNumber(input.value),count=Number(raw);
  if(!/^\d+$/.test(raw)||!Number.isSafeInteger(count)||count<300||count>FRACTAL_LIMIT){
   const message='请输入 300 到 12000 之间的整数点数。';
   input.setAttribute('aria-invalid','true');
@@ -1492,7 +1499,7 @@ function clearWalkSeekError(){
 }
 function seekWalkCount(){
  if(mode!=='walk')return;
- const input=$('#walk-count'),raw=input.value.trim(),steps=Number(raw);
+ const input=$('#walk-count'),raw=normalizeTargetNumber(input.value),steps=Number(raw);
  if(!/^\d+$/.test(raw)||!Number.isSafeInteger(steps)||steps<16||steps>WALK_LIMIT){
   const message='请输入 16 到 512 之间的整数步数。';
   input.setAttribute('aria-invalid','true');

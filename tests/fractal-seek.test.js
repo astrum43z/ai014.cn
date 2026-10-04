@@ -43,7 +43,7 @@ test('seeking the current count is an explicit pause, with an unchanged seeded d
 });
 test('invalid destinations are rejected without changing physics, rendering, timing, fixed links or recovery',async()=>{
  const h=await setup('?experiment=fractal&at=v1,731');click(h,'step');click(h,'observation-return');click(h,'pause');h.tick(0);h.tick(50);
- for(const value of ['', ' ', '299','12001','731.5','731.0','7e2','0x300','-731','+731','Infinity','NaN','７３１','731 points','9007199254740993']){
+ for(const value of ['', ' ', '299','12001','731.5','731.0','7e2','0x300','-731','+731','Infinity','NaN','⑦③①','731 points','9007199254740993']){
   type(h,value);const before=state(h);click(h,'fractal-seek');assert.deepEqual(state(h),before,value);assert.equal(field(h).getAttribute('aria-invalid'),'true');assert.equal(h.el('fractal-seek-error').hidden,false);assert.equal(document.activeElement,field(h));assert.match(h.el('announcement').textContent,/300 到 12000/);
  }
  type(h,'731');assert.equal(field(h).getAttribute('aria-invalid'),'false');assert.equal(h.el('fractal-seek-error').hidden,true);assert.equal(h.el('fractal-seek-error').textContent,'');click(h,'fractal-seek');assert.equal(count(h),731);
