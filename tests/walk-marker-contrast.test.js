@@ -135,7 +135,7 @@ test('visual measurement changes cannot earn or rewrite a discovery without an e
  const notes=h.el('field-notes-list').innerHTML;click(h,'walk-step-one');click(h,'walk-back');markers(h,{width:259,height:240});h.resize(600,414);markers(h);assert.equal(h.el('field-notes-list').innerHTML,notes);
 });
 
-test('the release refreshes the application asset while preserving the stylesheet token',()=>{
+test('application and stylesheet assets retain explicit release versions',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;render=positive-scale-1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;home=exact-orbit-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1"'));
+ assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;render=positive-scale-1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;home=exact-orbit-1&amp;position=exact-wave-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1"'));
 });

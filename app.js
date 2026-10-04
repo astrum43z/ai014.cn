@@ -961,6 +961,43 @@ function moveWaveProbe(key){
 }
 $('#wave-home').addEventListener('click',()=>moveWaveProbe('Home'));
 for(const direction of ['left','up','down','right'])$('#wave-'+direction).addEventListener('click',()=>moveWaveProbe('Arrow'+direction[0].toUpperCase()+direction.slice(1)));
+// Targets are visitor drafts, separate from the live measurement. Validate both
+// coordinates before changing either axis, time, motion or the fixed checkpoint.
+function positionWaveProbe(){
+ if(mode!=='wave')return;
+ const inputs=['x','y'].map(axis=>$('#wave-target-'+axis));
+ const numbers=inputs.map(input=>Number(input.value.trim()));
+ const invalid=inputs.map((input,i)=>!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(input.value.trim())||!Number.isFinite(numbers[i])||Math.abs(numbers[i])>10000);
+ inputs.forEach((input,i)=>input.setAttribute('aria-invalid',String(invalid[i])));
+ if(invalid.some(Boolean)){
+  const message='请输入 −10000 到 10000 之间的两个坐标，可含小数。';
+  setReadingText($('#wave-position-error'),message);$('#wave-position-error').hidden=false;
+  inputs[invalid.indexOf(true)].focus();announce(message);return;
+ }
+ $('#wave-position-error').hidden=true;setReadingText($('#wave-position-error'),'');
+ // Retain decimal notation even when Number would format a tiny value with e.
+ // The normalized draft must remain valid on the next identical submission.
+ inputs.forEach((input,i)=>input.value=String(numbers[i]).includes('e')?input.value.trim():String(numbers[i]));
+ paused=true;updatePause();probe={x:numbers[0],y:numbers[1]};fitWaveProbe();draw();
+ announce(`已暂停并定位探针：x ${numbers[0]}，y ${numbers[1]}；保留参数与时刻；`+waveReading());
+}
+$('#wave-position').addEventListener('click',positionWaveProbe);
+$('#wave-position').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
+for(const axis of ['x','y']){
+ const input=$('#wave-target-'+axis);
+ input.addEventListener('input',()=>{
+  input.setAttribute('aria-invalid','false');
+  if(['x','y'].every(name=>$('#wave-target-'+name).getAttribute('aria-invalid')!=='true')){
+   $('#wave-position-error').hidden=true;setReadingText($('#wave-position-error'),'');
+  }
+ });
+ input.addEventListener('keydown',event=>{
+  if(event.key!=='Enter'||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+  event.preventDefault();if(!event.repeat)positionWaveProbe();
+ });
+}
 $('#fractal-1000').addEventListener('click',()=>{
  if(mode!=='fractal')return;
  // Comparing the same seeded sequence changes the live canvas, not a saved

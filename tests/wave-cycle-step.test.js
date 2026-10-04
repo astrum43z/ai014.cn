@@ -98,12 +98,13 @@ test('stepping does not record a discovery or replace an earned note',async()=>{
  for(let i=0;i<4;i++)click(h);assert.equal(h.el('field-notes-list').innerHTML,note);
 });
 
-test('cycle guidance is beside existing wave controls without a new control or live region',async()=>{
+test('cycle guidance stays quiet beside movement and exact-position controls',async()=>{
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  assert.equal((html.match(/id="wave-step-help"/g)||[]).length,1);
  const group=html.slice(html.indexOf('<div id="wave-touch"'),html.indexOf('<div id="fractal-touch"'));
  assert.match(group,/<small id="wave-step-help">/);assert.match(group,/保持参数与探针不变/);
  assert.match(group,/2 次后正负位移反转，4 次后回到相同波形/);
- assert.equal((group.match(/<button/g)||[]).length,4,'no additional button');
+ assert.equal((group.match(/<button/g)||[]).length,5,'four arrows and one exact-position control');
+ assert.equal((group.match(/id="wave-position"/g)||[]).length,1);
  assert.doesNotMatch(group,/aria-live="polite"|role="status"/);
 });

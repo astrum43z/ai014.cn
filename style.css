@@ -261,9 +261,17 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 /* Exact wave-probe movement without targeting a small canvas point. */
 .wave-touch{padding:12px 18px;background:#1b3931;border-top:1px solid #345046}
 .wave-touch p{margin:0 0 10px;color:#e6ecd8;font-size:13px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.wave-touch>div{display:flex;gap:7px}
+.wave-touch>div{display:flex;flex-wrap:wrap;gap:7px}
 .wave-touch button{flex:1;min-width:44px;min-height:44px;padding:10px;background:#e6ecd8;border-color:#6b875e;color:var(--ink);font-size:16px}
 .wave-touch small{display:block;margin-top:9px;color:#b7cbae;font-size:12px;line-height:1.6}
+/* Exact model coordinates stay separate from the quiet current-position reading. */
+.wave-touch>.wave-position{display:block;margin-top:14px;padding-top:12px;border-top:1px solid #385046}
+.wave-position-fields{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.wave-position-fields label{flex:1 1 110px;min-width:0;color:#e6ecd8;font-size:13px}
+.wave-position input{display:block;box-sizing:border-box;width:100%;min-width:0;min-height:44px;margin-top:7px;padding:9px 12px;border:1px solid #8b9d85;border-radius:8px;background:#18352d;color:#e6ecd8;font:inherit;font-variant-numeric:tabular-nums}
+.wave-position input[aria-invalid="true"]{border:2px solid #ffac86}
+.wave-position #wave-position{width:100%;font-size:13px;white-space:normal;overflow-wrap:anywhere}
+.wave-position #wave-position-error{margin:8px 0 0;color:#ffac86}
 @media(max-width:720px){.wave-touch{padding:12px}.wave-touch>div{gap:5px}}
 
 /* Touch visitors can inspect the next orbit before committing a launch. */

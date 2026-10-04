@@ -98,7 +98,7 @@ test('seeing classifications does not earn discoveries or rewrite historical not
  assert.equal(h.el('field-notes-list').innerHTML,note);assert.equal(h.el('mission-result').textContent,result);
 });
 
-test('the new context is quiet wrapping text within the existing precision group and adds no control',()=>{
+test('path context remains quiet wrapping text beside movement and exact positioning',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  for(const id of ['wave-path-context','wave-path-help'])assert.equal((html.match(new RegExp(`id="${id}"`,'g'))||[]).length,1);
  const group=html.slice(html.indexOf('<div id="wave-touch"'),html.indexOf('<div id="fractal-touch"'));
@@ -106,7 +106,7 @@ test('the new context is quiet wrapping text within the existing precision group
  assert.ok(group.indexOf('id="wave-probe-reading"')<group.indexOf('id="wave-path-context"'));
  assert.ok(group.indexOf('id="wave-path-context"')<group.indexOf('id="wave-left"'));
  assert.match(group,/暂停时，A 实线、B 虚线.*整数个波长.*半整数.*不到 0.1 个波长/);
- assert.equal((group.match(/<button /g)||[]).length,4);assert.doesNotMatch(group,/aria-live="polite"|aria-live="assertive"|tabindex|role="status"/);
+ assert.equal((group.match(/<button /g)||[]).length,5);assert.equal((group.match(/id="wave-position"/g)||[]).length,1);assert.doesNotMatch(group,/aria-live="polite"|aria-live="assertive"|tabindex|role="status"/);
  assert.match(css,/\.wave-touch p\{[^}]*font-variant-numeric:tabular-nums;overflow-wrap:anywhere/);
  assert.ok(html.includes('app.js?v=saved-observation-copy-1'));assert.ok(html.includes('style.css?v=saved-observation-copy-1'));
 });
