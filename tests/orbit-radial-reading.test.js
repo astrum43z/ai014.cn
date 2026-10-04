@@ -56,11 +56,11 @@ test('displayed rounding treats both signs symmetrically and does not invent a d
  const renderSource=source.slice(source.indexOf('function renderOrbitMeasurement('),source.indexOf('function drawOrbitMeasurement('));
  for(const [vx,number,trend] of [[-.051,'-0.1','靠近中心'],[-.049,'0.0','径向变化接近 0'],[-0,'0.0','径向变化接近 0'],[.049,'0.0','径向变化接近 0'],[.051,'+0.1','远离中心']]){
   const elements=new Map(),$=key=>{if(!elements.has(key))elements.set(key,{});return elements.get(key);};
-  const render=new Function('$','setReadingText','orbitRadialVelocity','bodies','orbitMeasuredBodyVisible','paused',renderSource+'; return renderOrbitMeasurement;')($,(el,text)=>el.textContent=text,orbit.orbitRadialVelocity,[{x:75,y:0,vx,vy:10}],()=>true,true);
+  const render=new Function('$','setReadingText','orbitRadialVelocity','bodies','orbitMeasuredBodyVisible','paused','setControlAttribute','orbitCanFitMeasuredBody',renderSource+'; return renderOrbitMeasurement;')($,(el,text)=>el.textContent=text,orbit.orbitRadialVelocity,[{x:75,y:0,vx,vy:10}],()=>true,true,(el,name,value)=>el[name]=value,()=>false);
   render(75,Math.hypot(vx,10));const text=$('#orbit-radial-reading').textContent;
   assert.equal(text,`距离变化率 ${number} 模型单位/秒 · 此刻${trend}`);assert.doesNotMatch(text,/-0\.0/);
  }
- const elements={},render=new Function('$','setReadingText','orbitRadialVelocity','bodies','orbitMeasuredBodyVisible','paused',renderSource+'; return renderOrbitMeasurement;')(key=>elements[key]??=( {}),(el,text)=>el.textContent=text,orbit.orbitRadialVelocity,[{x:0,y:0,vx:1,vy:2}],()=>true,true);
+ const elements={},render=new Function('$','setReadingText','orbitRadialVelocity','bodies','orbitMeasuredBodyVisible','paused','setControlAttribute','orbitCanFitMeasuredBody',renderSource+'; return renderOrbitMeasurement;')(key=>elements[key]??=( {}),(el,text)=>el.textContent=text,orbit.orbitRadialVelocity,[{x:0,y:0,vx:1,vy:2}],()=>true,true,(el,name,value)=>el[name]=value,()=>false);
  render(0,Math.sqrt(5));assert.match(elements['#orbit-radial-reading'].textContent,/暂不可定义/);assert.doesNotMatch(elements['#orbit-radial-reading'].textContent,/0\.0|NaN|Infinity/);
 });
 
@@ -135,13 +135,13 @@ test('the reading does not record discoveries or rewrite their historical eviden
  assert.equal(h.el('field-notes-list').innerHTML,note);assert.equal(h.el('mission-result').textContent,result);
 });
 
-test('near-canvas radial text stays quiet, wraps and explains the distinction without new controls',()=>{
+test('near-canvas radial text stays quiet, wraps and explains the distinction beside the view-fit action',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  const section=html.slice(html.indexOf('<div id="orbit-measurement"'),html.indexOf('<div id="orbit-touch"'));
  assert.match(section,/<p id="orbit-radial-reading" aria-live="off"><\/p>/);
  assert.match(section,/正值为远离，负值为靠近/);assert.match(section,/显示为 0\.0 不代表停住/);assert.match(section,/瞬时趋势也不判断是否逃逸/);
  assert.ok(section.indexOf('id="orbit-measured-reading"')<section.indexOf('id="orbit-radial-reading"'));
- assert.doesNotMatch(section,/button|tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
+ assert.doesNotMatch(section.replace(/<button id="orbit-fit"[^>]*>[\s\S]*?<\/button>/,''),/button|tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.orbit-measurement p\{[^}]*overflow-wrap:anywhere/);
  assert.match(html,/app\.js\?v=saved-observation-copy-1/);
 });

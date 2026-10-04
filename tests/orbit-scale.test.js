@@ -98,11 +98,11 @@ test('ruler updates preserve parameter-only links and never earn or rewrite a di
  h.resize(259,240);check(h,259,240);assert.deepEqual(model(h),before);assert.equal(h.el('share-link').value,url);
 });
 
-test('scale explanation is quiet wrapping text beside the existing measurement, without a new control',()=>{
+test('scale explanation is quiet wrapping text beside the existing measurement, beside the view-fit action',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  const section=html.slice(html.indexOf('<div id="orbit-measurement"'),html.indexOf('<div id="orbit-touch"'));
  assert.match(section,/<small id="orbit-scale-reading" aria-live="off"><\/small>/);
- assert.doesNotMatch(section,/button|role="status"|tabindex|aria-live="polite"|aria-live="assertive"/);
+ assert.doesNotMatch(section.replace(/<button id="orbit-fit"[^>]*>[\s\S]*?<\/button>/,''),/button|role="status"|tabindex|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.orbit-measurement small\{[^}]*display:block[^}]*overflow-wrap:anywhere/);
  assert.match(css,/@media\(max-width:720px\)\{\.orbit-measurement\{padding:12px\}\.orbit-measurement small\{font-size:13px\}\}/);
 });

@@ -123,11 +123,12 @@ test('visible measurement never completes a discovery or rewrites a recorded fin
  assert.equal(h.el('field-notes-list').innerHTML,note);assert.equal(h.el('mission-result').textContent,result);
 });
 
-test('the existing planet reading precedes launch controls, wraps and adds no action or live region',()=>{
+test('the existing planet reading precedes launch controls, wraps and stays quiet beside its view-fit action',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  const start=html.indexOf('<div id="orbit-measurement"'),end=html.indexOf('<div id="orbit-touch"');assert.ok(start>0&&start<end);
  const section=html.slice(start,end);assert.match(section,/<p id="orbit-measured-reading" aria-live="off"><\/p>/);assert.match(section,/<small id="orbit-measured-help" aria-live="off"><\/small>/);
- assert.doesNotMatch(section,/button|tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
+ assert.equal((section.match(/<button\b/g)||[]).length,1);assert.match(section,/<button id="orbit-fit" type="button"/);
+ assert.doesNotMatch(section.replace(/<button\b[^>]*>[\s\S]*?<\/button>/,''),/button|tabindex|role="status"|aria-live="polite"|aria-live="assertive"/);
  assert.match(css,/\.orbit-measurement p\{[^}]*font-variant-numeric:tabular-nums;overflow-wrap:anywhere/);
  assert.match(css,/@media\(max-width:720px\)\{\.orbit-measurement\{padding:12px\}\.orbit-measurement small\{font-size:13px\}\}/);
 });

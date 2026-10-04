@@ -423,8 +423,24 @@ function orbitMeasuredBodyVisible(scale=orbitScale()){
  const body=bodies[0];
  return Number.isFinite(scale)&&scale>0&&!!body&&Math.abs(body.x)*scale<=width/2&&Math.abs(body.y)*scale<=height/2;
 }
+// One explicit view change, never a moving camera or a replacement orbit.
+function orbitCanFitMeasuredBody(){
+ const body=bodies[0],scale=orbitScale();
+ return mode==='orbit'&&[width,height,scale,body?.x,body?.y].every(Number.isFinite)&&scale>0&&!orbitMeasuredBodyVisible(scale);
+}
+$('#orbit-fit').addEventListener('click',()=>{
+ if(!orbitCanFitMeasuredBody())return;
+ const body=bodies[0];
+ orbitView={x:Math.max(Math.abs(orbitView?.x||0),Math.abs(orbitPoint.x),Math.abs(body.x)),y:Math.max(Math.abs(orbitView?.y||0),Math.abs(orbitPoint.y),Math.abs(body.y))};
+ paused=true;updatePause();draw();
+ announce('已缩小视图并暂停，首颗行星回到画内；所有行星与发射点的位置、轨迹和时间保持不变；'+$('#orbit-measured-reading').textContent);
+});
+$('#orbit-fit').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function renderOrbitMeasurement(radius,speed){
  const visible=orbitMeasuredBodyVisible();
+ setControlAttribute($('#orbit-fit'),'aria-disabled',String(!orbitCanFitMeasuredBody()));
  setReadingText($('#orbit-measured-reading'),`首颗行星 · 距中心 ${radius.toFixed(1)} · 速率 ${speed.toFixed(1)}${visible?'':'（当前在画外）'}`);
  const radial=orbitRadialVelocity(bodies[0]);
  // Classify the displayed precision, avoiding a misleading -0.0 or a claim
@@ -470,9 +486,21 @@ function drawOrbitMeasurementLegend(scale){
  if(!(scale>0))return;
  const visible=orbitMeasuredBodyVisible(scale),speed=Math.hypot(bodies[0].vx,bodies[0].vy);
  const showVelocity=paused&&visible&&Number.isFinite(speed)&&speed>0;
+ // Keep the late-painted label clear of the actual measured planet, including
+ // its direction cue, and the unchanged launch marker/arrow. Neither fitted
+ // position may disappear behind the relocated opaque label.
+ const body=bodies[0],px=width/2+body.x*scale,py=height/2+body.y*scale,clearance=showVelocity?38:11;
+ const covers=(x,y,r,top)=>x+r>=8&&x-r<=204&&y+r>=top-3&&y-r<=top+20;
+ const overlaps=top=>(visible&&covers(px,py,clearance,top))||covers(width/2+orbitPoint.x*scale,height/2+orbitPoint.y*scale,30,top);
+ let labelTop=paused&&orbitPrediction()?41:12;
+ if(overlaps(labelTop)){
+  const lower=height-82; // Above the ruler, whose background starts at height−56.
+  if(lower<labelTop||overlaps(lower))return; // HTML readings remain in very short views.
+  labelTop=lower;
+ }
  ctx.save();ctx.setLineDash([]);ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5/scale;
  // Paint the legend last so a moving planet trail cannot cross its text.
- const left=-width/(2*scale)+12/scale,top=-height/(2*scale)+(paused&&orbitPrediction()?41:12)/scale;
+ const left=-width/(2*scale)+12/scale,top=-height/(2*scale)+labelTop/scale;
  ctx.fillStyle='#122e29';ctx.fillRect(left-4/scale,top-3/scale,196/scale,23/scale);
  ctx.beginPath();ctx.moveTo(left+7/scale,top+2/scale);ctx.lineTo(left+13/scale,top+8/scale);ctx.lineTo(left+7/scale,top+14/scale);ctx.lineTo(left+1/scale,top+8/scale);ctx.closePath();ctx.stroke();
  ctx.fillStyle='#e7eee1';ctx.font=`${12/scale}px sans-serif`;

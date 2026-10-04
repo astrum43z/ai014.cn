@@ -24,6 +24,16 @@ The near-canvas shortcut row now includes “回到世界选择 ↑” beside th
 
 The link wraps, keeps a 44-pixel minimum height and uses the existing light-surface focus ring. `tests/worlds-return.test.js` checks its markup and CSS contracts, native anchor-history preservation for all five worlds, fixed observation links, return and Life edit recovery, retained target drafts and running visibility gates. Public cloud-browser navigation, keyboard order and zoomed reflow are checked separately. No model, event handler, storage, dependency or domain configuration changes. Physical touch, screen-reader speech and mobile/IME interaction remain unverified.
 
+### Bring the measured Orbit planet back into view
+
+The near-canvas first-planet readings now have “找回画外首颗”. With the escape preset, after 150 manual steps the measured planet is 399.3 model units from the center and outside the ordinary canvas; previously the page reported this but offered no dedicated way to show it again. The new action expands the existing centered view bounds to include that same planet and the unchanged launch marker, then pauses. It preserves every body, velocity, trail, elapsed time, launch/recall state, parameters and discovery evidence.
+
+The canvas measurement legend moves above the ruler if its usual upper-left position would cover the measured planet, its direction cue or the launcher. When neither row is clear, including in an extremely short view, only that duplicate canvas legend is omitted; the body, marker and HTML readings remain.
+
+This is a one-shot zoom out, not automatic tracking. Continuing keeps the fitted view fixed, and the action becomes available again if the first planet leaves it. It is quiet and inert while that planet is already visible or the canvas geometry is unusable. The native button retains focus after becoming unavailable, suppresses held Enter repeats and uses the stage’s existing high-contrast focus ring. Existing Home, reset and replacement behavior is unchanged; fitted bounds follow existing per-world retention and resizing. Parameter links still do not encode Orbit bodies or the view.
+
+`tests/orbit-view-fit.test.js` checks exact body/trail and next-step preservation, fit geometry and margins, running/paused use, availability, repeated input, recall, retained worlds, parameter and replacement behavior, pending sharing, discovery evidence and simulated layout/density/context interruptions. Public cloud-browser interaction and narrow zoomed reflow are verified separately. Physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, automatic clipboard success and downloaded-file receipt remain unverified.
+
 ### Named keyboard navigation destinations
 
 The home, world chooser, notes and about section anchors accept programmatic focus without adding Tab stops. Native links and browser Back/Forward can land on a named section rather than leaving focus on the page root after a world change removes a control. After a world-changing history restoration, focus is explicitly returned to the addressed section without scrolling. Anchor-only navigation and browser scroll restoration stay native; experiment state, URLs and animation behavior are unchanged.
