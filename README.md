@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep a verified Life repeat with its observation
+
+A real 120-generation oscillator used to show “重复周期 · 120 代” once, then change to “尚未发现重复” when the visitor merely moved the selection or resized the canvas. Its matching oldest board had just rolled out of the 120-entry plot. Edit/clear undo, comparison return and rewind could lose the same verified reading.
+
+The recorder now associates the small count/period result with its existing immutable observation entry. Restoring that same generation and board keeps its recorded evidence; edits and new histories must earn new evidence. Weak keys retain no additional boards, do not extend the history or rewind window, and disappear with discarded records. Earlier records without a confirmed repeat do not inherit a later result. The on-page explanation distinguishes the plotted window from a comparison against up to 120 preceding observations when each record is made.
+
+`tests/life-repeat-evidence.test.js` uses separated period-8 and period-15 patterns and an independent B3/S23 oracle to verify a genuine period of 120. It covers unchanged redraws, focus, selection, world returns, rewind, edit/clear undo, comparison return, invalidation, animation, sharing and canvas recovery. The former test that deliberately preserved the one-render legacy result is updated. No rule, point coordinates, chart length, control, live region, storage or dependency changes. Public cloud-browser interaction and zoomed reflow are checked separately; screen-reader speech, physical touch, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Preserve newer action feedback while copying or saving
 
 Delayed link-copy and PNG completions now keep their visible outcome without replacing a newer experiment action in the shared polite live region. Previously, copying the fixed 64-step Walk link, inspecting step 65, then completing the copy replaced the new reading with the old copy result. A Life PNG completing after a Wave measurement did the same. Both are reproducible with controlled delayed callbacks.

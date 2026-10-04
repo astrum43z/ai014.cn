@@ -30,23 +30,25 @@ test('recorder matches the legacy history and repeat readings through 245 genera
   }
  }
 });
-test('an evicted sole repeat is reported once, then disappears exactly as on a legacy redraw',()=>{
+test('an evicted sole repeat remains attached to the unchanged observation',()=>{
  const record=createLifeHistoryRecorder(),cells=new Uint8Array(1536);cells[0]=1;const key=[...cells].join('');
- const initial=[{generation:0,key,count:1},...Array.from({length:119},(_,i)=>({generation:i+1,key:'unrelated-'+i,count:0}))];
- const a=initial.slice(),b=initial.slice();assert.deepEqual(record(cells,120,a),legacy(cells,120,b));assert.equal(b.length,120);const entry=a.at(-1);
- for(let i=0;i<3;i++){assert.deepEqual(record(cells,120,a),legacy(cells,120,b));assert.equal(record(cells,120,a).period,null);assert.equal(a.at(-1),entry);assert.deepEqual(a,b);}
+ const history=[{generation:0,key,count:1},...Array.from({length:119},(_,i)=>({generation:i+1,key:'unrelated-'+i,count:0}))];
+ const reading=record(cells,120,history),entry=history.at(-1);
+ assert.deepEqual(reading,{count:1,period:120});assert.equal(history.length,120);assert.equal(history[0].generation,1);
+ for(let i=0;i<3;i++){assert.equal(record(cells,120,history),reading);assert.equal(history.at(-1),entry);}
 });
 test('unchanged observations allocate no board strings, do not recount and retain their exact history entry',()=>{
  const record=createLifeHistoryRecorder(),cells=new Uint8Array(1536),history=[];cells[42]=1;
  const reading=record(cells,14,history),entry=history[0],before=cells.slice();assert.ok(Object.isFrozen(reading));assert.throws(()=>reading.count=4,TypeError);
  assert.deepEqual(work(()=>{for(let i=0;i<120;i++)assert.equal(record(cells,14,history),reading);}),{serializations:0,populations:0});assert.equal(history[0],entry);assert.deepEqual(cells,before);
 });
-test('board, generation, history, last record and length changes invalidate the one-entry cache',()=>{
+test('new observations invalidate the cache while restored immutable entries keep their verified reading',()=>{
  const record=createLifeHistoryRecorder();let cells=new Uint8Array(1536),history=[],generation=0,previous=record(cells,generation,history);
- function refresh(){let next;assert.deepEqual(work(()=>{next=record(cells,generation,history);}),{serializations:2,populations:1});assert.notEqual(next,previous);previous=next;}
- cells=cells.slice();refresh();generation++;refresh();history=history.slice();refresh();history[history.length-1]={...history.at(-1)};refresh();history.unshift({generation:-1,key:'',count:0});refresh();
- cells[4]=1;history=[];refresh();assert.equal(previous.count,1);const saved={cells:cells.slice(),history:history.slice(),generation};cells[8]=1;history=[];refresh();assert.equal(previous.count,2);({cells,history,generation}=saved);refresh();assert.equal(previous.count,1);
- const other=[];record(new Uint8Array(1536),0,other);refresh();
+ function refresh(restored=false){let next;assert.deepEqual(work(()=>{next=record(cells,generation,history);}),restored?{serializations:1,populations:0}:{serializations:2,populations:1});if(restored)assert.deepEqual(next,previous);else assert.notEqual(next,previous);previous=next;}
+ cells=cells.slice();refresh(true);generation++;refresh();history=history.slice();refresh(true);history[history.length-1]={...history.at(-1)};refresh();history.unshift({generation:-1,key:'',count:0});refresh(true);
+ cells[4]=1;history=[];refresh();assert.equal(previous.count,1);const saved={cells:cells.slice(),history:history.slice(),generation};const savedReading=previous;
+ cells[8]=1;history=[];refresh();assert.equal(previous.count,2);({cells,history,generation}=saved);previous=savedReading;refresh(true);assert.equal(previous.count,1);
+ const other=[];record(new Uint8Array(1536),0,other);refresh(true);
 });
 test('paused focus, selection, resize and simulated density/context redraws do not rerecord the board',async()=>{
  const h=await setup('?experiment=life');for(let i=0;i<7;i++)click(h,'step');const before=readings(h),chart=plot(h),drawing=h.drawing(),url=location.href;h.el('life-back').focus();
@@ -81,5 +83,5 @@ test('animation, visibility and reduced motion retain the existing generation ca
  h.motion.change({matches:true});for(let i=0;i<130;i++)click(h,'step');assert.match(h.el('history-caption').textContent,/第 12 → 131 代/);const before=readings(h);assert.equal(work(()=>h.resize(600,414)).serializations,0);assert.deepEqual(readings(h),before);assert.equal(h.frames.size,0);
 });
 test('fresh app entry loads the recorder while simulation code and intentional batch actions stay unchanged',()=>{
- const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.match(html,/app\.js\?[^"\n]+&amp;life=record-once-1&amp;history=read-once-1&amp;colors=wave-once-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1"/);assert.match(app,/import \{createLifeHistoryRecorder\} from '\.\/life-history\.js'/);assert.match(app,/const \{count,period\}=recordLifeHistory\(cells,generation,lifeHistory\)/);assert.match(app,/\.\/simulations\.js\?v=wave-paths-1&browse=living-cells-1/);
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.match(html,/app\.js\?[^"\n]+&amp;life=record-once-1&amp;history=read-once-1&amp;colors=wave-once-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1"/);assert.match(app,/import \{createLifeHistoryRecorder\} from '\.\/life-history\.js\?v=stable-repeat-1'/);assert.match(app,/const \{count,period\}=recordLifeHistory\(cells,generation,lifeHistory\)/);assert.match(app,/\.\/simulations\.js\?v=wave-paths-1&browse=living-cells-1/);
 });

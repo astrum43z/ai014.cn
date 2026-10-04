@@ -67,10 +67,10 @@ test('cursor, focus, parameter and display redraws reuse the population without 
 });
 test('rewind and every recovery boundary refresh a changed board without stale counts',async()=>{
  const h=await setup('?experiment=life');choose(h,'pulsar');click(h,'step');click(h,'step');const before=snapshot(h);
- click(h,'step');assert.deepEqual(countWork(()=>click(h,'life-back')),one);assert.deepEqual(snapshot(h),before);verifyPopulation(h);
- h.key('Enter');verifyPopulation(h);assert.deepEqual(countWork(()=>h.key('z',{ctrlKey:true})),one);assert.deepEqual(snapshot(h),before);
- click(h,'clear');assert.equal(verifyPopulation(h),0);assert.deepEqual(countWork(()=>click(h,'life-undo-clear')),one);assert.deepEqual(snapshot(h),before);
- click(h,'life-test');verifyPopulation(h);assert.equal(h.el('life-return').hidden,false);assert.deepEqual(countWork(()=>click(h,'life-return')),one);assert.deepEqual(snapshot(h),before);
+ click(h,'step');assert.deepEqual(countWork(()=>click(h,'life-back')),none);assert.deepEqual(snapshot(h),before);verifyPopulation(h);
+ h.key('Enter');verifyPopulation(h);assert.deepEqual(countWork(()=>h.key('z',{ctrlKey:true})),none);assert.deepEqual(snapshot(h),before);
+ click(h,'clear');assert.equal(verifyPopulation(h),0);assert.deepEqual(countWork(()=>click(h,'life-undo-clear')),none);assert.deepEqual(snapshot(h),before);
+ click(h,'life-test');verifyPopulation(h);assert.equal(h.el('life-return').hidden,false);assert.deepEqual(countWork(()=>click(h,'life-return')),none);assert.deepEqual(snapshot(h),before);
  for(const mode of ['orbit','wave','fractal','walk']){click(h,'tab-'+mode);click(h,'tab-life');verifyPopulation(h);assert.deepEqual(snapshot(h),before);assert.deepEqual(countWork(()=>h.resize(600,414)),none);}
 });
 test('in-place drawing and erasing refresh the shared count, including no-op stroke segments',async()=>{
@@ -88,7 +88,7 @@ test('history growth and trim keep first-draw transitions, repeat readings and p
   assert.deepEqual(countWork(()=>click(h,'step')),one);verifyPopulation(h);const before=snapshot(h);
   assert.deepEqual(countWork(()=>h.resize(600,414)),none);assert.deepEqual(snapshot(h),before);
  }
- for(let i=0;i<119;i++){assert.deepEqual(countWork(()=>click(h,'life-back')),one);verifyPopulation(h);}
+ for(let i=0;i<119;i++){assert.deepEqual(countWork(()=>click(h,'life-back')),none);verifyPopulation(h);}
  assert.equal(h.el('life-back').getAttribute('aria-disabled'),'true');assert.deepEqual(countWork(()=>click(h,'life-back')),none);
 });
 test('animation counts only observed generations and preserves pause, visibility and reduced-motion gates',async()=>{
