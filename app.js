@@ -333,7 +333,7 @@ function coordinates(event,scale){
 }
 // Legacy MouseEvent clicks follow the latest accepted pointer sequence. Keyboard
 // activation (detail 0) and unrelated pointer IDs never consume another guard.
-canvas.addEventListener('click',e=>{if(!ctx)return;if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}if(mode!=='wave'&&mode!=='orbit')return;const point=coordinates(e,mode==='wave'?waveScale():orbitScale());if(!point)return;if(mode==='wave'){paused=true;updatePause();probe=point;draw();announce('已暂停；测量探针已移动；'+waveReading());}else{orbitPoint=point;launchOrbit();}});
+canvas.addEventListener('click',e=>{if(!contextAvailable)return;if(e.detail!==0){const id=e.pointerId??lastCanvasPointer,suppressed=canvasPointerClicks.get(id);canvasPointerClicks.delete(id);if(suppressed)return;}if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}if(mode!=='wave'&&mode!=='orbit')return;const point=coordinates(e,mode==='wave'?waveScale():orbitScale());if(!point)return;if(mode==='wave'){paused=true;updatePause();probe=point;draw();announce('已暂停；测量探针已移动；'+waveReading());}else{orbitPoint=point;launchOrbit();}});
 function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+'；'+$('#orbit-escape-reading').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -1301,12 +1301,17 @@ $('#save').addEventListener('keydown',event=>{
 });
 // A stroke belongs to one pointer and cannot survive interrupted capture.
 let paintingPointer=null,lastCanvasPointer=null,lastPaint=null,paintingBounds=null,paintingBefore=null,wasDragging=false;
-const suppressedClickPointers=new Set();
-function suppressPaintingClick(id){
-  suppressedClickPointers.delete(id);suppressedClickPointers.add(id);
-  // Cancelled touches may never produce a click; retain only recent sequences.
-  if(suppressedClickPointers.size>16)suppressedClickPointers.delete(suppressedClickPointers.values().next().value);
+// Keep press/rejection order in one ledger. Each class retains only its most
+// recent 16 identities, so cancelled sequences without a click stay bounded.
+const canvasPointerClicks=new Map();
+function trimCanvasPointers(suppressed){
+ const ids=[...canvasPointerClicks].filter(([,blocked])=>blocked===suppressed).map(([id])=>id);
+ for(const id of ids.slice(0,-16))canvasPointerClicks.delete(id);
 }
+function rememberCanvasPointer(id,suppressed){
+ canvasPointerClicks.delete(id);canvasPointerClicks.set(id,suppressed);trimCanvasPointers(suppressed);
+}
+function suppressPaintingClick(id){rememberCanvasPointer(id,true);}
 function cancelPainting(){
   const id=paintingPointer;
   if(id!==null)suppressPaintingClick(id);
@@ -1327,7 +1332,9 @@ function endPainting(e){
   paintingPointer=null;lastPaint=null;paintingBounds=null;paintingBefore=null;wasDragging=false;
 }
 canvas.addEventListener('pointerdown',e=>{
-  if(!ctx)return;
+  // A blank bitmap has no safe spatial target. Retain this pointer's rejected
+  // press so its release cannot click through if the picture returns first.
+  if(!contextAvailable){lastCanvasPointer=e.pointerId;suppressPaintingClick(e.pointerId);return;}
   if(paintingPointer!==null||e.isPrimary===false||e.button!==0){
     // Ignoring a press must also ignore its later click, even after the owning
     // stroke ends or another world opens. Never suppress the owner's own tap.
@@ -1335,7 +1342,7 @@ canvas.addEventListener('pointerdown',e=>{
     return;
   }
   // A genuine new interaction supersedes only this pointer's unconsumed click.
-  suppressedClickPointers.delete(e.pointerId);lastCanvasPointer=e.pointerId;
+  rememberCanvasPointer(e.pointerId,false);lastCanvasPointer=e.pointerId;
   if(mode!=='life')return;
   const wasRunning=!paused;
   paintingPointer=e.pointerId;paintingBounds=canvas.getBoundingClientRect();wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e,paintingBounds);paintingBefore=lifeDrawingSnapshot();
@@ -1383,6 +1390,12 @@ animation.sync();
 // The browser may reclaim the 2D backing store. Leave its default recovery
 // enabled, stop unseen animation and finish any interrupted drawing gesture.
 canvas.addEventListener('contextlost',()=>{
+ // Different primary devices may have concurrent Orbit/Wave taps; only Life
+ // owns a captured stroke. Reject each pending press, not just the latest one.
+ // Preserve chronological order: stale pending taps must not evict a newer
+ // rejected pointer when both become blocked during this interruption.
+ for(const id of canvasPointerClicks.keys())canvasPointerClicks.set(id,true);
+ trimCanvasPointers(true);
  contextAvailable=false;interruptPainting();animation.sync();renderCanvasAvailability();
 });
 function restoreCanvas(){

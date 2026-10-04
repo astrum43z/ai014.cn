@@ -92,6 +92,14 @@ At viewports up to 400 CSS pixels, Wave source labels now sit above their displa
 
 `tests/wave-instrument-reflow.test.js` checks the final media-aware CSS cascade, sizing contracts, unchanged wider layouts and native time controls. Its arithmetic is not a browser layout engine; public cloud-browser geometry, readable plots and keyboard interactions are checked separately. No model, input handling, sharing, recovery, storage, dependency or domain settings change. Physical touch, mobile keyboard/IME behavior, screen-reader speech, rotation and hardware graphics loss remain unverified.
 
+## Keep blank-canvas gestures from changing an experiment
+
+When a working canvas later loses its bitmap, pointer clicks previously still edited Life, launched Orbit planets or moved the Wave probe because a context object remained allocated. Those spatial gestures now stay inert while the picture is unavailable, just as they do during an initial allocation failure. Explicit keyboard commands, named buttons and exact editors remain available with the text readings.
+
+A press begun on an unavailable canvas, or interrupted by a reported loss, keeps its existing pointer-specific click guard through recovery and world changes. A late release cannot apply to the newly restored picture. A fresh press may reuse the same pointer ID normally. The bounded pointer ledger retains the latest 16 pending presses and 16 rejected clicks; loss keeps the latest 16 blocked sequences in their original order. Life partial-stroke undo, clear/comparison recovery, saved observations, notebook, animation gates and pause intent remain intact. There is no queued action, new control, timer, storage or domain change.
+
+`tests/canvas-pointer-recovery.test.js` covers running/paused work, taps and drags, delayed and legacy clicks, pointer reuse, cross-world releases, recovery evidence, keyboard/editors, fixed links and intentional Fractal/Walk batch stepping. These are controlled context-loss and pointer-event regressions, not induced hardware failure or physical touch. Public cloud-browser checks cover ordinary pointer/keyboard interaction and narrow reflow separately; hardware graphics loss, physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, automatic clipboard success and downloaded-file receipt remain unverified.
+
 ## Keep experiments usable when the initial canvas is unavailable
 
 A browser that cannot create the first 2D canvas previously threw during startup, leaving the title half initialized, readings empty and experiment tabs unusable. Initial null, throwing or already-lost context results now leave the five models, text readings, exact editors and buttons available. Animation waits without consuming unseen time, and PNG capture is refused. Pointer drawing on the blank canvas is inert; explicit keyboard and named controls remain usable.
