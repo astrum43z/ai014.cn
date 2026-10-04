@@ -50,8 +50,8 @@ test('board, generation, history, last record and length changes invalidate the 
 });
 test('paused focus, selection, resize and simulated density/context redraws do not rerecord the board',async()=>{
  const h=await setup('?experiment=life');for(let i=0;i<7;i++)click(h,'step');const before=readings(h),chart=plot(h),drawing=h.drawing(),url=location.href;h.el('life-back').focus();
- assert.deepEqual(work(()=>{for(let i=0;i<120;i++)h.resize(600,414);}),{serializations:0,populations:240});
- const announcement=h.el('announcement').textContent;assert.deepEqual(work(()=>{h.el('canvas').handlers.focus();h.el('canvas').handlers.blur();}),{serializations:0,populations:4});assert.equal(h.el('announcement').textContent,announcement);
+ assert.deepEqual(work(()=>{for(let i=0;i<120;i++)h.resize(600,414);}),{serializations:0,populations:0});
+ const announcement=h.el('announcement').textContent;assert.deepEqual(work(()=>{h.el('canvas').handlers.focus();h.el('canvas').handlers.blur();}),{serializations:0,populations:0});assert.equal(h.el('announcement').textContent,announcement);
  assert.equal(work(()=>{for(const [w,z] of [[0,0],[259,240],[334.5,260.2],[1200,900],[600,414]])h.resize(w,z);for(const dpr of [1.25,2,3,1])h.setDpr(dpr);h.loseContext();h.restoreContext();}).serializations,0);
  assert.deepEqual(readings(h),before);assert.deepEqual(plot(h),chart);assert.deepEqual(h.drawing(),drawing);assert.equal(location.href,url);assert.equal(document.activeElement,h.el('life-back'));assert.equal(h.frames.size,0);
  assert.equal(work(()=>h.key('ArrowRight')).serializations,0);assert.deepEqual(readings(h),before);
