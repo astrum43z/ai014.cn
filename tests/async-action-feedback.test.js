@@ -100,7 +100,7 @@ test('a latest synchronous capture error still announces and does not queue a ca
 
 test('the app and snapshot cache keys change while one polite action region and quiet outcome regions remain',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
- assert.match(html,/app\.js\?[^"]*&amp;feedback=latest-action-1/);assert.match(app,/snapshot\.js\?[^']*&feedback=latest-action-1/);
+ assert.match(html,/app\.js\?[^"]*&amp;feedback=parameter-action-1/);assert.match(app,/snapshot\.js\?[^']*&feedback=latest-action-1/);
  assert.match(html,/<p id="announcement" class="sr-only" aria-live="polite" aria-atomic="true"><\/p>/);
  for(const id of ['share-status','save-status'])assert.match(html,new RegExp(`<p id="${id}"[^>]*aria-live="off"`));
 });

@@ -161,6 +161,10 @@ function setParameter(id,next){
  if(!spec||!Number.isFinite(Number(next)))return false;
  const [, ,min,max]=spec;next=Math.min(max,Math.max(min,Math.round(Number(next))));
  if(next===values[id])return false;
+ // A native range supplies its own value feedback without announce(). Its
+ // accepted edit still supersedes older PNG feedback, just like a nudge.
+ // No-op and invalid input above must leave a pending result eligible.
+ announcementRevision++;
  // Preserve Life's completed fraction of a generation when its speed changes.
  if(mode==='life'&&id==='rate')acc*=values.rate/next;
  observationRecovery=null;renderObservationRecovery();

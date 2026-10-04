@@ -67,5 +67,5 @@ test('valid small and fractional layouts keep model rendering and ruler output',
 });
 test('the updated renderer has its own cache key',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.match(html,/app\.js\?v=saved-observation-copy-1&amp;feedback=latest-action-1&amp;render=positive-scale-1/);
+ assert.match(html,/app\.js\?v=saved-observation-copy-1&amp;feedback=parameter-action-1&amp;render=positive-scale-1/);
 });
