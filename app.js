@@ -1,4 +1,5 @@
 import {createLifeHistoryRecorder} from './life-history.js';
+import {createLifeHistoryView} from './life-history-view.js';
 import {fractalRegions} from './fractal-regions.js';
 import {fieldNotesText,saveFieldNotes} from './field-notes.js';
 import {missions,checkMission,createCentralGapCounter} from './missions.js?v=discovery-passport-1&gap=count-once-1';
@@ -24,6 +25,7 @@ const getWaveField=createWaveFieldCache();
 const getWaveColors=createWaveColorCache();
 const readWalk=createWalkReadings();
 const recordLifeHistory=createLifeHistoryRecorder();
+const readLifeHistory=createLifeHistoryView();
 const getWaveCycle=createWaveCycleCache();
 let renderedWaveCycle=null;
 const getOrbitPreview=createOrbitPreview();
@@ -81,8 +83,8 @@ function observationReading(){
 // Recompute from the current model after each draw so replay, resets and tab
 // restoration cannot leave another experiment's availability behind.
 function progressAtLimit(){return (mode==='fractal'&&fractal?.count>=FRACTAL_LIMIT)||(mode==='walk'&&walk?.steps>=WALK_LIMIT);}
-// Read the current DOM so unchanged redraws do not rewrite availability,
-// while a restored or replaced attribute is still repaired on the next draw.
+// Read the current DOM so unchanged redraws do not rewrite availability or
+// plot geometry; a restored or replaced attribute is repaired on the next draw.
 function setControlAttribute(element,name,value){
  const text=String(value);
  if(element.getAttribute?.(name)!==text)element.setAttribute(name,text);
@@ -713,13 +715,11 @@ function setReadingText(element,text){if(element.textContent!==text)element.text
 // The HTML figure owns visibility: SVG elements do not reflect .hidden.
 // The quiet caption exposes the same bounded history as the scaled plot.
 function renderLifeHistory(){
- const first=lifeHistory[0],last=lifeHistory.at(-1),counts=lifeHistory.map(point=>point.count);
- const low=Math.min(...counts),high=Math.max(...counts),scaleMax=Math.max(1,high);
- const span=Math.max(1,last.generation-first.generation);
- const points=lifeHistory.map(point=>({x:(point.generation-first.generation)/span*600,y:64-point.count/scaleMax*56}));
- $('#history-line').setAttribute('points',points.map(point=>`${point.x},${point.y}`).join(' '));
- $('#history-current').setAttribute('cx',points.at(-1).x);
- $('#history-current').setAttribute('cy',points.at(-1).y);
+ const first=lifeHistory[0],last=lifeHistory.at(-1);
+ const {low,high,scaleMax,points,x,y}=readLifeHistory(lifeHistory,generation);
+ setControlAttribute($('#history-line'),'points',points);
+ setControlAttribute($('#history-current'),'cx',String(x));
+ setControlAttribute($('#history-current'),'cy',String(y));
  setReadingText($('#history-caption'),`活格记录 · 第 ${first.generation} → ${last.generation} 代；起点 ${first.count} → 当前 ${last.count} 格；最少 ${low}，最多 ${high} 格。`);
  setReadingText($('#history-maximum'),scaleMax+' 格');
  setReadingText($('#history-start'),'第 '+first.generation+' 代');
@@ -735,11 +735,7 @@ function renderLifeTurnover(){
   setReadingText($('#life-turnover'),'本段还没有相邻两代记录；前进一代后可比较新生、消失与存活。');
   return;
  }
- let born=0,died=0,survived=0;
- for(let i=0;i<last.key.length;i++){
-  if(last.key[i]==='1'){if(previous.key[i]==='1')survived++;else born++;}
-  else if(previous.key[i]==='1')died++;
- }
+ const {born,died,survived}=readLifeHistory(lifeHistory,generation).turnover;
  const outcome=born+died===0?(last.count?'图案保持不变。':'空棋盘保持不变。'):previous.count===last.count?`总数仍为 ${last.count} 格，但位置已改变。`:`总数 ${previous.count} → ${last.count} 格。`;
  setReadingText($('#life-turnover'),`第 ${previous.generation} → ${last.generation} 代 · 新生 ${born}，消失 ${died}，存活 ${survived} 格。${outcome}`);
 }

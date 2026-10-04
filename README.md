@@ -86,6 +86,14 @@ At viewports up to 400 CSS pixels, Wave source labels now sit above their displa
 
 ## Animation efficiency
 
+### Reuse Life history plots while moving the cursor
+
+Life now reuses the current history plot geometry and adjacent-generation turnover counts during focus, cursor and layout redraws. In a controlled full-history test, 120 unchanged redraws previously performed 240 history maps (28,800 sample visits), rescanned the 1,536-cell transition 120 times and rewrote three SVG attributes 360 times. The derived view now avoids those repeated computations and unchanged writes. Canvas painting, neighborhood inspection, controls and current readings still refresh normally.
+
+One immutable presentation is retained for the current history, generation and boundary records. Appending, trimming, rewinding or replacing history refreshes it; edits, comparison return, clear recovery and retained worlds use their existing boundaries. History entries remain immutable by application convention, and future interior-record edits must invalidate the view. No additional board copies or historical views are kept. Comparing actual DOM attributes also repairs an altered or missing plot attribute on the next draw.
+
+`tests/life-history-view.test.js` checks independent geometry and turnover, bounded reuse, 245-generation growth and trim, rewind, skipped observations, operation counts, drawing/clear/comparison recovery, animation and visibility gates, sharing, discoveries and simulated display/context changes. Controlled counts measure removed work, not device latency, frame rate or battery use. Public cloud-browser interaction and zoomed reflow are verified separately; physical touch, mobile keyboard/IME behavior, screen-reader speech, rotation, real layout collapse, hardware graphics loss and downloaded-file receipt remain unverified. No model, control, URL format, storage, dependency or domain change is introduced.
+
 ### Reuse unchanged Wave field colors
 
 Moving a paused Wave probe, focusing the canvas or redrawing at a different pixel density now reuses the field's exact current colors. The field depends on geometry, parameters and model time, not the probe overlay. Previously each such redraw repeated both sine evaluations and color-string construction for every five-pixel square. At 600 × 414 CSS pixels, 120 unchanged redraws now avoid 2,390,400 field sine evaluations; the two instantaneous probe readings per redraw still update normally.

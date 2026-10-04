@@ -98,5 +98,5 @@ test('visibility, reduced motion and simulated context loss preserve quiet avail
 
 test('fresh public app URL invalidates the old entry without changing dependencies',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.match(html,/app\.js\?[^"\n]+&amp;availability=quiet-1&amp;walk=read-once-1&amp;life=record-once-1&amp;colors=wave-once-1"/);
+ assert.match(html,/app\.js\?[^"\n]+&amp;availability=quiet-1&amp;walk=read-once-1&amp;life=record-once-1&amp;history=read-once-1&amp;colors=wave-once-1"/);
 });
