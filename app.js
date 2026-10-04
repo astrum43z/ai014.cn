@@ -431,7 +431,15 @@ function drawOrbitPreview(scale){
  ctx.setLineDash([]);const {x,y}=prediction.end;
  ctx.strokeRect(x-4/scale,y-4/scale,8/scale,8/scale);
  // Keep a legend in saved PNGs as well as the quiet HTML reading.
- const left=-width/(2*scale)+12/scale,top=-height/(2*scale)+12/scale;
+ // The opaque caption must not erase the endpoint square it explains. Keep
+ // its normal corner when clear, otherwise use the other top corner. If a
+ // narrow view leaves neither clear, omit only this duplicate canvas caption;
+ // the path, endpoint and HTML preview reading retain their exact positions.
+ const px=width/2+x*scale,py=height/2+y*scale;
+ const clear=left=>left>=12&&left+149<=width-8&&!(px+4.75>=left-4&&px-4.75<=left+149&&py+4.75>=9&&py-4.75<=32);
+ const labelLeft=[12,width-157].find(clear);
+ if(labelLeft===undefined){ctx.restore();return;}
+ const left=-width/(2*scale)+labelLeft/scale,top=-height/(2*scale)+12/scale;
  ctx.fillStyle='#122e29';ctx.fillRect(left-4/scale,top-3/scale,153/scale,23/scale);
  ctx.setLineDash([6/scale,5/scale]);ctx.beginPath();ctx.moveTo(left,top+8/scale);ctx.lineTo(left+24/scale,top+8/scale);ctx.stroke();ctx.setLineDash([]);
  ctx.fillStyle='#ffac86';ctx.font=`${12/scale}px sans-serif`;ctx.fillText('下一颗 · 10 s 预演',left+31/scale,top+12/scale);ctx.restore();

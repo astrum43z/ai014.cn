@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Orbit preview caption clear of its endpoint
+
+The opaque “10 s preview” caption could completely cover the endpoint square it describes. In a paused 600 × 414 view, launching at (−280, −55) puts that square at CSS (109.55, 18.25), inside the caption's (8, 9)–(161, 32) rectangle. The public cloud-browser baseline reproduced the same occlusion in its 767 × 317.94 canvas.
+
+The caption keeps its ordinary upper-left position when clear, otherwise moves to the upper-right. If neither corner fits without covering the full endpoint stroke, only this duplicate canvas caption is omitted; the predicted path, exact square and HTML preview reading remain. This narrowly fixes the preview caption's own occlusion, without changing other canvas overlays, physics, predictions, controls, sharing or recovery.
+
+`tests/orbit-preview-caption.test.js` checks independent endpoint integration, overlapping and clear positions, narrow/fractional layouts, display density, pause/continue, launch limits, recall, retained worlds, capture requests and discoveries. Public cloud-browser interaction and zoomed reflow are checked separately. Physical touch, screen-reader speech, mobile keyboard/IME, rotation, hardware graphics loss, actual layout collapse, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Keep the Fractal jump reading selected during redraws
 
 The three last-jump paragraphs now use the existing DOM-comparing text helper. At a paused 731-point observation, 120 unchanged redraws previously replaced these text nodes 360 times. The public cloud-browser baseline also reproduced the practical effect: selecting the near-canvas 300-point reading, then changing zoom from 100% to 110%, cleared the selection although the words and model stayed the same. Focus, layout, density and canvas-recovery redraws now retain unchanged reading nodes.
