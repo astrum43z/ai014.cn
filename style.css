@@ -324,6 +324,17 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .fractal-seek button{flex:1 1 130px}
 .fractal-seek #fractal-seek-error{margin:8px 0 0;color:#ffac86}
 
+/* An exact Walk destination is visitor input, independent of live readings. */
+.walk-seek{margin:14px 0 0;padding-top:12px;border-top:1px solid #385046}
+.walk-seek label{display:block;margin-bottom:7px;color:#e6ecd8;font-size:13px}
+.walk-seek>div{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.walk-seek input{flex:1 1 110px;width:110px;min-width:0;min-height:44px;padding:9px 12px;border:1px solid #8b9d85;border-radius:8px;background:#18352d;color:#e6ecd8;font:inherit;font-variant-numeric:tabular-nums}
+.walk-seek input::placeholder{color:#b7cbae;opacity:1}
+.walk-seek input[aria-invalid="true"]{border:2px solid #ffac86}
+.walk-seek button{flex:1 1 130px}
+.stage .walk-seek #walk-seek-help{display:block;margin:0}
+.walk-seek #walk-seek-error{margin:8px 0 0;color:#ffac86}
+
 @media(max-width:720px){.fractal-touch{padding:12px}}
 
 /* Completed notes provide a non-destructive route back to each experiment. */

@@ -1445,6 +1445,30 @@ function setWalkCheckpoint(steps){
 }
 $('#walk-16').addEventListener('click',()=>setWalkCheckpoint(16));
 $('#walk-64').addEventListener('click',()=>setWalkCheckpoint(64));
+// Keep a typed destination separate from live progress and fixed shared links.
+function clearWalkSeekError(){
+ $('#walk-count').setAttribute('aria-invalid','false');
+ $('#walk-seek-error').hidden=true;setReadingText($('#walk-seek-error'),'');
+}
+function seekWalkCount(){
+ if(mode!=='walk')return;
+ const input=$('#walk-count'),raw=input.value.trim(),steps=Number(raw);
+ if(!/^\d+$/.test(raw)||!Number.isSafeInteger(steps)||steps<16||steps>WALK_LIMIT){
+  const message='请输入 16 到 512 之间的整数步数。';
+  input.setAttribute('aria-invalid','true');
+  setReadingText($('#walk-seek-error'),message);$('#walk-seek-error').hidden=false;
+  input.focus();announce(message);return;
+ }
+ clearWalkSeekError();input.value=String(steps);
+ // The current count is also a valid request to pause and inspect.
+ setWalkCheckpoint(steps);
+}
+$('#walk-seek').addEventListener('click',seekWalkCount);
+$('#walk-count').addEventListener('input',clearWalkSeekError);
+$('#walk-count').addEventListener('keydown',event=>{
+ if(event.key!=='Enter'||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+ event.preventDefault();if(!event.repeat)seekWalkCount();
+});
 $('#walk-back').addEventListener('click',()=>{
  // Replaying the seed restores every walker and the next random draw exactly.
  // Keep the shared-observation lower bound and do nothing when unavailable.
@@ -1455,9 +1479,9 @@ $('#walk-step-one').addEventListener('click',()=>{
  if(mode!=='walk'||walk.steps>=WALK_LIMIT)return;
  paused=true;acc=0;updatePause();advanceWalk(walk,1);draw();announceWalk();
 });
-// Exact replay is one point or step per press, like the fractal canvas key.
+// Explicit replay is one destination per press, like the fractal canvas key.
 // Keep native Space keyup and fresh presses; only cancel held Enter repeats.
-for(const id of ['fractal-back','fractal-forward','fractal-step','fractal-seek','walk-back','walk-step-one']){
+for(const id of ['fractal-back','fractal-forward','fractal-step','fractal-seek','walk-back','walk-step-one','walk-seek']){
  $('#'+id).addEventListener('keydown',event=>{
   if(event.repeat&&event.key==='Enter')event.preventDefault();
  });

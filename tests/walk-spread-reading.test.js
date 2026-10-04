@@ -92,7 +92,9 @@ test('the whole-group reading stays beside comparison buttons, quiet, wrapping a
  assert.ok(section.indexOf('id="walk-64"')<section.indexOf('id="walk-spread-reading"'));
  assert.ok(section.indexOf('id="walk-spread-reading"')<section.indexOf('id="walk-step-reading"'));
  assert.match(section,/散开程度以点云中心为基准；256 个样本会有波动。/);
- assert.equal((section.match(/<button /g)||[]).length,4,'no extra controls');
+ const comparisonRow=section.slice(section.indexOf('<div class="button-row"'),section.indexOf('<small id="walk-replaces"'));
+ assert.equal((comparisonRow.match(/<button /g)||[]).length,4,'the existing comparison row keeps its four controls');
+ assert.equal((section.match(/<button /g)||[]).length,5,'one separate exact-destination control');
  assert.doesNotMatch(section,/role="status"|aria-live="polite"|aria-live="assertive"|tabindex/);
  assert.match(css,/#walk-spread-reading,#walk-step-reading\{[^}]*overflow-wrap:anywhere/);
 });
