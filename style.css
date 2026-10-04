@@ -275,6 +275,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .orbit-touch{padding:12px 18px;background:#1b3931;border-top:1px solid #345046}
 .orbit-touch p{margin:0 0 10px;color:#e6ecd8;font-size:13px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .orbit-touch>div{display:flex;gap:7px;margin-bottom:8px}
+/* Preserve the full direction targets when zoom leaves less than one row of space. */
+.orbit-touch .orbit-arrows{flex-wrap:wrap}
 .orbit-touch button{flex:1;min-width:44px;min-height:44px;padding:10px;background:#e6ecd8;border-color:#6b875e;color:var(--ink);font-size:16px}
 .orbit-touch .orbit-actions{flex-wrap:wrap}
 .orbit-touch .orbit-actions button{flex:1 1 130px;font-size:12px;white-space:normal;overflow-wrap:anywhere}
@@ -445,4 +447,3 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 @media(max-width:720px){
  .tab[data-discovered="true"]>.tab-short::after{content:' ✓';font-size:11px;white-space:nowrap}
 }
-

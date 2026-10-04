@@ -40,6 +40,12 @@ Orbit now offers exact five-unit directional buttons, a return-to-(140,0) previe
 
 `tests/missions.test.js` exercises every successful path, failed checks, repeated checks, tab round trips, new URL state, replay, baseline replacement, pointer-safe precision controls, measurement consistency, and field-note lifecycle. Run the aggregate test command below after any change.
 
+### Reflow the Orbit direction controls at extreme zoom
+
+Orbit’s four direction buttons now wrap when their existing row has insufficient space. At 500% cloud-browser zoom, the 233-pixel page layout left only 171 pixels inside this control, but the four 44-pixel buttons and three gaps required 191 pixels. The right button extended beyond the stage. Wrapping preserves the minimum target size, natural left/up/down/right focus order and existing focus ring; ordinary widths retain one row. Launch, Home and recall keep their separate layout. No markup, model or event-handling change is needed.
+
+`tests/orbit-control-reflow.test.js` guards the CSS wrapping/target-size contract and native button order, with sizing arithmetic explicitly separate from real-browser layout verification. Existing Orbit interaction tests cover behavior; physical touch and screen-reader speech remain unverified.
+
 ## Run
 
 `npm start` or `python3 -m http.server 8140`, then open http://localhost:8140.
