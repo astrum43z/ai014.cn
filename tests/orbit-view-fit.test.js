@@ -176,5 +176,5 @@ test('view-fit is a named quiet measurement action with a wrapping 44-pixel targ
  assert.match(html,/<small id="orbit-fit-help">[^<]*缩小视图[^<]*不移动[^<]*不回退[^<]*不会自动追踪/);
  assert.match(css,/\.orbit-measurement #orbit-fit\{[^}]*min-height:44px[^}]*white-space:normal[^}]*overflow-wrap:anywhere/);
  assert.match(css,/\.stage,\.instrument-drawer\{--focus-ring:var\(--focus-on-dark\)/);
- assert.match(html,/style\.css\?[^"\n]+&amp;orbit-fit=first-body-1"/);assert.match(html,/app\.js\?[^"\n]+&amp;orbit-fit=first-body-1"/);
+ assert.match(html,/style\.css\?[^"\n]+&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1"/);assert.match(html,/app\.js\?[^"\n]+&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1"/);
 });

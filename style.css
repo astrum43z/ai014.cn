@@ -477,6 +477,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
    keep this decoration above adjacent panels without changing the canvas box. */
 canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 
+/* Initial canvas allocation failure must leave a readable, reachable retry. */
+.canvas-retry{margin:0 22px 18px;min-width:0;color:#e7eee1;line-height:1.7}
+.canvas-retry p{margin:0 0 8px;overflow-wrap:anywhere}
+.canvas-retry button{max-width:100%;min-width:44px;min-height:44px;padding:10px 14px;border:1px solid #a9bfab;border-radius:8px;background:#203f36;color:#e7eee1;font:inherit;white-space:normal;overflow-wrap:anywhere}
+
 /* Keep earned findings recognizable in the compact selector without relying
    on border color. The short label is already decorative to assistive tech. */
 @media(max-width:720px){
@@ -495,3 +500,4 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 
 /* Reach the existing five-world chooser from the near-canvas controls. */
 .experiment-shortcuts #worlds-return{margin-left:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+

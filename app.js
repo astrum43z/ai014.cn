@@ -19,7 +19,13 @@ import {experimentGuides} from './guides.js?v=wave-paths-1';
 import {createSnapshotSaver} from './snapshot.js?v=context-safe-save-1';
 import {createAnimationLoop} from './animation.js';
 import {lifeStep,inspectLifeCell,findLivingCell,orbitStep,waveComponents,population,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1&browse=living-cells-1';
-const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
+const $=s=>document.querySelector(s), canvas=$('#canvas');
+// Initial allocation can fail before the browser has a context to restore.
+// Keep the model and text UI independent of that optional bitmap.
+function requestCanvasContext(){
+ try{const context=canvas.getContext('2d');return context&&context.isContextLost?.()!==true?context:null;}catch{return null;}
+}
+let ctx=requestCanvasContext();
 const centralGapCount=createCentralGapCounter();
 const getWaveField=createWaveFieldCache();
 const getWaveColors=createWaveColorCache();
@@ -59,7 +65,7 @@ let lifeTrial=null,lifeCleared=null,lifeEdited=null;
 // Page-only drawing tool, independent of simulation state and shared links.
 let lifeErasing=false;
 let lifeHistory=[],probe={x:0,y:0},waveView=null,orbitPoint={x:140,y:0},orbitView=null;
-let animation, stageVisible=true, contextAvailable=true, addressObservation='',canvasDpr=1;
+let animation, stageVisible=true, contextAvailable=Boolean(ctx), addressObservation='',canvasDpr=1;
 // One small page-only return recovery per world; seeded models replay on demand.
 let observationRecovery=null;
 // At most one bounded model per inactive experiment; no persistent storage.
@@ -100,8 +106,9 @@ function renderProgressControls(){
 // The pause choice survives an unavailable bitmap; describe the actual stage
 // separately without replacing action feedback or adding live announcements.
 function renderCanvasAvailability(){
- setReadingText($('#status'),contextAvailable?(paused?'已暂停':'运行中'):'画布待恢复');
- setReadingText($('#hint'),contextAvailable?configs[mode].hint:'实验仍在本页，等待浏览器恢复画面；刷新会清空进度');
+ setReadingText($('#status'),contextAvailable?(paused?'已暂停':'运行中'):ctx?'画布待恢复':'画布未就绪');
+ $('#canvas-retry-panel').hidden=Boolean(ctx);
+ setReadingText($('#hint'),contextAvailable?configs[mode].hint:ctx?'实验仍在本页，等待浏览器恢复画面；刷新会清空进度':'文字观测与按钮仍可使用；可重试画面，刷新会清空进度');
 }
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';renderCanvasAvailability();$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
 function reset(){observationRecovery=null;renderObservationRecovery();cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;lastOrbitLaunch=null;orbitPoint={x:140,y:0};orbitView={...orbitPoint};bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
@@ -302,7 +309,7 @@ function restoreAddress(){
 }
 addEventListener('popstate',restoreAddress);
 function fit(){const rect=canvas.getBoundingClientRect();if(rect.width!==width||rect.height!==height)interruptPainting();width=rect.width;height=rect.height;if(mode==='wave')fitWaveProbe();if(mode==='orbit')fitOrbitPoint();resizeCanvas();}
-function resizeCanvas(){const dpr=Math.min(devicePixelRatio||1,2);canvasDpr=dpr;canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+function resizeCanvas(){const dpr=Math.min(devicePixelRatio||1,2);canvasDpr=dpr;canvas.width=width*dpr;canvas.height=height*dpr;ctx?.setTransform(dpr,0,0,dpr,0,0);draw();}
 // Fit the current measurement after a resize or tab return, without moving it.
 // Keep any wider shared view; normal probe movement must not continuously zoom.
 function fitWaveProbe(){
@@ -326,7 +333,7 @@ function coordinates(event,scale){
 }
 // Legacy MouseEvent clicks follow the latest accepted pointer sequence. Keyboard
 // activation (detail 0) and unrelated pointer IDs never consume another guard.
-canvas.addEventListener('click',e=>{if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}if(mode!=='wave'&&mode!=='orbit')return;const point=coordinates(e,mode==='wave'?waveScale():orbitScale());if(!point)return;if(mode==='wave'){paused=true;updatePause();probe=point;draw();announce('已暂停；测量探针已移动；'+waveReading());}else{orbitPoint=point;launchOrbit();}});
+canvas.addEventListener('click',e=>{if(!ctx)return;if(e.detail!==0&&suppressedClickPointers.delete(e.pointerId??lastCanvasPointer))return;if(mode==='life'){const cell=lifeCell(e);if(!cell)return;const {x,y}=cell;interruptPainting();paused=true;updatePause();rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[y*48+x]^=1;lifeHistory=[];focusCell={x,y};draw();announce(lifeReading());return;}if(mode!=='wave'&&mode!=='orbit')return;const point=coordinates(e,mode==='wave'?waveScale():orbitScale());if(!point)return;if(mode==='wave'){paused=true;updatePause();probe=point;draw();announce('已暂停；测量探针已移动；'+waveReading());}else{orbitPoint=point;launchOrbit();}});
 function orbitLaunchReading(){return $('#orbit-position').textContent+'；'+$('#orbit-speed').textContent+'；'+$('#orbit-escape-reading').textContent+($('#orbit-preview-reading').hidden?'':'；'+$('#orbit-preview-reading').textContent)+'；'+$('#orbit-launch-note').textContent;}
 function renderOrbitLaunch(){
  const launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
@@ -682,22 +689,22 @@ function drawLifeTransition(cw,ch){
  legend.hidden=!previous||Boolean(lifeTrial);
  if(!previous)return;
  const before=previous.cells;let born=0,died=0;
- ctx.save();ctx.setLineDash([]);
+ ctx?.save();ctx?.setLineDash([]);
  for(let i=0;i<cells.length;i++){
   if(Number(before[i])===cells[i])continue;
   const x=(i%48)*cw,y=Math.floor(i/48)*ch;
   if(cells[i]){
-   born++;
+   born++;if(!ctx)continue;
    // The dark casing keeps a cyan birth frame readable over a bright live fill.
    const rect=[x+.7,y+.7,Math.max(1,cw-1.4),Math.max(1,ch-1.4)];
    ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.strokeRect(...rect);
    ctx.strokeStyle='#82d6dd';ctx.lineWidth=1.5;ctx.strokeRect(...rect);
   }else{
-   died++;ctx.lineWidth=1.5;
+   died++;if(!ctx)continue;ctx.lineWidth=1.5;
    ctx.strokeStyle='#ffac86';ctx.beginPath();ctx.moveTo(x+2,y+2);ctx.lineTo(x+cw-2,y+ch-2);ctx.moveTo(x+cw-2,y+2);ctx.lineTo(x+2,y+ch-2);ctx.stroke();
   }
  }
- ctx.restore();
+ ctx?.restore();
  if(!lifeTrial)setReadingText(legend,`暂停对比 · 第 ${previous.generation} → ${generation} 代：`+(born+died?`蓝框新生 ${born} 格，橙 × 消失 ${died} 格；黄绿填色才是当前活格。`:'没有格子新生或消失，图案保持不变。'));
 }
 function testLifeDrawing(){
@@ -795,7 +802,20 @@ function observe(){renderProgressControls();const a=$('#observation-a'),b=$('#ob
 // Tiny or temporarily collapsed layouts can have nonpositive plot scales.
 // Skip only their bitmap geometry: negative arc radii throw in real Canvas,
 // which would otherwise terminate the next running animation frame.
-function draw(){ctx.clearRect(0,0,width,height);ctx.fillStyle='#122e29';ctx.fillRect(0,0,width,height);if(mode==='orbit'){const scale=orbitScale();if(Number.isFinite(scale)&&scale>0){ctx.save();ctx.translate(width/2,height/2);ctx.scale(scale,scale);ctx.strokeStyle='#29443a';ctx.lineWidth=1/scale;[50,100,150,200].forEach(r=>{ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();});ctx.strokeStyle='#385046';ctx.beginPath();ctx.moveTo(-width/scale/2,0);ctx.lineTo(width/scale/2,0);ctx.moveTo(0,-height/scale/2);ctx.lineTo(0,height/scale/2);ctx.stroke();const glow=ctx.createRadialGradient(0,0,3,0,0,38);glow.addColorStop(0,'#d3f35b88');glow.addColorStop(1,'#d3f35b00');ctx.fillStyle=glow;ctx.fillRect(-38,-38,76,76);ctx.fillStyle='#d3f35b';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();drawOrbitPreview(scale);drawOrbitMeasurement(scale);bodies.forEach(b=>{ctx.strokeStyle=b.color+'75';ctx.lineWidth=1.3/scale;ctx.beginPath();b.trail.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();});drawOrbitScale(scale);bodies.forEach(b=>{ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,4.5/scale,0,Math.PI*2);ctx.fill();});drawOrbitVelocity(scale);drawOrbitMeasuredMarker(scale);drawOrbitLauncher(scale);drawOrbitMeasurementLegend(scale);ctx.restore();}else drawOrbitScale(scale);setReadingText($('#metrics'),`${bodies.length} 颗行星 · t + ${t.toFixed(1)} s`);}else if(mode==='life'){const cw=width/48,ch=height/32;ctx.fillStyle='#d3f35b';cells.forEach((v,i)=>{if(v)ctx.fillRect((i%48)*cw+.6,Math.floor(i/48)*ch+.6,Math.max(1,cw-1.2),Math.max(1,ch-1.2));});ctx.strokeStyle='#26443a';ctx.lineWidth=.5;for(let x=0;x<=48;x++){ctx.beginPath();ctx.moveTo(x*cw,0);ctx.lineTo(x*cw,height);ctx.stroke();}for(let y=0;y<=32;y++){ctx.beginPath();ctx.moveTo(0,y*ch);ctx.lineTo(width,y*ch);ctx.stroke();}drawLifeNeighbors(cw,ch);drawLifeTransition(cw,ch);drawLifeSelection(cw,ch);}else if(mode==='fractal'){drawFractal();}else if(mode==='walk'){drawWalk();}else{const scale=waveScale(),step=WAVE_GRID_STEP,field=getWaveField(width,height,scale,values.separation,values.wavelength),colors=getWaveColors(field,t*WAVE_ANGULAR_SPEED);let sample=0;for(let y=0;y<height;y+=step)for(let x=0;x<width;x+=step){ctx.fillStyle=colors[sample++];ctx.fillRect(x,y,step,step);}drawWavePaths(scale);drawWaveScale(scale);drawWaveMarkers(scale);setReadingText($('#metrics'),`2 个同频波源 · 波长 ${values.wavelength} · t + ${t.toFixed(1)} s`);}observe();}
+function renderStageMetrics(){
+ if(mode==='orbit')setReadingText($('#metrics'),`${bodies.length} 颗行星 · t + ${t.toFixed(1)} s`);
+ if(mode==='wave')setReadingText($('#metrics'),`2 个同频波源 · 波长 ${values.wavelength} · t + ${t.toFixed(1)} s`);
+ if(mode==='fractal')setReadingText($('#metrics'),`${fractal.count} 个点 · 前进 ${values.jump}% · 种子 ${values.seed}`);
+ if(mode==='walk')setReadingText($('#metrics'),`${WALK_COUNT} 位漫步者 · ${walk.steps} 步 · 偏向 ${values.bias}%`);
+}
+function draw(){
+ renderStageMetrics();
+ if(!ctx){
+  if(mode==='life')drawLifeTransition(width/48,height/32);
+  for(const world of ['orbit','wave','walk'])setReadingText($('#'+world+'-scale-reading'),'');
+  observe();return;
+ }
+ ctx.clearRect(0,0,width,height);ctx.fillStyle='#122e29';ctx.fillRect(0,0,width,height);if(mode==='orbit'){const scale=orbitScale();if(Number.isFinite(scale)&&scale>0){ctx.save();ctx.translate(width/2,height/2);ctx.scale(scale,scale);ctx.strokeStyle='#29443a';ctx.lineWidth=1/scale;[50,100,150,200].forEach(r=>{ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();});ctx.strokeStyle='#385046';ctx.beginPath();ctx.moveTo(-width/scale/2,0);ctx.lineTo(width/scale/2,0);ctx.moveTo(0,-height/scale/2);ctx.lineTo(0,height/scale/2);ctx.stroke();const glow=ctx.createRadialGradient(0,0,3,0,0,38);glow.addColorStop(0,'#d3f35b88');glow.addColorStop(1,'#d3f35b00');ctx.fillStyle=glow;ctx.fillRect(-38,-38,76,76);ctx.fillStyle='#d3f35b';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();drawOrbitPreview(scale);drawOrbitMeasurement(scale);bodies.forEach(b=>{ctx.strokeStyle=b.color+'75';ctx.lineWidth=1.3/scale;ctx.beginPath();b.trail.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();});drawOrbitScale(scale);bodies.forEach(b=>{ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,4.5/scale,0,Math.PI*2);ctx.fill();});drawOrbitVelocity(scale);drawOrbitMeasuredMarker(scale);drawOrbitLauncher(scale);drawOrbitMeasurementLegend(scale);ctx.restore();}else drawOrbitScale(scale);}else if(mode==='life'){const cw=width/48,ch=height/32;ctx.fillStyle='#d3f35b';cells.forEach((v,i)=>{if(v)ctx.fillRect((i%48)*cw+.6,Math.floor(i/48)*ch+.6,Math.max(1,cw-1.2),Math.max(1,ch-1.2));});ctx.strokeStyle='#26443a';ctx.lineWidth=.5;for(let x=0;x<=48;x++){ctx.beginPath();ctx.moveTo(x*cw,0);ctx.lineTo(x*cw,height);ctx.stroke();}for(let y=0;y<=32;y++){ctx.beginPath();ctx.moveTo(0,y*ch);ctx.lineTo(width,y*ch);ctx.stroke();}drawLifeNeighbors(cw,ch);drawLifeTransition(cw,ch);drawLifeSelection(cw,ch);}else if(mode==='fractal'){drawFractal();}else if(mode==='walk'){drawWalk();}else{const scale=waveScale(),step=WAVE_GRID_STEP,field=getWaveField(width,height,scale,values.separation,values.wavelength),colors=getWaveColors(field,t*WAVE_ANGULAR_SPEED);let sample=0;for(let y=0;y<height;y+=step)for(let x=0;x<width;x+=step){ctx.fillStyle=colors[sample++];ctx.fillRect(x,y,step,step);}drawWavePaths(scale);drawWaveScale(scale);drawWaveMarkers(scale);}observe();}
 function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;growWalk(4);draw();return;}if(mode==='fractal'){acc+=dt;if(acc<.1)return;acc%=.1;growFractal();draw();return;}if(mode==='orbit'){bodies.forEach(b=>{for(let i=0;i<4;i++)orbitStep(b,values.gravity*1000,dt/4);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}if(mode==='life'){acc+=dt;let changed=false;while(acc>=1/values.rate){lifeTrial=null;lifeEdited=null;cells=lifeStep(cells,48,32);generation++;acc-=1/values.rate;changed=true;}if(!changed)return;}draw();}
 // A held Enter must not repeatedly undo Pause or Continue. Leave the first
 // activation and Space's native keyup behavior intact, without held-key state.
@@ -1307,6 +1327,7 @@ function endPainting(e){
   paintingPointer=null;lastPaint=null;paintingBounds=null;paintingBefore=null;wasDragging=false;
 }
 canvas.addEventListener('pointerdown',e=>{
+  if(!ctx)return;
   if(paintingPointer!==null||e.isPrimary===false||e.button!==0){
     // Ignoring a press must also ignore its later click, even after the owning
     // stroke ends or another world opens. Never suppress the owner's own tap.
@@ -1364,13 +1385,27 @@ animation.sync();
 canvas.addEventListener('contextlost',()=>{
  contextAvailable=false;interruptPainting();animation.sync();renderCanvasAvailability();
 });
-canvas.addEventListener('contextrestored',()=>{
- contextAvailable=true;renderCanvasAvailability();
+function restoreCanvas(){
+ const focused=document.activeElement===$('#canvas-retry');
+ if(!ctx)ctx=requestCanvasContext();
+ contextAvailable=Boolean(ctx);renderCanvasAvailability();
+ if(!ctx)return;
  const rect=canvas.getBoundingClientRect();
  // Restoration resets the drawing state, including its density transform.
  // A same-size repaint must not expand an unchanged edge probe's fitted view.
  if(rect.width!==width||rect.height!==height)fit();else resizeCanvas();
  animation.sync();
+ if(focused)canvas.focus({preventScroll:true});
+}
+canvas.addEventListener('contextrestored',restoreCanvas);
+$('#canvas-retry').addEventListener('click',()=>{
+ if(ctx)return;
+ restoreCanvas();
+ if(!ctx){announce('画面仍未就绪；可以继续使用文字观测与按钮，稍后再重试。刷新会清空本页进度。');return;}
+ announce('画面已恢复；保留当前实验、参数与进度；'+(paused?'已暂停。':'继续运行。'));
+});
+$('#canvas-retry').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
 });
 
 // Display density can change without a CSS-size change. Re-arm against the raw
@@ -1422,6 +1457,7 @@ function renderFractalRegions(){
  setReadingText($('#fractal-regions-reading'),`前进 ${values.jump}% → 每块边长为外框的 ${100-values.jump}%。${relation}`);
 }
 function renderFractalJump(){
+ setReadingText($('#fractal-gap-reading'),`中央参考区 · 内部 ${centralGapCount(fractal)} / ${fractal.count} 点`);
  setReadingText($('#fractal-seek-current'),`当前观测 · ${fractal.count} 点`);
  renderFractalRegions();
  const counts=fractal.vertexCounts;
@@ -1497,7 +1533,7 @@ function drawFractal(){
  // A narrow opaque edge preserves the dashed reference over dense samples.
  ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.stroke();
  ctx.strokeStyle='#8bbaca';ctx.lineWidth=1;ctx.stroke();ctx.restore();
- setReadingText($('#fractal-gap-reading'),`中央参考区 · 内部 ${centralGapCount(fractal)} / ${fractal.count} 点`);
+ 
  // Only the final jump is highlighted, and only while paused. Seed replay
  // reconstructs its endpoints exactly; this overlay never consumes randomness.
  if(paused){
@@ -1520,7 +1556,7 @@ function drawFractal(){
   ctx.fillStyle=palette[i];ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#e7eee1';ctx.fillText('ABC'[i],px+(i===0?-4:i===1?-14:9),py+(i===0?-13:15));
  });
- setReadingText($('#metrics'),`${fractal.count} 个点 · 前进 ${values.jump}% · 种子 ${values.seed}`);
+ 
 }
 
 // Checkpoints regenerate the same seeded sequence, without changing parameters.
@@ -1583,7 +1619,7 @@ function drawWalk(){
  const {stats,center,extentX,extentY}=readWalk(walk);
  const scale=Math.min((width-48)/(extentX*2),(height-76)/(extentY*2));
  // Quiet model readings stay current even when there is no drawable plot.
- setReadingText($('#metrics'),`${WALK_COUNT} 位漫步者 · ${walk.steps} 步 · 偏向 ${values.bias}%`);
+ 
  if(!Number.isFinite(scale)||scale<=0){drawWalkScale(scale);return;}
  const px=x=>width/2+(x-center)*scale,py=y=>height/2-y*scale;
  ctx.strokeStyle='#29483e';ctx.lineWidth=1;ctx.beginPath();
