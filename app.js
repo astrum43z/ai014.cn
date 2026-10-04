@@ -931,16 +931,20 @@ $('#mission-next').addEventListener('click',()=>openMission(discoveries[mode].ne
 // Touch buttons and canvas keys share model-unit steps, pause and viewport bounds.
 function moveWaveProbe(key){
  if(mode!=='wave')return;
+ const scale=waveScale(),maxX=width/(2*scale),maxY=height/(2*scale);
+ // Directional bounds only exist in a usable view. A late key/button command
+ // during layout collapse must not clamp a good probe into inverted bounds.
+ // Home is an explicit model-space reset and needs no viewport conversion.
+ if(key!=='Home'&&(![width,height,scale,maxX,maxY].every(Number.isFinite)||width<=0||height<=0||scale<=0))return;
  paused=true;updatePause();
- const scale=waveScale();
  if(key==='Home'){probe={x:0,y:0};waveView=null;}
  else{
   if(key==='ArrowLeft')probe.x-=2;
   if(key==='ArrowRight')probe.x+=2;
   if(key==='ArrowUp')probe.y-=2;
   if(key==='ArrowDown')probe.y+=2;
-  probe.x=Math.max(-width/(2*scale),Math.min(width/(2*scale),probe.x));
-  probe.y=Math.max(-height/(2*scale),Math.min(height/(2*scale),probe.y));
+  probe.x=Math.max(-maxX,Math.min(maxX,probe.x));
+  probe.y=Math.max(-maxY,Math.min(maxY,probe.y));
  }
  draw();
  announce(`已暂停；探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)}；${$('#observation-b').textContent}；${$('#observation-c').textContent}；${waveReading()}`);
