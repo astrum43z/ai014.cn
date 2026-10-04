@@ -64,6 +64,12 @@ Orbit’s four direction buttons now wrap when their existing row has insufficie
 
 `tests/orbit-control-reflow.test.js` guards the CSS wrapping/target-size contract and native button order, with sizing arithmetic explicitly separate from real-browser layout verification. Existing Orbit interaction tests cover behavior; physical touch and screen-reader speech remain unverified.
 
+### Keep expanded Wave instruments readable at extreme zoom
+
+At viewports up to 400 CSS pixels, Wave source labels now sit above their displacement bars and signed readings. Cycle labels likewise sit above the scale and plot, with the time-axis labels aligned to the wider plot. This removes the fixed-column pressure that made the public 233-pixel layout expand to 242 pixels when the instrument drawer opened at 500% zoom. Text sizes, 56-pixel cycle-plot heights, native disclosure/focus order and 44-pixel time controls are retained; wider layouts keep their existing rows.
+
+`tests/wave-instrument-reflow.test.js` checks the final media-aware CSS cascade, sizing contracts, unchanged wider layouts and native time controls. Its arithmetic is not a browser layout engine; public cloud-browser geometry, readable plots and keyboard interactions are checked separately. No model, input handling, sharing, recovery, storage, dependency or domain settings change. Physical touch, mobile keyboard/IME behavior, screen-reader speech, rotation and hardware graphics loss remain unverified.
+
 ## Run
 
 `npm start` or `python3 -m http.server 8140`, then open http://localhost:8140.

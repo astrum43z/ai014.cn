@@ -480,3 +480,13 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 @media(max-width:720px){
  .tab[data-discovered="true"]>.tab-short::after{content:' ✓';font-size:11px;white-space:nowrap}
 }
+
+/* At extreme zoom, give each Wave label its own row instead of squeezing
+   the signed reading or the shared cycle scale into fixed-width columns. */
+@media(max-width:400px){
+ .instrument-content .wave-component{grid-template-columns:minmax(0,1fr) max-content}
+ .instrument-content .wave-component>span{grid-column:1/-1}
+ .wave-cycle-row{grid-template-columns:22px minmax(0,1fr)}
+ .wave-cycle-row>span:first-child{grid-column:1/-1}
+ .wave-cycle-axis{margin-left:27px}
+}
