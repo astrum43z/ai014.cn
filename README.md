@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Recognize a Wave view that is too coarse to read
+
+Fitting a distant probe can compress many wavelengths between the canvas's fixed five-CSS-pixel color samples. At (10000, 0), λ = 32, source separation 100, t = 0 and a 600 × 414 canvas, one wavelength spans only 0.9024 CSS pixels; the color block behind the probe differs from its precise displacement by more than 0.8. Apparent broad stripes in this view are sampling artifacts, not reliable interference bands.
+
+The existing quiet ruler reading now warns when a displayed wavelength spans at most two color-sample intervals. It directs visitors to the independently calculated probe readings and suggests the existing center action to regain a closer view. The criterion is a conservative warning trigger, not a promise of exact rendering above it. It follows wavelength, fitted view and layout; display density does not change the CSS-space sample spacing. No extra control, live region, field sampling, physics, sharing, recovery or dependency changes. Canvas-only PNG exports retain their existing pixels and do not include this HTML warning.
+
+`tests/wave-sampling-guidance.test.js` covers the visible/numeric discrepancy with an independent expression, the exact threshold, both axes, parameters, responsive views, density, animation, quiet DOM updates, saved return/undo, world retention, input errors and unavailable canvas recovery. Public cloud-browser interaction and zoomed reflow are verified separately. Physical touch, screen-reader speech, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Keep unchanged Walk readings stable during redraws
 
 The representative walker's five path readings now retain their text nodes when the displayed words have not changed. At a paused 64-step observation, 120 same-size redraws previously performed 600 identical text replacements, even though the nearby ensemble readings already avoided them. In the public cloud-browser baseline, selecting the paused reading and changing zoom from 100% to 110% cleared the selection while its words stayed the same. Focus, layout, display-density and canvas-recovery redraws now use the same DOM-comparing helper; no parallel text cache is added. Actual progress, direction counts, boundary guidance, zero-distance and pause explanations still update normally.

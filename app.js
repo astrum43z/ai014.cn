@@ -1805,7 +1805,11 @@ function drawWaveScale(scale){
  ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();
  ctx.moveTo(x,y);ctx.lineTo(x+length,y);
  ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.moveTo(x+length,y-4);ctx.lineTo(x+length,y+4);ctx.stroke();ctx.restore();
- setReadingText($('#wave-scale-reading'),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。`);
+ // A distant fitted probe can put a whole wavelength between color samples.
+ // Warn at or below two samples per wavelength; a higher count is not a
+ // promise of exact reconstruction. The probe still evaluates model geometry.
+ const samplingNote=values.wavelength*scale<=2*WAVE_GRID_STEP?'当前视图条纹过密，色块可能显示假条纹；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
+ setReadingText($('#wave-scale-reading'),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。${samplingNote}`);
 }
 
 // Dual-tone markers remain visible across bright peaks and dark zero crossings.

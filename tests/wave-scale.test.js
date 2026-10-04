@@ -17,7 +17,8 @@ function ruler(h,scale,height){
  assert.ok(units*scale>31.99&&units*scale<=80.0000001,'a readable 1/2/5 ruler fits the same small corner');
  const mantissa=units/10**Math.floor(Math.log10(units));
  assert.ok([1,2,5].some(n=>Math.abs(n-mantissa)<1e-8));
- assert.equal(reading(h),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。`);
+ const warning=Number(h.el('wavelength').value)*scale<=10?'当前视图条纹过密，色块可能显示假条纹；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
+ assert.equal(reading(h),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。${warning}`);
  assert.ok(marks.findIndex(item=>item[0]==='arc'&&item[3]===9)>at,'probe is drawn above the ruler, including overlapping corner measurements');
  return units;
 }
