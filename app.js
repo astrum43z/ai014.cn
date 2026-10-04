@@ -217,7 +217,9 @@ function renderSavedObservation(){
  $('#saved-observation-reading').textContent=observation?'链接中的观测：'+observationSummary(observation):'';
 }
 function observationSummary(observation){
- return mode==='wave'?`探针 x ${observation.x.toFixed(1)}，y ${observation.y.toFixed(1)} · t ${observation.time.toFixed(2)} s`:mode==='fractal'?`${observation.count} 点`:`${observation.count} 步`;
+ // Identify the actual return/undo destination, including tiny coordinates or
+ // times. Use the model's round-trip numbers, as the observation URL does.
+ return mode==='wave'?`探针 x ${observation.x}，y ${observation.y} · t ${observation.time} s`:mode==='fractal'?`${observation.count} 点`:`${observation.count} 步`;
 }
 function renderObservationRecovery(){
  const available=Boolean(observationRecovery)&&canShareObservation(mode);
