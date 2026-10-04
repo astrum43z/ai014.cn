@@ -490,3 +490,6 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
  .wave-cycle-row>span:first-child{grid-column:1/-1}
  .wave-cycle-axis{margin-left:27px}
 }
+
+/* Reach the existing five-world chooser from the near-canvas controls. */
+.experiment-shortcuts #worlds-return{margin-left:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px}

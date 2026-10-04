@@ -18,6 +18,12 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Return to the world chooser from the experiment
+
+The near-canvas shortcut row now includes “回到世界选择 ↑” beside the parameter link. Desktop and short-height layouts do not pin the five-world selector, so visitors can reach it directly without scrolling back through a long experiment or reversing through its controls. The native link goes to the existing named `#lab` section; it does not select, reset or restart a world. Use the existing tabs to switch, retaining each world’s current page-only session.
+
+The link wraps, keeps a 44-pixel minimum height and uses the existing light-surface focus ring. `tests/worlds-return.test.js` checks its markup and CSS contracts, native anchor-history preservation for all five worlds, fixed observation links, return and Life edit recovery, retained target drafts and running visibility gates. Public cloud-browser navigation, keyboard order and zoomed reflow are checked separately. No model, event handler, storage, dependency or domain configuration changes. Physical touch, screen-reader speech and mobile/IME interaction remain unverified.
+
 ### Named keyboard navigation destinations
 
 The home, world chooser, notes and about section anchors accept programmatic focus without adding Tab stops. Native links and browser Back/Forward can land on a named section rather than leaving focus on the page root after a world change removes a control. After a world-changing history restoration, focus is explicitly returned to the addressed section without scrolling. Anchor-only navigation and browser scroll restoration stay native; experiment state, URLs and animation behavior are unchanged.
