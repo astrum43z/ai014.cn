@@ -1000,6 +1000,36 @@ for(const axis of ['x','y']){
   event.preventDefault();if(!event.repeat)positionWaveProbe();
  });
 }
+// A direct model-clock destination complements coarse quarter-cycle review.
+// This is a visitor draft, not a history record or a live animation field.
+function clearWaveTimeError(){
+ $('#wave-time').setAttribute('aria-invalid','false');
+ $('#wave-time-error').hidden=true;setReadingText($('#wave-time-error'),'');
+}
+function seekWaveTime(){
+ if(mode!=='wave')return;
+ const input=$('#wave-time'),raw=input.value.trim(),time=Number(raw);
+ if(!/^[+]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw)||!Number.isFinite(time)||time<0||time>1e9){
+  const message='请输入 0 到 1000000000 之间的模型秒数，可含小数。';
+  input.setAttribute('aria-invalid','true');
+  setReadingText($('#wave-time-error'),message);$('#wave-time-error').hidden=false;
+  input.focus();announce(message);return;
+ }
+ clearWaveTimeError();
+ // Keep tiny decimal destinations valid when their Number string uses e.
+ input.value=String(time).includes('e')?raw:String(time);
+ paused=true;updatePause();t=time;draw();
+ announce(`已暂停并回到 t = ${t} 模型秒；保留当前参数与探针；`+waveReading());
+}
+$('#wave-time-seek').addEventListener('click',seekWaveTime);
+$('#wave-time-seek').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
+$('#wave-time').addEventListener('input',clearWaveTimeError);
+$('#wave-time').addEventListener('keydown',event=>{
+ if(event.key!=='Enter'||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+ event.preventDefault();if(!event.repeat)seekWaveTime();
+});
 $('#fractal-1000').addEventListener('click',()=>{
  if(mode!=='fractal')return;
  // Comparing the same seeded sequence changes the live canvas, not a saved
@@ -1630,6 +1660,7 @@ function renderWaveCycle(paths,parts){
  setReadingText($('#wave-cycle-period'),`一周期 T ≈ ${(2*Math.PI/WAVE_ANGULAR_SPEED).toFixed(3)} 模型秒 · 当前周期位置约 ${(x/6).toFixed(1)}%。`);
 }
 function renderWaveComponents(){
+ setReadingText($('#wave-time-current'),`当前时刻 · t ${t} 模型秒`);
  // Keep exact model coordinates beside the visitor's draft; the overview is rounded.
  setReadingText($('#wave-position-current'),`当前探针 · x ${probe.x}，y ${probe.y}`);
  const paths=wavePathDifference(probe.x,probe.y,values.separation,values.wavelength);

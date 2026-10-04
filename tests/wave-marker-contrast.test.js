@@ -113,7 +113,7 @@ test('visual measurement never completes a discovery and preserves already earne
 
 test('marker rendering retains explicit asset versions and adds no live messages',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
- assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;render=positive-scale-1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;home=exact-orbit-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;checkpoint-reading=1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1"'));
+ assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;render=positive-scale-1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;home=exact-orbit-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;checkpoint-reading=1&amp;time=exact-wave-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;time=exact-wave-1"'));
  const helper=app.slice(app.indexOf('function drawWaveMarkers'),app.indexOf('// Paused measuring lines'));
  assert.doesNotMatch(helper,/announce\(|\.textContent|addEventListener|setTimeout|requestAnimationFrame/);
 });
