@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Preserve newer action feedback while copying or saving
+
+Delayed link-copy and PNG completions now keep their visible outcome without replacing a newer experiment action in the shared polite live region. Previously, copying the fixed 64-step Walk link, inspecting step 65, then completing the copy replaced the new reading with the old copy result. A Life PNG completing after a Wave measurement did the same. Both are reproducible with controlled delayed callbacks.
+
+Each accepted asynchronous request reserves its announcement once. A newer action or copy/save request supersedes it, even when two actions produce identical text. Quiet redraws and ordinary animation frames do not; ignored busy Save activations do not claim the region. The original image and filename, fixed URL, visible success/failure and retry guidance still finish normally. No timer, extra live region, focus movement, model change or download cancellation is introduced.
+
+`tests/async-action-feedback.test.js` covers success and failure, all five worlds, competing requests in both completion orders, tab changes, repeated messages, validation, automatic limits, redraws and busy controls. These tests inspect live-region text and controlled asynchronous ordering, not screen-reader speech or real clipboard/encoder latency. Public cloud-browser normal interaction and zoomed reflow are checked separately; automatic clipboard success, downloaded-file receipt, physical touch and mobile keyboard/IME remain unverified.
+
 ### Keep Fractal's limit announcement non-destructive
 
 The final action announcement at 12,000 points now names the existing “退回一点” option before reset. Single-point controls, the canvas arrow key, batch Step, exact targeting and saved-observation return/undo previously ended with reset-only advice; manual advances overwrote the correct automatic-limit message. Visitors can now follow the announcement to rewind one point, retain their work and re-enable Continue.

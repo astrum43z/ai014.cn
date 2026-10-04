@@ -16,7 +16,7 @@ import {createWalk,advanceWalk,WALK_COUNT,WALK_LIMIT} from './walk.js?v=occupanc
 import {discoveries} from './journeys.js?v=random-walk-1';
 import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js?v=vertex-counts-1';
 import {experimentGuides} from './guides.js?v=wave-paths-1';
-import {createSnapshotSaver} from './snapshot.js?v=context-safe-save-1';
+import {createSnapshotSaver} from './snapshot.js?v=context-safe-save-1&feedback=latest-action-1';
 import {createAnimationLoop} from './animation.js';
 import {lifeStep,inspectLifeCell,findLivingCell,orbitStep,waveComponents,population,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1&browse=living-cells-1';
 const $=s=>document.querySelector(s), canvas=$('#canvas');
@@ -75,7 +75,15 @@ let orbitRevision=0;
 // One page-only reference: recall the newest user launch without rewinding time.
 let lastOrbitLaunch=null;
 const palette=['#d3f35b','#f59c80','#e7eee1','#87c2b1','#c7b1e8'];
-function announce(text){$('#announcement').textContent=text;}
+let announcementRevision=0;
+function announce(text){announcementRevision++;$('#announcement').textContent=text;}
+// An asynchronous copy or image export may finish after the next experiment
+// action. Keep its visible outcome, but let only the latest feedback own the
+// shared live region. Quiet readings and animation do not claim that region.
+function reserveAnnouncement(){
+ const revision=++announcementRevision;
+ return text=>{if(revision===announcementRevision)announce(text);};
+}
 // Continuous readings remain available in the document without becoming a
 // stream of live messages. Explicit Pause and Step announce one current snapshot.
 function observationReading(){
@@ -1261,10 +1269,11 @@ async function copyExperimentLink(description,saved=false){
  // The visible readonly field remains available if clipboard access fails.
  if(!saved){input.focus();input.select();}
  const request=++shareRequest,url=input.value;
+ const reportAnnouncement=reserveAnnouncement();
  showShareStatus(saved?'正在复制链接中的观测；也可手动复制上方链接。':'正在复制'+(canShareObservation(mode)?'观测':'参数')+'链接；也可手动复制下方链接。');
  const finish=message=>{
   if(request!==shareRequest||mode!==sharedMode||input.hidden||input.value!==url)return;
-  showShareStatus(message);announce(message);
+  showShareStatus(message);reportAnnouncement(message);
  };
  try{await navigator.clipboard.writeText(url);finish('已复制'+description);}
  catch{finish(saved?'自动复制未完成，请手动复制上方观测链接；当前实验未改变。':'自动复制未完成，请复制下方'+description);}
@@ -1292,7 +1301,7 @@ $('#share').addEventListener('click',async()=>{
  updateAddress(observation);
  return copyExperimentLink(observation?'观测链接；打开后暂停复现这一刻':'参数链接；不包含画布图案、轨道或运行进度');
 });
-const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,document,canCapture:()=>contextAvailable});
+const saveSnapshot=createSnapshotSaver({canvas,button:$('#save'),status:$('#save-status'),announce,createAnnouncer:reserveAnnouncement,document,canCapture:()=>contextAvailable});
 $('#save').addEventListener('click',()=>saveSnapshot(`small-worlds-${mode}.png`,configs[mode].title));
 // Encoding can finish before Enter repeats. One physical press saves once,
 // while fresh Enter, native Space keyup and pointer activation stay available.

@@ -1,11 +1,13 @@
 // Capture the filename and title at request time, just like toBlob captures pixels.
-export function createSnapshotSaver({canvas,button,status,announce,document,urlApi=URL,delay=setTimeout,canCapture=()=>true}){
+export function createSnapshotSaver({canvas,button,status,announce,createAnnouncer=()=>announce,document,urlApi=URL,delay=setTimeout,canCapture=()=>true}){
   let busy=false;
   return (filename,title=filename)=>{
     if(busy)return;
+    // Reserve once per accepted request, never for ignored busy activations.
+    const reportAnnouncement=createAnnouncer();
     const report=(text,spoken=true)=>{
       status.textContent=text;status.hidden=false;
-      if(spoken)announce(text);
+      if(spoken)reportAnnouncement(text);
     };
     // A reported context loss can leave an encodable but empty backing store.
     // Do not start or queue a capture; a fresh activation after recovery retries.

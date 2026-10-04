@@ -21,6 +21,7 @@ el('save').handlers.click();assert.equal(el('save')['aria-disabled'],'true');
 tabs[2].handlers.click();encoded(new Blob(['png']));
 assert.equal(el('generated').download,'small-worlds-life.png');
 assert.equal(el('save')['aria-disabled'],'false');
-assert.match(el('announcement').textContent,/已发起「生命的形状」PNG 图片下载/);
+assert.match(el('save-status').textContent,/已发起「生命的形状」PNG 图片下载/);
+assert.match(el('announcement').textContent,/已回到波与波相遇/,'late PNG must preserve the newer world-change announcement');
 
 });
