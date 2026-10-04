@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Walk theoretical scale visible through the point cloud
+
+The lilac dashed circle was painted below the sample cloud and representative path. In the default paused 16-step observation, the circle has a theoretical radius of 4 step lengths and passes through occupied lattice sites, including (4, 0). At the public 767 × 317.9375 canvas, its screen radius is about 16.13 CSS pixels; the public cloud-browser baseline showed the reference partly merging into the bright cloud.
+
+The same hollow circle now has a narrow dark casing and is painted above the samples and paths, before the existing origin, centroid and representative markers. Its theoretical center, radius, four/five-pixel dash pattern and one-pixel lilac foreground are unchanged. It remains a scale for theoretical spread, not a boundary or equal-probability contour. Sample coordinates, path, physics, seeded continuation, view fitting, controls and readings are unchanged; this adds one stroke and no new control, live region, storage, dependency or domain change.
+
+`tests/walk-reference-contrast.test.js` checks geometry against an independent BigInt random recurrence, every sample position, paint order, responsive and density changes, animation, exact replay, saved return/undo, retained worlds, discoveries, intentional batch repeats and capture requests. Public cloud-browser interaction and zoomed reflow are checked separately. Controlled tests do not establish physical touch, screen-reader speech, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Orbit launch marker visible across bright planets
 
 The orange launch ring and direction arrow can cross an existing planet of nearly the same color. At t = 0, selecting (125, −8 / scale) places the bottom of the eight-CSS-pixel ring over the second planet; their nominal solid colors have only about 1.16:1 contrast. The public cloud-browser baseline reproduced the merged lower arc at a 767 × 317.9375 canvas using (125, −11.322980145468842).

@@ -1792,7 +1792,7 @@ function drawWalk(){
  const px=x=>width/2+(x-center)*scale,py=y=>height/2-y*scale;
  ctx.strokeStyle='#29483e';ctx.lineWidth=1;ctx.beginPath();
  ctx.moveTo(20,py(0));ctx.lineTo(width-20,py(0));ctx.moveTo(px(0),36);ctx.lineTo(px(0),height-35);ctx.stroke();
- ctx.strokeStyle='#c7b1e8';ctx.setLineDash([4,5]);ctx.beginPath();ctx.arc(px(stats.expectedX),py(0),stats.expectedSpread*scale,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+ ctx.setLineDash([]);
  ctx.strokeStyle='#e7eee177';ctx.lineWidth=1.2;ctx.beginPath();
  for(let i=0;i<=walk.steps;i++)i?ctx.lineTo(px(walk.path[i*2]),py(walk.path[i*2+1])):ctx.moveTo(px(walk.path[0]),py(walk.path[1]));
  ctx.stroke();
@@ -1802,10 +1802,21 @@ function drawWalk(){
  }
  ctx.fillStyle='#d3f35ba6';ctx.beginPath();
  for(let i=0;i<WALK_COUNT;i++){ctx.moveTo(px(walk.positions[i*2])+2.1,py(walk.positions[i*2+1]));ctx.arc(px(walk.positions[i*2]),py(walk.positions[i*2+1]),2.1,0,Math.PI*2);}ctx.fill();
+ drawWalkReference(px,py,stats,scale);
  drawWalkMarkers(px,py,stats);
  ctx.font='11px sans-serif';
  drawWalkScale(scale);
  ctx.fillStyle='#d9e4cf';ctx.fillText(`${walk.steps} 步 / ${WALK_LIMIT}`,22,25);
+}
+
+// Samples can overlap the theoretical scale itself. Keep this dashed reference
+// above the cloud and path, but below the exact measurement markers. Both
+// strokes follow the same hollow circle; the radius is not a population bound.
+function drawWalkReference(px,py,stats,scale){
+ ctx.save();ctx.setLineDash([4,5]);
+ ctx.beginPath();ctx.arc(px(stats.expectedX),py(0),stats.expectedSpread*scale,0,Math.PI*2);
+ ctx.strokeStyle='#122e29';ctx.lineWidth=3;ctx.stroke();
+ ctx.strokeStyle='#c7b1e8';ctx.lineWidth=1;ctx.stroke();ctx.restore();
 }
 
 // Measurements must stay identifiable inside a crowded ensemble. Keep the
