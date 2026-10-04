@@ -1337,6 +1337,7 @@ function renderFractalRegions(){
  setReadingText($('#fractal-regions-reading'),`前进 ${values.jump}% → 每块边长为外框的 ${100-values.jump}%。${relation}`);
 }
 function renderFractalJump(){
+ setReadingText($('#fractal-seek-current'),`当前观测 · ${fractal.count} 点`);
  renderFractalRegions();
  const counts=fractal.vertexCounts;
  setReadingText($('#fractal-choice-reading'),`当前序列前 ${fractal.count} 次 · A ${counts[0]} 次，B ${counts[1]} 次，C ${counts[2]} 次`);
@@ -1627,6 +1628,8 @@ function renderWaveCycle(paths,parts){
  setReadingText($('#wave-cycle-period'),`一周期 T ≈ ${(2*Math.PI/WAVE_ANGULAR_SPEED).toFixed(3)} 模型秒 · 当前周期位置约 ${(x/6).toFixed(1)}%。`);
 }
 function renderWaveComponents(){
+ // Keep exact model coordinates beside the visitor's draft; the overview is rounded.
+ setReadingText($('#wave-position-current'),`当前探针 · x ${probe.x}，y ${probe.y}`);
  const paths=wavePathDifference(probe.x,probe.y,values.separation,values.wavelength);
  setReadingText($('#wave-distances'),`A 路程 ${paths.leftDistance.toFixed(2)} · B 路程 ${paths.rightDistance.toFixed(2)}`);
  setReadingText($('#wave-difference'),`两条路相差 ${paths.difference.toFixed(2)} ÷ 波长 ${values.wavelength} ≈ ${paths.cycles.toFixed(2)} 个波长`);
@@ -1661,6 +1664,7 @@ function renderWalkChoices(){
  setReadingText($('#walk-choice-reading'),`偏向 ${walk.bias}%：在水平步中，向右机会从 50% 提高到 ${50+walk.bias}%；每一步都有 50% 的机会走水平方向。`);
 }
 function renderWalkDistance(){
+ setReadingText($('#walk-seek-current'),`当前观测 · ${walk.steps} 步`);
  renderWalkChoices();
  const occupancy=walkOccupancy(walk);
  setReadingText($('#walk-occupancy-reading'),`${WALK_COUNT} 位漫步者 · 占据 ${occupancy.sites} 个格点 · 单格最多 ${occupancy.maximum} 位。多个漫步者可重合；按模型位置计数，不是屏幕上可分辨的点数。`);

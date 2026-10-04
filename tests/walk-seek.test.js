@@ -120,6 +120,6 @@ test('intentional Walk and Fractal batch held repeats remain available',async()=
 });
 test('near-canvas destination has a label, numeric hint, quiet error and wrapping touch-sized controls',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
- assert.ok(html.indexOf('id="walk-count"')<html.indexOf('id="instruments"'));assert.match(html,/<label for="walk-count">目标步数<\/label>/);assert.match(html,/<input id="walk-count" type="text" inputmode="numeric"[^>]*aria-describedby="walk-seek-help walk-seek-error"/);assert.match(html,/<button id="walk-seek" type="button" aria-describedby="walk-seek-help">定位并暂停<\/button>/);assert.match(html,/<p id="walk-seek-error" aria-live="off" hidden>/);assert.match(html,/输入 16–512 的整数/);
+ assert.ok(html.indexOf('id="walk-count"')<html.indexOf('id="instruments"'));assert.match(html,/<label for="walk-count">目标步数<\/label>/);assert.match(html,/<input id="walk-count" type="text" inputmode="numeric"[^>]*aria-describedby="walk-seek-current walk-seek-help walk-seek-error"/);assert.match(html,/<button id="walk-seek" type="button" aria-describedby="walk-seek-current walk-seek-help">定位并暂停<\/button>/);assert.match(html,/<p id="walk-seek-error" aria-live="off" hidden>/);assert.match(html,/输入 16–512 的整数/);
  assert.match(css,/\.walk-seek>div\{display:flex;flex-wrap:wrap/);assert.match(css,/\.walk-seek input\{[^}]*min-width:0;min-height:44px/);assert.match(css,/\.walk-seek input\[aria-invalid="true"\]/);
 });

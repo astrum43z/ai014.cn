@@ -265,6 +265,9 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .wave-touch button{flex:1;min-width:44px;min-height:44px;padding:10px;background:#e6ecd8;border-color:#6b875e;color:var(--ink);font-size:16px}
 .wave-touch small{display:block;margin-top:9px;color:#b7cbae;font-size:12px;line-height:1.6}
 /* Exact model coordinates stay separate from the quiet current-position reading. */
+/* Current model readings stay next to retained targets, without live announcements. */
+.stage .target-current{display:block;margin:8px 0;color:#e6ecd8;font-size:13px;line-height:1.6;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
 .wave-touch>.wave-position{display:block;margin-top:14px;padding-top:12px;border-top:1px solid #385046}
 .wave-position-fields{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .wave-position-fields label{flex:1 1 110px;min-width:0;color:#e6ecd8;font-size:13px}
