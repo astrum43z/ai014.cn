@@ -557,14 +557,17 @@ function drawOrbitScale(scale){
 }
 function drawOrbitLauncher(scale){
  const {x,y}=orbitPoint,launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);
- ctx.save();ctx.strokeStyle='#ffac86';ctx.lineWidth=1.5/scale;
- ctx.beginPath();ctx.arc(x,y,8/scale,0,Math.PI*2);ctx.stroke();
+ ctx.save();ctx.setLineDash([]);
+ // A launch ring or direction arrow can cross an existing bright planet.
+ // Preserve its exact hollow path, with a dark edge below the orange stroke.
+ const stroke=()=>{ctx.strokeStyle='#122e29';ctx.lineWidth=4.5/scale;ctx.stroke();ctx.strokeStyle='#ffac86';ctx.lineWidth=1.5/scale;ctx.stroke();};
+ ctx.beginPath();ctx.arc(x,y,8/scale,0,Math.PI*2);stroke();
  if(launch.valid){
   const dx=-y/launch.radius,dy=x/launch.radius,endX=x+dx*27/scale,endY=y+dy*27/scale;
   ctx.beginPath();ctx.moveTo(x+dx*11/scale,y+dy*11/scale);ctx.lineTo(endX,endY);
   ctx.lineTo(endX-(dx*6-dy*4)/scale,endY-(dy*6+dx*4)/scale);
-  ctx.moveTo(endX,endY);ctx.lineTo(endX-(dx*6+dy*4)/scale,endY-(dy*6-dx*4)/scale);ctx.stroke();
- }else{ctx.beginPath();ctx.moveTo(x-5/scale,y-5/scale);ctx.lineTo(x+5/scale,y+5/scale);ctx.moveTo(x-5/scale,y+5/scale);ctx.lineTo(x+5/scale,y-5/scale);ctx.stroke();}
+  ctx.moveTo(endX,endY);ctx.lineTo(endX-(dx*6+dy*4)/scale,endY-(dy*6-dx*4)/scale);stroke();
+ }else{ctx.beginPath();ctx.moveTo(x-5/scale,y-5/scale);ctx.lineTo(x+5/scale,y+5/scale);ctx.moveTo(x-5/scale,y+5/scale);ctx.lineTo(x+5/scale,y-5/scale);stroke();}
  ctx.restore();
 }
 canvas.addEventListener('focus',()=>{canvasFocused=true;draw();});canvas.addEventListener('blur',()=>{canvasFocused=false;draw();});canvas.addEventListener('keydown',e=>{

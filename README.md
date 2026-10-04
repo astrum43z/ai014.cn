@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Orbit launch marker visible across bright planets
+
+The orange launch ring and direction arrow can cross an existing planet of nearly the same color. At t = 0, selecting (125, −8 / scale) places the bottom of the eight-CSS-pixel ring over the second planet; their nominal solid colors have only about 1.16:1 contrast. The public cloud-browser baseline reproduced the merged lower arc at a 767 × 317.9375 canvas using (125, −11.322980145468842).
+
+A narrow dark casing now sits beneath the existing orange ring, direction arrow and invalid-center cross. Both layers follow the original paths with fixed CSS-pixel widths; the circle stays hollow, and no position or direction is displaced. The casing contrasts with every existing planet fill, including while running and in fitted views. This improves shape separation; the color calculation is not a whole-page accessibility-conformance claim.
+
+`tests/orbit-launcher-contrast.test.js` checks ring/arrow overlaps, independent path geometry and launch integration, invalid positions, limits, responsive and density changes, running/paused states, recall, retained worlds, sharing, discoveries, capture requests and simulated canvas recovery. No model, RNG, control, focus, text reading, timing, storage, dependency or domain change is introduced. Public cloud-browser overlap and zoomed reflow are checked separately. Physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Select an exact Orbit launch point before adding a planet
 
 The optional Orbit instruments now accept an exact x/y target. The existing arrows move by 5 model units, while a canvas click immediately adds a planet; neither can directly select a fresh fractional point such as (137.5, −42.5) for a preview alone. The public cloud-browser baseline confirmed the five-unit move and the absence of coordinate fields in those instruments.
