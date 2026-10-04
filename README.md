@@ -86,6 +86,12 @@ At viewports up to 400 CSS pixels, Wave source labels now sit above their displa
 
 ## Animation efficiency
 
+### Record a Life board once per observation
+
+Life focus, cursor and layout redraws now reuse the current history reading instead of removing and rebuilding an identical observation. A one-entry recorder skips repeated board-to-string allocation, population counting and full-board repeat searches while the board, generation and owned history stay unchanged. Evolution and rewind replace the board; drawing replaces the history. Presets, comparison return, edit/clear recovery and retained worlds therefore refresh the reading at their existing boundaries.
+
+The original 120-observation history, exact-board repeat detection and trim order remain intact. Canvas commands, plot rendering, neighborhood/turnover inspection, announcements and controls still refresh normally. The recorder retains no additional board copy and introduces no simulation, UI, URL, storage or dependency change. Future in-place board edits must continue to replace the history, and past history records remain immutable by application convention. `tests/life-history-reuse.test.js` verifies legacy equivalence, bounded reuse, mutation boundaries and application recovery. Removed operation counts are not a claim about device frame rate or battery life; public desktop-cloud interaction and reflow are checked separately.
+
 ### Reuse unchanged Walk measurements
 
 Walk now shares one read-only summary of its 256 walkers, representative path, occupied lattice sites and model-space view bounds. Previously a redraw scanned the population twice for the same statistics, and every paused focus or layout redraw rescanned the population and full path. The one-entry cache follows the walk object and step count, so advancing recomputes the summary once; rewind, seek, reset, parameter changes and saved-return replay replace the model and refresh it. The original statistical functions and seeded simulation are unchanged.
