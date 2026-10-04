@@ -54,6 +54,12 @@ The animation loop stops while paused, when the document is hidden, or when the 
 
 Optional Chromium regression checks: `node tests/browser-check.cjs` and `node tests/performance-check.cjs` while the local server is running. These scripts use the Playwright and Chromium paths configured in their headers.
 
+## Safe rendering during collapsed layout
+
+Orbit and Walk now omit only plot geometry while their computed drawing scale is nonpositive or nonfinite. Current model readings still update, and the ruler is cleared until a valid layout returns. This prevents negative-radius Canvas arcs from throwing and terminating a running animation chain during a temporary collapse; restoring usable dimensions redraws the same model without resetting its progress, pause choice, checkpoint, recovery or notebook. Visibility, reduced-motion and context-loss gates retain their existing behavior.
+
+`tests/canvas-layout-safety.test.js` reproduces the previous exception with a strict arc mock following the [Canvas standard](https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-arc), checks running frame continuity, paused restoration, saved return recovery, and fractional/reflow sizes. These are simulated layout checks; a physical collapsed layout and hardware context loss remain unverified.
+
 ## Input-method-safe canvas and tabs
 
 Canvas shortcuts and experiment-tab arrow/Home/End navigation ignore input-method composition events, including the legacy key-code 229 boundary where `isComposing` may already be false. Choosing or confirming a Chinese/Japanese/Korean candidate therefore cannot trigger the custom handler to launch a planet, edit a cell, move a probe, replay a step, pause a model or switch worlds. These events are left to the browser without preventing their default. Normal shortcuts work again on the next non-composing event; no persistent input lock is introduced. Held positioning and intentional Fractal/Walk batch repeats keep their existing behavior.
