@@ -1323,6 +1323,35 @@ function rewindFractalPoint(){
  announce('已暂停并退回一点；'+observationReading());
 }
 $('#fractal-back').addEventListener('click',rewindFractalPoint);
+// A destination is visitor input, not a live reading: redraws must never replace
+// a partly typed count. Replaying is bounded by the existing observation range.
+function clearFractalSeekError(){
+ $('#fractal-count').setAttribute('aria-invalid','false');
+ $('#fractal-seek-error').hidden=true;
+ setReadingText($('#fractal-seek-error'),'');
+}
+function seekFractalCount(){
+ if(mode!=='fractal')return;
+ const input=$('#fractal-count'),raw=input.value.trim(),count=Number(raw);
+ if(!/^\d+$/.test(raw)||!Number.isSafeInteger(count)||count<300||count>FRACTAL_LIMIT){
+  const message='请输入 300 到 12000 之间的整数点数。';
+  input.setAttribute('aria-invalid','true');
+  setReadingText($('#fractal-seek-error'),message);$('#fractal-seek-error').hidden=false;
+  input.focus();announce(message);return;
+ }
+ clearFractalSeekError();input.value=String(count);
+ // Even the current destination is an explicit request to pause and inspect.
+ paused=true;acc=0;updatePause();
+ if(fractal.count!==count)fractal=addFractalPoints(createFractal(values.seed,values.jump),count);
+ draw();announce('已暂停并定位到 '+count+' 点；'+observationReading());
+}
+$('#fractal-seek').addEventListener('click',seekFractalCount);
+$('#fractal-count').addEventListener('input',clearFractalSeekError);
+$('#fractal-count').addEventListener('keydown',event=>{
+ if(event.key!=='Enter'||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+ event.preventDefault();if(!event.repeat)seekFractalCount();
+});
+
 function drawFractal(){
  const scale=Math.min(width/2.1,height/1.85),cx=width/2,cy=height/2+scale*.25;
  ctx.strokeStyle='#385046';ctx.lineWidth=1;ctx.beginPath();
@@ -1388,7 +1417,7 @@ $('#walk-step-one').addEventListener('click',()=>{
 });
 // Exact replay is one point or step per press, like the fractal canvas key.
 // Keep native Space keyup and fresh presses; only cancel held Enter repeats.
-for(const id of ['fractal-back','fractal-forward','fractal-step','walk-back','walk-step-one']){
+for(const id of ['fractal-back','fractal-forward','fractal-step','fractal-seek','walk-back','walk-step-one']){
  $('#'+id).addEventListener('keydown',event=>{
   if(event.repeat&&event.key==='Enter')event.preventDefault();
  });
