@@ -89,7 +89,7 @@ function renderCanvasAvailability(){
  setReadingText($('#hint'),contextAvailable?configs[mode].hint:'实验仍在本页，等待浏览器恢复画面；刷新会清空进度');
 }
 function updatePause(){animation?.sync();$('#pause').textContent=paused?'继续':'暂停';renderCanvasAvailability();$('#pause').setAttribute('aria-label',paused?'继续模拟':'暂停模拟');}
-function reset(){observationRecovery=null;renderObservationRecovery();cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;lastOrbitLaunch=null;orbitPoint={x:140,y:0};orbitView=null;bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
+function reset(){observationRecovery=null;renderObservationRecovery();cancelPainting();choosePreset('');if(mode==='life'){lifeTrial=null;lifeCleared=null;lifeEdited=null;}t=0;generation=0;acc=0;lifeHistory=[];probe={x:0,y:0};waveView=null;if(mode==='orbit'){orbitRevision++;lastOrbitLaunch=null;orbitPoint={x:140,y:0};orbitView={...orbitPoint};bodies=[75,125,180].map((r,i)=>({x:r,y:0,vx:0,vy:Math.sqrt(values.gravity*1000/r)*(i===1?.86:1),trail:[],color:palette[i]}));}if(mode==='walk')walk=advanceWalk(createWalk(values.seed,values.bias),16);if(mode==='fractal')fractal=addFractalPoints(createFractal(values.seed,values.jump),300);if(mode==='life'){cells=new Uint8Array(48*32);[[0,1],[1,2],[2,0],[2,1],[2,2]].forEach(([y,x])=>cells[(y+14)*48+x+22]=1);[[0,1],[0,2],[1,0],[1,1],[2,1]].forEach(([y,x])=>cells[(y+6)*48+x+10]=1);}draw();announce('实验已重置');}
 function rememberExperiment(){
  const state={values,paused,t,acc,preset,presetChoice:$('#preset-select').value,addressObservation,observationRecovery,shareVisible:!$('#share-link').hidden};
  if(mode==='orbit')Object.assign(state,{bodies,orbitPoint,orbitView,lastOrbitLaunch});
@@ -360,14 +360,17 @@ function orbitCommand(key){
  if(key.startsWith('Arrow')&&(![width,height,scale,maxX,maxY].every(Number.isFinite)||width<=0||height<=0||scale<=0||maxX<0||maxY<0))return;
  paused=true;updatePause();
  if(key==='Enter'||key===' '){launchOrbit();return;}
- if(key==='Home'){orbitPoint={x:140,y:0};orbitView=null;}
+ // Home is an exact model position. Fit a fresh view around it instead of
+ // clamping the promised radius when a narrow, positive-scale view cannot fit.
+ if(key==='Home'){orbitPoint={x:140,y:0};orbitView={...orbitPoint};}
  else{
   if(key==='ArrowLeft')orbitPoint.x-=5;
   if(key==='ArrowRight')orbitPoint.x+=5;
   if(key==='ArrowUp')orbitPoint.y-=5;
   if(key==='ArrowDown')orbitPoint.y+=5;
+  orbitPoint=clampOrbitPoint(orbitPoint,width,height,orbitScale());
  }
- orbitPoint=clampOrbitPoint(orbitPoint,width,height,orbitScale());draw();announce('已暂停；'+orbitLaunchReading());
+ draw();announce('已暂停；'+orbitLaunchReading());
 }
 for(const [id,key] of [['orbit-left','ArrowLeft'],['orbit-up','ArrowUp'],['orbit-down','ArrowDown'],['orbit-right','ArrowRight'],['orbit-home','Home'],['orbit-fire','Enter']]){
  $('#'+id).addEventListener('click',()=>{
