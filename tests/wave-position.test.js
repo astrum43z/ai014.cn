@@ -43,7 +43,7 @@ test('tiny decimal targets remain valid after repeated submission without expone
 
 test('invalid or incomplete coordinates never partly move or pause a running model',async()=>{
  const h=await setup('?experiment=wave&at=v1,12,7,3');click(h,'step');click(h,'observation-return');click(h,'pause');h.tick(0);h.tick(50);
- for(const axis of ['x','y'])for(const value of ['', ' ', '-', '.', '-.', '10000.01','-10001','Infinity','NaN','1e2','0x10','７.５','7,5','7 units']){
+ for(const axis of ['x','y'])for(const value of ['', ' ', '-', '.', '-.', '10000.01','-10001','Infinity','NaN','1e+','0x10','７.５','7,5','7 units']){
   type(h,'x','7.5');type(h,'y','-3.25');type(h,axis,value);const before=state(h);click(h,'wave-position');assert.deepEqual(state(h),before,axis+' '+value);assert.equal(field(h,axis).getAttribute('aria-invalid'),'true');assert.equal(field(h,axis==='x'?'y':'x').getAttribute('aria-invalid'),'false');assert.equal(document.activeElement,field(h,axis));assert.equal(h.el('wave-position-error').hidden,false);
  }
  type(h,'x','-');type(h,'y','-');click(h,'wave-position');assert.equal(document.activeElement,field(h,'x'));type(h,'x','7.5');assert.equal(h.el('wave-position-error').hidden,false);type(h,'y','0');assert.equal(h.el('wave-position-error').hidden,true);assert.equal(h.el('wave-position-error').textContent,'');click(h,'wave-position');assert.equal(h.frames.size,0);

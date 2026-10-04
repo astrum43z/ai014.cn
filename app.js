@@ -965,20 +965,27 @@ $('#wave-home').addEventListener('click',()=>moveWaveProbe('Home'));
 for(const direction of ['left','up','down','right'])$('#wave-'+direction).addEventListener('click',()=>moveWaveProbe('Arrow'+direction[0].toUpperCase()+direction.slice(1)));
 // Targets are visitor drafts, separate from the live measurement. Validate both
 // coordinates before changing either axis, time, motion or the fixed checkpoint.
+// Accept the same scientific notation used by exact readings and shared links.
+// Never turn a nonzero target into zero when it is too small for Number.
+function readWaveTarget(raw){
+ if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw))return NaN;
+ const number=Number(raw);
+ if(!Number.isFinite(number)||(number===0&&/[1-9]/.test(raw.split(/[eE]/)[0])))return NaN;
+ return number;
+}
 function positionWaveProbe(){
  if(mode!=='wave')return;
  const inputs=['x','y'].map(axis=>$('#wave-target-'+axis));
- const numbers=inputs.map(input=>Number(input.value.trim()));
- const invalid=inputs.map((input,i)=>!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(input.value.trim())||!Number.isFinite(numbers[i])||Math.abs(numbers[i])>10000);
+ const numbers=inputs.map(input=>readWaveTarget(input.value.trim()));
+ const invalid=numbers.map(number=>!Number.isFinite(number)||Math.abs(number)>10000);
  inputs.forEach((input,i)=>input.setAttribute('aria-invalid',String(invalid[i])));
  if(invalid.some(Boolean)){
-  const message='请输入 −10000 到 10000 之间的两个坐标，可含小数。';
+  const message='请输入 −10000 到 10000 之间的两个坐标，可含小数或科学记数法（如 1e-7）；非零数不能过小而被舍入为 0。';
   setReadingText($('#wave-position-error'),message);$('#wave-position-error').hidden=false;
   inputs[invalid.indexOf(true)].focus();announce(message);return;
  }
  $('#wave-position-error').hidden=true;setReadingText($('#wave-position-error'),'');
- // Retain decimal notation even when Number would format a tiny value with e.
- // The normalized draft must remain valid on the next identical submission.
+ // Preserve a tiny target’s entered notation; ordinary values stay normalized.
  inputs.forEach((input,i)=>input.value=String(numbers[i]).includes('e')?input.value.trim():String(numbers[i]));
  paused=true;updatePause();probe={x:numbers[0],y:numbers[1]};fitWaveProbe();draw();
  announce(`已暂停并定位探针：x ${numbers[0]}，y ${numbers[1]}；保留参数与时刻；`+waveReading());
@@ -1008,15 +1015,15 @@ function clearWaveTimeError(){
 }
 function seekWaveTime(){
  if(mode!=='wave')return;
- const input=$('#wave-time'),raw=input.value.trim(),time=Number(raw);
- if(!/^[+]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(raw)||!Number.isFinite(time)||time<0||time>1e9){
-  const message='请输入 0 到 1000000000 之间的模型秒数，可含小数。';
+ const input=$('#wave-time'),raw=input.value.trim(),time=readWaveTarget(raw);
+ if(raw.startsWith('-')||!Number.isFinite(time)||time<0||time>1e9){
+  const message='请输入 0 到 1000000000 之间的模型秒数，可含小数或科学记数法（如 1e-7）；非零数不能过小而被舍入为 0。';
   input.setAttribute('aria-invalid','true');
   setReadingText($('#wave-time-error'),message);$('#wave-time-error').hidden=false;
   input.focus();announce(message);return;
  }
  clearWaveTimeError();
- // Keep tiny decimal destinations valid when their Number string uses e.
+ // Preserve a tiny target’s entered notation; ordinary values stay normalized.
  input.value=String(time).includes('e')?raw:String(time);
  paused=true;updatePause();t=time;draw();
  announce(`已暂停并回到 t = ${t} 模型秒；保留当前参数与探针；`+waveReading());
