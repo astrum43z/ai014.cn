@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep Life comparison evidence selected during redraws
+
+The optional four-cell challenge's result now retains its text node and solved marker when their displayed values are unchanged. In a paused 10 → 11-cell comparison, 120 same-size redraws previously replaced the text 120 times and rewrote its unchanged marker 120 times. The public cloud-browser baseline reproduced the reading interruption: selecting the comparison evidence and zooming from 100% to 110% cleared the selection, although the text and generation were unchanged.
+
+The existing DOM-comparing helpers now cover both the construction prompt and every success/failure result. Actual board counts, comparison outcomes and clearing actions still update; comparing current DOM values also repairs stale content without another cache. No model, control, focus, live region, timing, layout, sharing, recovery, storage or dependency change is introduced.
+
+`tests/life-comparison-stability.test.js` uses an independent toroidal B3/S23 oracle for successful, unsuccessful and same-count changed boards. It checks counted writes, selection-only actions, animation, trial return and invalidation, undo boundaries, retained worlds, discoveries and simulated display/context recovery. Public cloud-browser selection retention and zoomed reflow are verified separately; physical touch, screen-reader speech, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Keep the Orbit preview caption clear of its endpoint
 
 The opaque “10 s preview” caption could completely cover the endpoint square it describes. In a paused 600 × 414 view, launching at (−280, −55) puts that square at CSS (109.55, 18.25), inside the caption's (8, 9)–(161, 32) rectangle. The public cloud-browser baseline reproduced the same occlusion in its 767 × 317.94 canvas.

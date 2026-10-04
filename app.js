@@ -700,16 +700,18 @@ function renderLifeChallenge(count){
  $('#life-trial-result-link').hidden=!lifeTrial;
  $('#life-trial-legend').hidden=!lifeTrial||lifeTrial.report.changed===0;
  const result=$('#life-test-result');
+ // Inspection and reflow do not change the comparison. Keep its selectable
+ // evidence node and solved marker unless the actual displayed value changes.
  if(!lifeTrial){
-  result.textContent=`当前 ${count} 个活格 · 目标 4 个。画好后，检验它能否保持原样。`;
-  result.setAttribute('data-solved','false');
+  setReadingText(result,`当前 ${count} 个活格 · 目标 4 个。画好后，检验它能否保持原样。`);
+  setControlAttribute(result,'data-solved','false');
   return;
  }
  const r=lifeTrial.report;
  const evidence=`${r.beforeCount} → ${r.afterCount} 个活格；${r.born} 格诞生，${r.died} 格消失。`;
- result.setAttribute('data-solved',String(r.solved));
- result.textContent=r.solved?'找到静止结构了！'+evidence+'位置完全相同；只要不编辑，以后每一代也都相同。':
-  evidence+(r.beforeCount!==4?'这次起点不是 4 格。返回修改，再试一次。':r.beforeCount===r.afterCount?'数量没变，位置却变了。返回修改，试着让每一格都留在原处。':'还没留住原来的形状。返回修改，用下方邻居读数找找原因。');
+ setControlAttribute(result,'data-solved',String(r.solved));
+ setReadingText(result,r.solved?'找到静止结构了！'+evidence+'位置完全相同；只要不编辑，以后每一代也都相同。':
+  evidence+(r.beforeCount!==4?'这次起点不是 4 格。返回修改，再试一次。':r.beforeCount===r.afterCount?'数量没变，位置却变了。返回修改，试着让每一格都留在原处。':'还没留住原来的形状。返回修改，用下方邻居读数找找原因。'));
 }
 // Show the same eight toroidal neighbors counted by the rule inspector.
 // Hollow dashed frames preserve alive/dead fills and remain distinct from
