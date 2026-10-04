@@ -18,6 +18,12 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep unchanged Walk readings stable during redraws
+
+The representative walker's five path readings now retain their text nodes when the displayed words have not changed. At a paused 64-step observation, 120 same-size redraws previously performed 600 identical text replacements, even though the nearby ensemble readings already avoided them. In the public cloud-browser baseline, selecting the paused reading and changing zoom from 100% to 110% cleared the selection while its words stayed the same. Focus, layout, display-density and canvas-recovery redraws now use the same DOM-comparing helper; no parallel text cache is added. Actual progress, direction counts, boundary guidance, zero-distance and pause explanations still update normally.
+
+`tests/walk-reading-stability.test.js` measures unchanged writes separately from numeric correctness with an independent scalar replay. It covers animation, exact targets, single and intentional repeated batch steps, parameters, resets, retained worlds, fixed-link return/undo, discoveries and simulated text-only/canvas recovery. There are no new controls, layout, model, timing, sharing, storage, dependency or domain changes. Public cloud-browser behavior and zoomed reflow are checked separately; the Node harness does not establish browser selection retention, screen-reader speech, physical touch, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Inspect an exact Life cell without changing it
 
 Inside the optional Life instruments, column (1–48) and row (1–32) targets now move the orange selection directly to any living or empty cell and pause. Clicking the canvas changes a cell, and living/change navigation cannot directly reach an arbitrary empty target; the existing toroidal arrows can require 40 moves. Exact selection makes edge-neighbor inspection and revisiting a known location practical without adding another canvas tool mode.

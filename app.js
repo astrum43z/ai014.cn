@@ -1901,17 +1901,19 @@ function renderWalkDistance(){
  renderWalkChoices();
  const occupancy=readWalk(walk).occupancy;
  setReadingText($('#walk-occupancy-reading'),`${WALK_COUNT} 位漫步者 · 占据 ${occupancy.sites} 个格点 · 单格最多 ${occupancy.maximum} 位。多个漫步者可重合；按模型位置计数，不是屏幕上可分辨的点数。`);
+ // Retain unchanged readable text nodes during focus, layout and idle frames;
+ // the shared helper compares the DOM so changed model readings still refresh.
  const path=readWalk(walk).path;
  const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
  const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';
- $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可退回一步、重置或比较 16 / 64 步':walk.steps<=16?'；已回到 16 步起点':''}。`;
+ setReadingText($('#walk-step-reading'),`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可退回一步、重置或比较 16 / 64 步':walk.steps<=16?'；已回到 16 步起点':''}。`);
  setControlAttribute($('#walk-back'),'aria-disabled',String(walk.steps<=16));
  setControlAttribute($('#walk-step-one'),'aria-disabled',String(walk.steps>=WALK_LIMIT));
- $('#walk-length').textContent=path.length+' 步长';
- $('#walk-displacement').textContent=path.distance.toFixed(2)+' 步长';
+ setReadingText($('#walk-length'),path.length+' 步长');
+ setReadingText($('#walk-displacement'),path.distance.toFixed(2)+' 步长');
  const horizontal=path.x===0?'左右抵消':`净向${path.x>0?'右':'左'} ${Math.abs(path.x)} 步`;
  const vertical=path.y===0?'上下抵消':`净向${path.y>0?'上':'下'} ${Math.abs(path.y)} 步`;
- $('#walk-cancellation').textContent=`右 ${path.right} 步、左 ${path.left} 步 → ${horizontal}；上 ${path.up} 步、下 ${path.down} 步 → ${vertical}。`;
- $('#walk-distance-note').textContent=path.distance===0?'这位漫步者回到了起点，直线距离为 0；走过的路仍然算数。':paused?'空心圈是起点，白点是当前位置；蓝色虚线直接连接两点，白色实线保留折返。':'运行中暂隐蓝色直线，暂停即可比较它与白色路径。';
+ setReadingText($('#walk-cancellation'),`右 ${path.right} 步、左 ${path.left} 步 → ${horizontal}；上 ${path.up} 步、下 ${path.down} 步 → ${vertical}。`);
+ setReadingText($('#walk-distance-note'),path.distance===0?'这位漫步者回到了起点，直线距离为 0；走过的路仍然算数。':paused?'空心圈是起点，白点是当前位置；蓝色虚线直接连接两点，白色实线保留折返。':'运行中暂隐蓝色直线，暂停即可比较它与白色路径。');
 }
 function walkReading(){return '白色漫步者：走过 '+$('#walk-length').textContent+'，离起点 '+$('#walk-displacement').textContent+'；'+$('#walk-cancellation').textContent;}
