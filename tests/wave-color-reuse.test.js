@@ -13,7 +13,7 @@ const seek=(h,value)=>{type(h,'wave-time',value);click(h,'wave-time-seek');};
 const position=(h,x,y)=>{type(h,'wave-target-x',x);type(h,'wave-target-y',y);click(h,'wave-position');};
 function sines(action){const sin=Math.sin;let count=0;try{Math.sin=(...args)=>{count++;return sin(...args);};action();return count;}finally{Math.sin=sin;}}
 function field(h){const colors=[];let value;for(const command of h.drawing()){if(command[0]==='fillStyle')value=command[1];if(command[0]==='fillRect'&&command[3]===5&&command[4]===5)colors.push([command[1],command[2],value]);}return colors;}
-function expectedField(width,height,scale,separation,wavelength,time){const result=[];for(let y=0;y<height;y+=5)for(let x=0;x<width;x+=5)result.push([x,y,color(waveValue((x-width/2)/scale,(y-height/2)/scale,time*3,separation,wavelength))]);return result;}
+function expectedField(width,height,scale,separation,wavelength,time){if(!Number.isFinite(scale)||scale<=0||wavelength*scale<=10)return [];const result=[];for(let y=0;y<height;y+=5)for(let x=0;x<width;x+=5)result.push([x,y,color(waveValue((x-width/2)/scale,(y-height/2)/scale,time*3,separation,wavelength))]);return result;}
 function fixed(h){return [location.href,h.el('share-link').value,h.el('saved-observation-reading').textContent,h.el('observation-undo-status').textContent];}
 
 test('every cached color equals the original field arithmetic, including fractional grids and extreme phases',()=>{
@@ -87,5 +87,5 @@ test('saved large phases and changed history restore exact field colors; intenti
  click(h,'tab-fractal');for(const repeat of [false,true]){h.el('step').handlers.keydown({key:'Enter',repeat,preventDefault(){assert.fail('batch repeat suppressed');}});click(h,'step');}assert.match(h.el('metrics').textContent,/500 个点/);click(h,'tab-walk');h.key('ArrowRight');h.key('ArrowRight',{repeat:true});assert.match(h.el('metrics').textContent,/48 步/);
 });
 test('fresh app entry loads exact-color reuse without changing the original field sampler',()=>{
- const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.match(html,/app\.js\?[^"\n]+&amp;colors=wave-once-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1&amp;sampling=wave-warning-1"/);assert.match(app,/import \{createWaveColorCache\} from '\.\/wave-colors\.js'/);assert.match(app,/colors=getWaveColors\(field,t\*WAVE_ANGULAR_SPEED\)/);assert.match(app,/ctx\.fillStyle=colors\[sample\+\+\]/);
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');assert.match(html,/app\.js\?[^"\n]+&amp;colors=wave-once-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1&amp;sampling=wave-field-fallback-1"/);assert.match(app,/import \{createWaveColorCache\} from '\.\/wave-colors\.js'/);assert.match(app,/colors=getWaveColors\(field,t\*WAVE_ANGULAR_SPEED\)/);assert.match(app,/ctx\.fillStyle=colors\[sample\+\+\]/);
 });

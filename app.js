@@ -910,7 +910,7 @@ function draw(){
   for(const world of ['orbit','wave','walk'])setReadingText($('#'+world+'-scale-reading'),'');
   observe();return;
  }
- ctx.clearRect(0,0,width,height);ctx.fillStyle='#122e29';ctx.fillRect(0,0,width,height);if(mode==='orbit'){const scale=orbitScale();if(Number.isFinite(scale)&&scale>0){ctx.save();ctx.translate(width/2,height/2);ctx.scale(scale,scale);ctx.strokeStyle='#29443a';ctx.lineWidth=1/scale;[50,100,150,200].forEach(r=>{ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();});ctx.strokeStyle='#385046';ctx.beginPath();ctx.moveTo(-width/scale/2,0);ctx.lineTo(width/scale/2,0);ctx.moveTo(0,-height/scale/2);ctx.lineTo(0,height/scale/2);ctx.stroke();const glow=ctx.createRadialGradient(0,0,3,0,0,38);glow.addColorStop(0,'#d3f35b88');glow.addColorStop(1,'#d3f35b00');ctx.fillStyle=glow;ctx.fillRect(-38,-38,76,76);ctx.fillStyle='#d3f35b';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();drawOrbitPreview(scale);drawOrbitMeasurement(scale);bodies.forEach(b=>{ctx.strokeStyle=b.color+'75';ctx.lineWidth=1.3/scale;ctx.beginPath();b.trail.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();});drawOrbitScale(scale);bodies.forEach(b=>{ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,4.5/scale,0,Math.PI*2);ctx.fill();});drawOrbitVelocity(scale);drawOrbitMeasuredMarker(scale);drawOrbitLauncher(scale);drawOrbitMeasurementLegend(scale);ctx.restore();}else drawOrbitScale(scale);}else if(mode==='life'){const cw=width/48,ch=height/32;ctx.fillStyle='#d3f35b';cells.forEach((v,i)=>{if(v)ctx.fillRect((i%48)*cw+.6,Math.floor(i/48)*ch+.6,Math.max(1,cw-1.2),Math.max(1,ch-1.2));});ctx.strokeStyle='#26443a';ctx.lineWidth=.5;for(let x=0;x<=48;x++){ctx.beginPath();ctx.moveTo(x*cw,0);ctx.lineTo(x*cw,height);ctx.stroke();}for(let y=0;y<=32;y++){ctx.beginPath();ctx.moveTo(0,y*ch);ctx.lineTo(width,y*ch);ctx.stroke();}drawLifeNeighbors(cw,ch);drawLifeTransition(cw,ch);drawLifeSelection(cw,ch);}else if(mode==='fractal'){drawFractal();}else if(mode==='walk'){drawWalk();}else{const scale=waveScale(),step=WAVE_GRID_STEP,field=getWaveField(width,height,scale,values.separation,values.wavelength),colors=getWaveColors(field,t*WAVE_ANGULAR_SPEED);let sample=0;for(let y=0;y<height;y+=step)for(let x=0;x<width;x+=step){ctx.fillStyle=colors[sample++];ctx.fillRect(x,y,step,step);}drawWavePaths(scale);drawWaveScale(scale);drawWaveMarkers(scale);}observe();}
+ ctx.clearRect(0,0,width,height);ctx.fillStyle='#122e29';ctx.fillRect(0,0,width,height);if(mode==='orbit'){const scale=orbitScale();if(Number.isFinite(scale)&&scale>0){ctx.save();ctx.translate(width/2,height/2);ctx.scale(scale,scale);ctx.strokeStyle='#29443a';ctx.lineWidth=1/scale;[50,100,150,200].forEach(r=>{ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.stroke();});ctx.strokeStyle='#385046';ctx.beginPath();ctx.moveTo(-width/scale/2,0);ctx.lineTo(width/scale/2,0);ctx.moveTo(0,-height/scale/2);ctx.lineTo(0,height/scale/2);ctx.stroke();const glow=ctx.createRadialGradient(0,0,3,0,0,38);glow.addColorStop(0,'#d3f35b88');glow.addColorStop(1,'#d3f35b00');ctx.fillStyle=glow;ctx.fillRect(-38,-38,76,76);ctx.fillStyle='#d3f35b';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();drawOrbitPreview(scale);drawOrbitMeasurement(scale);bodies.forEach(b=>{ctx.strokeStyle=b.color+'75';ctx.lineWidth=1.3/scale;ctx.beginPath();b.trail.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();});drawOrbitScale(scale);bodies.forEach(b=>{ctx.fillStyle=b.color;ctx.beginPath();ctx.arc(b.x,b.y,4.5/scale,0,Math.PI*2);ctx.fill();});drawOrbitVelocity(scale);drawOrbitMeasuredMarker(scale);drawOrbitLauncher(scale);drawOrbitMeasurementLegend(scale);ctx.restore();}else drawOrbitScale(scale);}else if(mode==='life'){const cw=width/48,ch=height/32;ctx.fillStyle='#d3f35b';cells.forEach((v,i)=>{if(v)ctx.fillRect((i%48)*cw+.6,Math.floor(i/48)*ch+.6,Math.max(1,cw-1.2),Math.max(1,ch-1.2));});ctx.strokeStyle='#26443a';ctx.lineWidth=.5;for(let x=0;x<=48;x++){ctx.beginPath();ctx.moveTo(x*cw,0);ctx.lineTo(x*cw,height);ctx.stroke();}for(let y=0;y<=32;y++){ctx.beginPath();ctx.moveTo(0,y*ch);ctx.lineTo(width,y*ch);ctx.stroke();}drawLifeNeighbors(cw,ch);drawLifeTransition(cw,ch);drawLifeSelection(cw,ch);}else if(mode==='fractal'){drawFractal();}else if(mode==='walk'){drawWalk();}else{const scale=waveScale();drawWaveField(scale);drawWavePaths(scale);drawWaveScale(scale);drawWaveMarkers(scale);}observe();}
 function advance(dt){t+=dt;if(mode==='walk'){acc+=dt;if(acc<.1)return;acc%=.1;growWalk(4);draw();return;}if(mode==='fractal'){acc+=dt;if(acc<.1)return;acc%=.1;growFractal();draw();return;}if(mode==='orbit'){bodies.forEach(b=>{for(let i=0;i<4;i++)orbitStep(b,values.gravity*1000,dt/4);b.trail.push([b.x,b.y]);if(b.trail.length>220)b.trail.shift();});}if(mode==='life'){acc+=dt;let changed=false;while(acc>=1/values.rate){lifeTrial=null;lifeEdited=null;cells=lifeStep(cells,48,32);generation++;acc-=1/values.rate;changed=true;}if(!changed)return;}draw();}
 // A held Enter must not repeatedly undo Pause or Continue. Leave the first
 // activation and Space's native keyup behavior intact, without held-key state.
@@ -1790,6 +1790,29 @@ function drawWalkScale(scale){
  setReadingText($('#walk-scale-reading'),`左下标尺：${units} 步长；1 步长是每次移动的长度。视图缩放不改变实际位置。`);
 }
 
+// The fixed color grid cannot resolve arbitrarily distant fitted views. Omit
+// a misleading sampled field at the same conservative threshold as its reading;
+// do not invent a coarser physical pattern or change the exact point model.
+function waveFieldTooDense(scale){return values.wavelength*scale<=2*WAVE_GRID_STEP;}
+function drawWaveField(scale){
+ if(!Number.isFinite(scale)||scale<=0)return;
+ if(waveFieldTooDense(scale)){
+  // These pixels also travel with a canvas-only PNG. The ordinary dark-green
+  // legend means zero displacement, so explicitly distinguish this no-data view.
+  // Use the opposite half from the probe, clear of both measuring paths; the
+  // lower position stays above the ruler in the supported >=240px-tall canvas.
+  // Paths and markers paint later and retain their true positions and priority.
+  const labelY=probe.y<0?height-86:25;
+  ctx.save();ctx.fillStyle='#e7eee1';ctx.font='12px sans-serif';
+  ctx.fillText('色场暂隐 · 条纹过密',16,labelY,Math.max(1,width-32));
+  ctx.font='11px sans-serif';ctx.fillText('底色不表示位移',16,labelY+18,Math.max(1,width-32));ctx.restore();
+  return;
+ }
+ const step=WAVE_GRID_STEP,field=getWaveField(width,height,scale,values.separation,values.wavelength),colors=getWaveColors(field,t*WAVE_ANGULAR_SPEED);
+ let sample=0;
+ for(let y=0;y<height;y+=step)for(let x=0;x<width;x+=step){ctx.fillStyle=colors[sample++];ctx.fillRect(x,y,step,step);}
+}
+
 // The ruler uses the exact same CSS-pixel scale as the field and probe.
 // Choose a readable 1/2/5 length; fitting a distant checkpoint changes only
 // the view, not wavelengths, source separation or measurement coordinates.
@@ -1806,9 +1829,9 @@ function drawWaveScale(scale){
  ctx.moveTo(x,y);ctx.lineTo(x+length,y);
  ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.moveTo(x+length,y-4);ctx.lineTo(x+length,y+4);ctx.stroke();ctx.restore();
  // A distant fitted probe can put a whole wavelength between color samples.
- // Warn at or below two samples per wavelength; a higher count is not a
+ // Omit at or below two samples per wavelength; a higher count is not a
  // promise of exact reconstruction. The probe still evaluates model geometry.
- const samplingNote=values.wavelength*scale<=2*WAVE_GRID_STEP?'当前视图条纹过密，色块可能显示假条纹；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
+ const samplingNote=waveFieldTooDense(scale)?'当前视图条纹过密，色场暂隐以避免假条纹，底色不表示位移；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
  setReadingText($('#wave-scale-reading'),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。${samplingNote}`);
 }
 

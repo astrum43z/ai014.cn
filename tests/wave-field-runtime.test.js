@@ -11,6 +11,7 @@ return {resize(width,height){rect={width,height,left:0,top:0};resize();},el,tabs
 
 import {waveValue} from '../simulations.js';
 function assertField(h,width,height,scale,separation,wavelength,time){
+ if(!Number.isFinite(scale)||scale<=0||wavelength*scale<=10){assert.deepEqual(h.fills(),[],'unresolved fields are omitted');return;}
  const expected=[];
  for(let y=0;y<height;y+=5)for(let x=0;x<width;x+=5){
   const v=waveValue((x-width/2)/scale,(y-height/2)/scale,time*3,separation,wavelength),a=Math.abs(v);

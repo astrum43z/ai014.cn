@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {setup} from './life-challenge-harness.js';
 
-const warning='当前视图条纹过密，色块可能显示假条纹；请以探针读数为准，可试试“探针回中央”恢复近景。';
+const warning='当前视图条纹过密，色场暂隐以避免假条纹，底色不表示位移；请以探针读数为准，可试试“探针回中央”恢复近景。';
 const click=(h,id)=>h.el(id).handlers.click();
 const reading=h=>h.el('wave-scale-reading').textContent;
 const warned=h=>reading(h).includes(warning);
@@ -103,6 +103,6 @@ test('guidance uses the existing quiet wrapping scale reading with no new contro
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<small id="wave-scale-reading" aria-live="off"><\/small>/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
- assert.match(html,/<script type="module" src="app\.js\?[^"]*&amp;sampling=wave-warning-1"/);
+ assert.match(html,/<script type="module" src="app\.js\?[^"]*&amp;sampling=wave-field-fallback-1"/);
  assert.doesNotMatch(html,/<link rel="stylesheet"[^>]*sampling=/);
 });
