@@ -265,7 +265,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 /* Read the selected cell beside its controls, even with instruments collapsed. */
 .life-touch #life-selection{margin:0 0 10px;font-size:13px;line-height:1.6;color:#e6ecd8;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 /* Keep the selected cell’s rule beside its canvas, including narrow layouts. */
-.life-touch #life-next-reading{margin:0 0 6px;font-size:13px;line-height:1.6;color:#e6ecd8;overflow-wrap:anywhere}
+.life-touch #life-cell-transition,.life-touch #life-next-reading{margin:0 0 6px;font-size:13px;line-height:1.6;color:#e6ecd8;overflow-wrap:anywhere}
 .life-touch #life-neighbor-help{display:block;margin-bottom:12px;font-size:12px;line-height:1.6;color:#c7d9eb;overflow-wrap:anywhere}
 @media(max-width:720px){.life-touch #life-neighbor-help{font-size:13px}}
 

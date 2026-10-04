@@ -28,6 +28,14 @@ Each accepted asynchronous request reserves its announcement once. A newer actio
 
 `tests/async-action-feedback.test.js` covers success and failure, all five worlds, competing requests in both completion orders, tab changes, repeated messages, validation, automatic limits, redraws and busy controls. These tests inspect live-region text and controlled asynchronous ordering, not screen-reader speech or real clipboard/encoder latency. Public cloud-browser normal interaction and zoomed reflow are checked separately; automatic clipboard success, downloaded-file receipt, physical touch and mobile keyboard/IME remain unverified.
 
+### Explain how the selected Life cell reached this generation
+
+A quiet “刚才这一代” reading now sits between the selected cell's current state and its next-generation prediction. After a blinker step, the selected end cell has just died despite now having three living neighbors and being predicted to return next time. The new explanation shows that it had only one living neighbor in the preceding board, distinguishing the cause of the past change from the next prediction. It also explains births, survival, overcrowding and unchanged empty cells.
+
+The reading uses the already retained immediately preceding board, including construction comparisons, and counts only its eight wrapped neighbors. It does not copy a board, synthesize missed generations, retain extra history or change the rule. Edits and replacement boards clear the evidence; existing undo, rewind, comparison return and retained-world paths restore the corresponding reading. Without an adjacent previous record, it says so and suggests advancing once.
+
+The paragraph adds no control, focus stop or live announcement. It wraps like the adjacent future reading and preserves its text node on unchanged redraws. `tests/life-transition-reading.test.js` checks all live/dead and 0–8-neighbor combinations against an independent rule oracle, boundaries, repeated evolution, recovery, animation, quiet updates, sharing, discoveries and canvas unavailability. Public cloud-browser interaction and zoomed reflow are checked separately; physical touch, screen-reader speech, mobile keyboard/IME, rotation, real layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Keep Life pointer work ahead of an older export
 
 A Life press that pauses a running model, a drag that changes cells, or a drag that moves the selected-cell reading now supersedes an older copy/PNG announcement. Previously, an image completing during a stroke could replace current action feedback; cancelling the pointer or losing window focus retained the partial drawing but left the old image result as the final announcement. Each meaningful segment claims feedback independently, including edits made after a save starts mid-stroke.

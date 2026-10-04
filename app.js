@@ -632,6 +632,7 @@ function renderLifeInspector(count){
  setReadingText($('#life-cell-reason'),reason+'。');
  // Keep precise editing readable without opening the detailed instruments.
  setReadingText($('#life-selection'),`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行 · ${cell.alive?'活格':'空格'} · ${cell.neighbors} 个活邻居`);
+ renderLifeCellTransition();
  setReadingText($('#life-next-reading'),`下一代：${outcome}。${reason}。`);
  setReadingText($('#life-neighbor-help'),`${paused?'虚线框标出':'暂停可显示'} 8 个邻居（含斜角），不含橙色实框本格；边缘相连，邻居可能在画面对侧。所有格子同时更新。`);
  setReadingText($('#life-toggle'),cell.alive?'熄灭所选格':'点亮所选格');
@@ -718,6 +719,24 @@ function drawLifeTransition(cw,ch){
  }
  ctx?.restore();
  if(!lifeTrial)setReadingText(legend,`暂停对比 · 第 ${previous.generation} → ${generation} 代：`+(born+died?`蓝框新生 ${born} 格，橙 × 消失 ${died} 格；黄绿填色才是当前活格。`:'没有格子新生或消失，图案保持不变。'));
+}
+// Explain the selected cell's last observed transition using its old neighbors,
+// separately from the current-board prediction. History keys contain digits;
+// read only this cell and eight neighbors without copying the retained board.
+function renderLifeCellTransition(){
+ const output=$('#life-cell-transition'),previous=lifeTransitionBefore();
+ if(!previous){
+  setReadingText(output,'刚才这一代 · 暂无相邻上一代记录；前进一代后可查看所选格怎样变化。');
+  return;
+ }
+ const {x,y}=focusCell,index=y*48+x,wasAlive=Number(previous.cells[index]);
+ let neighbors=0;
+ for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+  if(dx||dy)neighbors+=Number(previous.cells[((y+dy+32)%32)*48+(x+dx+48)%48]);
+ }
+ const outcome=wasAlive?(cells[index]?'存活':'消失'):(cells[index]?'诞生':'仍空');
+ const reason=wasAlive?(neighbors<2?'少于 2':neighbors>3?'超过 3':'为 2 或 3'):(neighbors===3?'恰好为 3':'不等于 3');
+ setReadingText(output,`刚才这一代 · 第 ${previous.generation} → ${generation} 代：原为${wasAlive?'活格':'空格'}，当时 ${neighbors} 个活邻居；${reason}，因而${outcome}。`);
 }
 function testLifeDrawing(){
  if(mode!=='life'||lifeTrial)return;
