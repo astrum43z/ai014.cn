@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the measured Orbit planet distinct during overlaps
+
+The white diamond identifying the first planet could merge with another bright planet. In a paused 600 × 414 view, an ordinary launch at (373.5, 202.5) canvas pixels puts a planet directly across one diamond edge. The fourth planet gives only 1.71:1 contrast; the eighth is the same white as the marker, giving 1:1. Returning the launcher home leaves this overlap intact. The public cloud-browser baseline reproduced the missing edge with eight planets at t = 0.
+
+The existing hollow diamond now has a narrow dark casing beneath its original white stroke. Both strokes follow the same model-space path, with fixed CSS-pixel widths; the body, marker coordinates, view, draw order and original white foreground remain unchanged. It works while paused or running and stays absent for an offscreen first planet. No extra control, text, live region, model, sharing, recovery, storage or dependency is introduced.
+
+`tests/orbit-marker-contrast.test.js` covers ordinary and same-color overlaps, all five planet colors, exact path and paint order, responsive and density changes, animation, offscreen fit, text-only/context recovery, retained worlds, recall, sharing, discoveries and capture requests. Public cloud-browser overlap interaction and zoomed reflow are checked separately. The tests do not establish physical touch, screen-reader speech, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Omit Wave colors that are too coarse to resolve
 
 Fitting a distant probe can compress many wavelengths between the canvas's fixed five-CSS-pixel color samples. At (10000, 0), λ = 32, source separation 100, t = 0 and a 600 × 414 canvas, one wavelength spans only 0.9024 CSS pixels; the color block behind the probe differs from its precise displacement by more than 0.8. The public cloud-browser baseline also displayed striking broad stripes in this view. Those are sampling artifacts, not reliable interference bands; the earlier HTML-only warning still left them in the canvas and its PNG capture.

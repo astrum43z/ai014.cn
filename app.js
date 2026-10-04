@@ -498,8 +498,12 @@ function drawOrbitVelocity(scale){
 function drawOrbitMeasuredMarker(scale){
  if(!(scale>0)||!orbitMeasuredBodyVisible(scale))return;
  const {x,y}=bodies[0],size=9/scale;
- ctx.save();ctx.setLineDash([]);ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5/scale;
- ctx.beginPath();ctx.moveTo(x,y-size);ctx.lineTo(x+size,y);ctx.lineTo(x,y+size);ctx.lineTo(x-size,y);ctx.closePath();ctx.stroke();ctx.restore();
+ ctx.save();ctx.setLineDash([]);
+ ctx.beginPath();ctx.moveTo(x,y-size);ctx.lineTo(x+size,y);ctx.lineTo(x,y+size);ctx.lineTo(x-size,y);ctx.closePath();
+ // Another planet can be the same white as this measurement. Keep the exact
+ // hollow diamond legible over every fill without moving either body.
+ ctx.strokeStyle='#122e29';ctx.lineWidth=4.5/scale;ctx.stroke();
+ ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5/scale;ctx.stroke();ctx.restore();
 }
 function drawOrbitMeasurementLegend(scale){
  if(!(scale>0))return;
