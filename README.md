@@ -86,6 +86,12 @@ At viewports up to 400 CSS pixels, Wave source labels now sit above their displa
 
 ## Animation efficiency
 
+### Reuse unchanged Walk measurements
+
+Walk now shares one read-only summary of its 256 walkers, representative path, occupied lattice sites and model-space view bounds. Previously a redraw scanned the population twice for the same statistics, and every paused focus or layout redraw rescanned the population and full path. The one-entry cache follows the walk object and step count, so advancing recomputes the summary once; rewind, seek, reset, parameter changes and saved-return replay replace the model and refresh it. The original statistical functions and seeded simulation are unchanged.
+
+Only model readings are cached. Canvas commands, viewport projection, pause overlays, controls, exact targets, fixed observations, announcements and discovery checks still refresh normally. A resize or density change can redraw at a different scale without repeating unchanged measurement work. No storage, network, UI or domain changes are introduced. `tests/walk-readings.test.js` checks exact summaries, bounded reuse, model replacement, deterministic continuation, runtime scan counts, recovery and retained-world behavior. Controlled operation counts establish removed work, not device FPS or battery savings.
+
 ### Update control availability only when it changes
 
 Draw-time control availability and primary-button descriptions now compare their actual DOM attributes before writing. In a controlled 120-frame run, Orbit previously rewrote the same six ARIA attributes 720 times and Waves the same four 480 times; both now perform zero such writes. Life, Fractal and Walk still update the rewind button when they leave their initial boundary. This measures eliminated attribute writes, not frame rate, battery life or screen-reader performance.

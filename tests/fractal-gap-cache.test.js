@@ -118,5 +118,5 @@ test('cache wiring versions both the entry module and its changed dependency wit
  const app=readFileSync(new URL('../app.js',import.meta.url),'utf8'),html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
  assert.match(app,/createCentralGapCounter.*from '\.\/missions\.js\?v=discovery-passport-1&gap=count-once-1'/);
  assert.match(app,/const centralGapCount=createCentralGapCounter\(\)/);
- assert.match(html,/app\.js\?[^"\n]+&amp;gap=count-once-1&amp;availability=quiet-1"/);
+ assert.match(html,/app\.js\?[^"\n]+&amp;gap=count-once-1&amp;availability=quiet-1&amp;walk=read-once-1"/);
 });

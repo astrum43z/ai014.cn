@@ -8,7 +8,8 @@ import {createWaveCycleCache,waveCyclePosition} from './wave-cycle.js';
 import {orbitLaunchState,clampOrbitPoint,orbitRadialVelocity} from './orbit.js?v=radial-reading-1';
 import {paintLifeLine} from './painting.js?v=edit-recovery-1';
 import {canShareObservation,readObservation,writeObservation} from './observation.js';
-import {createWalk,advanceWalk,walkStats,walkPathStats,walkOccupancy,WALK_COUNT,WALK_LIMIT} from './walk.js?v=occupancy-reading-1';
+import {createWalkReadings} from './walk-readings.js';
+import {createWalk,advanceWalk,WALK_COUNT,WALK_LIMIT} from './walk.js?v=occupancy-reading-1';
 import {discoveries} from './journeys.js?v=random-walk-1';
 import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fractal.js?v=vertex-counts-1';
 import {experimentGuides} from './guides.js?v=wave-paths-1';
@@ -18,6 +19,7 @@ import {lifeStep,inspectLifeCell,findLivingCell,orbitStep,waveComponents,populat
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
 const centralGapCount=createCentralGapCounter();
 const getWaveField=createWaveFieldCache();
+const readWalk=createWalkReadings();
 const getWaveCycle=createWaveCycleCache();
 let renderedWaveCycle=null;
 const getOrbitPreview=createOrbitPreview();
@@ -759,7 +761,7 @@ $('#life-back').addEventListener('click',()=>{
 $('#life-back').addEventListener('keydown',event=>{
  if(event.repeat&&event.key==='Enter')event.preventDefault();
 });
-function observe(){renderProgressControls();const a=$('#observation-a'),b=$('#observation-b'),c=$('#observation-c'),detail=$('#observation-detail');$('#history-plot').hidden=mode!=='life';if(mode==='orbit'){renderOrbitLaunch();const body=bodies[0],r=Math.hypot(body.x,body.y),v=Math.hypot(body.vx,body.vy);renderOrbitMeasurement(r,v);setReadingText(a,'首颗行星距离 · '+r.toFixed(1));setReadingText(b,'首颗行星速率 · '+v.toFixed(1));setReadingText(c,'活跃天体 · '+bodies.length);setReadingText(detail,'距离和速率使用模型单位。调弱引力后，比较同一颗行星的距离变化；想公平比较，请先重置，再只改一个参数。');}if(mode==='life'){renderLifeClear();renderLifeInspector();renderLifeChallenge();if(lifeHistory.at(-1)?.generation===generation)lifeHistory.pop();const count=population(cells),period=repeatPeriod(lifeHistory,cells,generation);lifeHistory.push({generation,key:Array.from(cells).join(''),count});if(lifeHistory.length>120)lifeHistory.shift();setReadingText(a,'活细胞 · '+count);setReadingText(b,'占用率 · '+(count/cells.length*100).toFixed(1)+'%');setReadingText(c,count===0?'状态 · 全部消失':period===1?'状态 · 静止图案':period?'重复周期 · '+period+' 代':'状态 · 尚未发现重复');renderLifeHistory();setReadingText(detail,'折线保留最近 120 次观测，横轴为代数，纵轴从 0 到这段记录的最大数量（全空时为 1 格），会自动缩放；实点是当前值。数量相同不代表图案相同。周期判断比较完全相同的棋盘，不把平移后的滑翔机算作重复；只检查最近 120 次观测，未发现重复不代表永不重复；编辑画布会重新开始记录。');}if(mode==='fractal'){renderFractalJump();setReadingText(a,'已留下 · '+fractal.count+' / '+FRACTAL_LIMIT+' 点');setReadingText(b,'每次前进 · '+values.jump+'%');setReadingText(c,'随机种子 · '+values.seed);setReadingText(detail,values.jump===50?'50%：观察中央的空三角形，再找角落里的更小空三角形。换一个种子，比较相同点数：落点顺序改变，整体结构仍相似。颜色仅用于显示点，不表示概率或维数。':'当前不是 50%：比较空隙和重叠怎样变化。维数 1.585 只对应 50% 的理想谢尔宾斯基三角形，不适用于当前比例。');}if(mode==='walk'){renderWalkDistance();const stats=walkStats(walk);setReadingText($('#walk-spread-reading'),`整群散开 · 第 ${walk.steps} 步：实测 ${stats.spread.toFixed(2)} / 理论 ${stats.expectedSpread.toFixed(2)} 步长`);setReadingText(a,'实测散开程度 · '+stats.spread.toFixed(2));setReadingText(b,'理论散开程度 · '+stats.expectedSpread.toFixed(2));setReadingText(c,'点云中心 x · '+stats.meanX.toFixed(2));setReadingText(detail,`当前 ${walk.steps} 步；散开程度 = 到点云中心距离的均方根，单位为步长。理论中心 x = ${stats.expectedX.toFixed(2)}；实测离起点的均方根距离 = ${stats.rmsDistance.toFixed(2)}。有限的 256 个样本会有波动，实测不必等于理论。虚线圈是理论散开尺度，不是边界或等概率线；视图可能缩放，请看标尺与读数。`);}if(mode==='wave'){renderWaveRewind();renderWaveComponents();const d=wavePathDifference(probe.x,probe.y,values.separation,values.wavelength);setReadingText(a,'波程差 Δr · '+d.difference.toFixed(1));setReadingText(b,'Δr / λ · '+d.cycles.toFixed(2));setReadingText(c,'相遇方式 · '+waveMeetingNames[d.kind]);setReadingText(detail,'数值使用模型单位。轻点画布或聚焦后用方向键移动白色探针，Home 回中央。两条路径相差整数个波长时加强，相差半整数个波长时抵消。“接近”指与上述位置相差不到 0.1 个波长；它描述振幅包络，不是这一瞬间的位移。');}}
+function observe(){renderProgressControls();const a=$('#observation-a'),b=$('#observation-b'),c=$('#observation-c'),detail=$('#observation-detail');$('#history-plot').hidden=mode!=='life';if(mode==='orbit'){renderOrbitLaunch();const body=bodies[0],r=Math.hypot(body.x,body.y),v=Math.hypot(body.vx,body.vy);renderOrbitMeasurement(r,v);setReadingText(a,'首颗行星距离 · '+r.toFixed(1));setReadingText(b,'首颗行星速率 · '+v.toFixed(1));setReadingText(c,'活跃天体 · '+bodies.length);setReadingText(detail,'距离和速率使用模型单位。调弱引力后，比较同一颗行星的距离变化；想公平比较，请先重置，再只改一个参数。');}if(mode==='life'){renderLifeClear();renderLifeInspector();renderLifeChallenge();if(lifeHistory.at(-1)?.generation===generation)lifeHistory.pop();const count=population(cells),period=repeatPeriod(lifeHistory,cells,generation);lifeHistory.push({generation,key:Array.from(cells).join(''),count});if(lifeHistory.length>120)lifeHistory.shift();setReadingText(a,'活细胞 · '+count);setReadingText(b,'占用率 · '+(count/cells.length*100).toFixed(1)+'%');setReadingText(c,count===0?'状态 · 全部消失':period===1?'状态 · 静止图案':period?'重复周期 · '+period+' 代':'状态 · 尚未发现重复');renderLifeHistory();setReadingText(detail,'折线保留最近 120 次观测，横轴为代数，纵轴从 0 到这段记录的最大数量（全空时为 1 格），会自动缩放；实点是当前值。数量相同不代表图案相同。周期判断比较完全相同的棋盘，不把平移后的滑翔机算作重复；只检查最近 120 次观测，未发现重复不代表永不重复；编辑画布会重新开始记录。');}if(mode==='fractal'){renderFractalJump();setReadingText(a,'已留下 · '+fractal.count+' / '+FRACTAL_LIMIT+' 点');setReadingText(b,'每次前进 · '+values.jump+'%');setReadingText(c,'随机种子 · '+values.seed);setReadingText(detail,values.jump===50?'50%：观察中央的空三角形，再找角落里的更小空三角形。换一个种子，比较相同点数：落点顺序改变，整体结构仍相似。颜色仅用于显示点，不表示概率或维数。':'当前不是 50%：比较空隙和重叠怎样变化。维数 1.585 只对应 50% 的理想谢尔宾斯基三角形，不适用于当前比例。');}if(mode==='walk'){renderWalkDistance();const stats=readWalk(walk).stats;setReadingText($('#walk-spread-reading'),`整群散开 · 第 ${walk.steps} 步：实测 ${stats.spread.toFixed(2)} / 理论 ${stats.expectedSpread.toFixed(2)} 步长`);setReadingText(a,'实测散开程度 · '+stats.spread.toFixed(2));setReadingText(b,'理论散开程度 · '+stats.expectedSpread.toFixed(2));setReadingText(c,'点云中心 x · '+stats.meanX.toFixed(2));setReadingText(detail,`当前 ${walk.steps} 步；散开程度 = 到点云中心距离的均方根，单位为步长。理论中心 x = ${stats.expectedX.toFixed(2)}；实测离起点的均方根距离 = ${stats.rmsDistance.toFixed(2)}。有限的 256 个样本会有波动，实测不必等于理论。虚线圈是理论散开尺度，不是边界或等概率线；视图可能缩放，请看标尺与读数。`);}if(mode==='wave'){renderWaveRewind();renderWaveComponents();const d=wavePathDifference(probe.x,probe.y,values.separation,values.wavelength);setReadingText(a,'波程差 Δr · '+d.difference.toFixed(1));setReadingText(b,'Δr / λ · '+d.cycles.toFixed(2));setReadingText(c,'相遇方式 · '+waveMeetingNames[d.kind]);setReadingText(detail,'数值使用模型单位。轻点画布或聚焦后用方向键移动白色探针，Home 回中央。两条路径相差整数个波长时加强，相差半整数个波长时抵消。“接近”指与上述位置相差不到 0.1 个波长；它描述振幅包络，不是这一瞬间的位移。');}}
 // Tiny or temporarily collapsed layouts can have nonpositive plot scales.
 // Skip only their bitmap geometry: negative arc radii throw in real Canvas,
 // which would otherwise terminate the next running animation frame.
@@ -802,7 +804,7 @@ function missionSnapshot(){
  if(mode==='life')snapshot.cells=cells;
  if(mode==='wave')Object.assign(snapshot,{...probe,envelope:waveComponents(probe.x,probe.y,t*WAVE_ANGULAR_SPEED,values.separation,values.wavelength).envelope});
  if(mode==='fractal')Object.assign(snapshot,{count:fractal.count,gapCount:centralGapCount(fractal)});
- if(mode==='walk')Object.assign(snapshot,{steps:walk.steps,...walkStats(walk)});
+ if(mode==='walk')Object.assign(snapshot,{steps:walk.steps,...readWalk(walk).stats});
  return snapshot;
 }
 function startMission(next=mode){
@@ -1540,18 +1542,15 @@ for(const id of ['fractal-back','fractal-forward','fractal-step','fractal-seek',
   if(event.repeat&&event.key==='Enter')event.preventDefault();
  });
 }
-function announceWalk(){const stats=walkStats(walk);announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，可退回一步或重置后继续':''}`);}
+function announceWalk(){const stats=readWalk(walk).stats;announce(`已暂停；${walk.steps} 步；实测散开程度 ${stats.spread.toFixed(2)}，理论 ${stats.expectedSpread.toFixed(2)}；点云中心 x ${stats.meanX.toFixed(2)}；${walkReading()}${walk.steps>=WALK_LIMIT?'；已达到上限，可退回一步或重置后继续':''}`);}
 function growWalk(amount=16){
  advanceWalk(walk,amount);
  if(walk.steps>=WALK_LIMIT){paused=true;updatePause();announce('已达到 512 步并暂停；可退回一步、保存图片，或重置后探索');}
 }
 function drawWalk(){
- const stats=walkStats(walk),center=stats.expectedX/2;
- // Fixed minimum vertical range preserves the 16-vs-64 comparison. Expand only
- // to contain drift or outliers; all coordinates remain unbounded model values.
- let extentX=Math.max(30,Math.abs(center)+30),extentY=30;
- for(let i=0;i<walk.positions.length;i+=2){extentX=Math.max(extentX,Math.abs(walk.positions[i]-center)+6);extentY=Math.max(extentY,Math.abs(walk.positions[i+1])+6);}
- for(let i=0;i<=walk.steps;i++){extentX=Math.max(extentX,Math.abs(walk.path[i*2]-center)+6);extentY=Math.max(extentY,Math.abs(walk.path[i*2+1])+6);}
+ // Model-space bounds and readings are shared across all consumers. A resize
+ // still recomputes the exact projection and redraws every point and path.
+ const {stats,center,extentX,extentY}=readWalk(walk);
  const scale=Math.min((width-48)/(extentX*2),(height-76)/(extentY*2));
  // Quiet model readings stay current even when there is no drawable plot.
  setReadingText($('#metrics'),`${WALK_COUNT} 位漫步者 · ${walk.steps} 步 · 偏向 ${values.bias}%`);
@@ -1720,9 +1719,9 @@ function renderWalkChoices(){
 function renderWalkDistance(){
  setReadingText($('#walk-seek-current'),`当前观测 · ${walk.steps} 步`);
  renderWalkChoices();
- const occupancy=walkOccupancy(walk);
+ const occupancy=readWalk(walk).occupancy;
  setReadingText($('#walk-occupancy-reading'),`${WALK_COUNT} 位漫步者 · 占据 ${occupancy.sites} 个格点 · 单格最多 ${occupancy.maximum} 位。多个漫步者可重合；按模型位置计数，不是屏幕上可分辨的点数。`);
- const path=walkPathStats(walk);
+ const path=readWalk(walk).path;
  const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
  const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';
  $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可退回一步、重置或比较 16 / 64 步':walk.steps<=16?'；已回到 16 步起点':''}。`;
