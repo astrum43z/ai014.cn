@@ -86,6 +86,12 @@ At viewports up to 400 CSS pixels, Wave source labels now sit above their displa
 
 ## Animation efficiency
 
+### Update control availability only when it changes
+
+Draw-time control availability and primary-button descriptions now compare their actual DOM attributes before writing. In a controlled 120-frame run, Orbit previously rewrote the same six ARIA attributes 720 times and Waves the same four 480 times; both now perform zero such writes. Life, Fractal and Walk still update the rewind button when they leave their initial boundary. This measures eliminated attribute writes, not frame rate, battery life or screen-reader performance.
+
+All availability predicates, input handlers, live feedback, native focusability and descriptions stay unchanged. Reading the DOM rather than keeping a parallel state cache also repairs a stale attribute on the next redraw. `tests/control-availability-writes.test.js` covers unchanged animation and resize, real availability transitions, cap/rewind, checkpoint return/undo, world retention, Life edit/clear recovery, Orbit launch/recall, visibility gates, reduced motion and simulated canvas recovery. Public cloud-browser interaction and reflow checks are separate; physical touch and assistive-technology speech remain unverified.
+
 The animation loop stops while paused, when the document is hidden, or when the canvas is offscreen, and resumes without fast-forwarding. Life redraws only when a generation changes or a control is used. Reduced-motion preferences start experiments paused and enabling the preference during a session pauses immediately. Disabling it does not resume automatically; Continue is an explicit opt-in. Life's arrow keys, Enter, and Space pause before editing, so keyboard-drawn patterns stay still until resumed.
 
 Optional Chromium regression checks: `node tests/browser-check.cjs` and `node tests/performance-check.cjs` while the local server is running. These scripts use the Playwright and Chromium paths configured in their headers.

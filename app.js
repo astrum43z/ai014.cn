@@ -75,12 +75,18 @@ function observationReading(){
 // Recompute from the current model after each draw so replay, resets and tab
 // restoration cannot leave another experiment's availability behind.
 function progressAtLimit(){return (mode==='fractal'&&fractal?.count>=FRACTAL_LIMIT)||(mode==='walk'&&walk?.steps>=WALK_LIMIT);}
+// Read the current DOM so unchanged redraws do not rewrite availability,
+// while a restored or replaced attribute is still repaired on the next draw.
+function setControlAttribute(element,name,value){
+ const text=String(value);
+ if(element.getAttribute?.(name)!==text)element.setAttribute(name,text);
+}
 function renderProgressControls(){
  const limited=progressAtLimit(),help=limited?(mode==='fractal'?'fractal-touch-reading':'walk-step-reading'):'';
- $('#pause').setAttribute('aria-disabled',String(limited));
- $('#step').setAttribute('aria-disabled',String(limited));
- $('#pause').setAttribute('aria-describedby',help);
- $('#step').setAttribute('aria-describedby',help||(mode==='wave'?'wave-step-help':''));
+ setControlAttribute($('#pause'),'aria-disabled',String(limited));
+ setControlAttribute($('#step'),'aria-disabled',String(limited));
+ setControlAttribute($('#pause'),'aria-describedby',help);
+ setControlAttribute($('#step'),'aria-describedby',help||(mode==='wave'?'wave-step-help':''));
 }
 
 // The pause choice survives an unavailable bitmap; describe the actual stage
@@ -329,9 +335,9 @@ function renderOrbitLaunch(){
  setReadingText($('#orbit-launch-note'),bodies.length>=24?'已达到 24 颗上限，可撤回最近发射或重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。');
  setReadingText($('#orbit-touch-reading'),$('#orbit-position').textContent+'；'+$('#orbit-speed').textContent);
  setReadingText($('#orbit-touch-status'),$('#orbit-launch-note').textContent);
- $('#orbit-fire').setAttribute('aria-disabled',String(!launch.valid||bodies.length>=24));
+ setControlAttribute($('#orbit-fire'),'aria-disabled',String(!launch.valid||bodies.length>=24));
  const canRecall=orbitCanRecall();
- $('#orbit-recall').setAttribute('aria-disabled',String(!canRecall));
+ setControlAttribute($('#orbit-recall'),'aria-disabled',String(!canRecall));
  setReadingText($('#orbit-recall-status'),canRecall?`可撤回最近发射的第 ${bodies.length} 颗行星。`:'没有可撤回的发射；初始行星不能逐颗撤回。');
 }
 function launchOrbit(){
@@ -560,7 +566,7 @@ const lifeOutcomes={
 function renderLifeInspector(){
  renderLifeDragTool();renderLifeEdit();
  const hasLiving=cells.some(Boolean);
- for(const id of ['life-previous-live','life-next-live'])$('#'+id).setAttribute('aria-disabled',String(!hasLiving));
+ for(const id of ['life-previous-live','life-next-live'])setControlAttribute($('#'+id),'aria-disabled',String(!hasLiving));
  setReadingText($('#life-find-help'),hasLiving?'按行寻找并暂停：从左到右、从上到下，越过首尾循环；只移动橙框，不改图案。':'当前没有活格；可先绘制或载入图案。寻找按钮只移动橙框，不改图案。');
  const cell=inspectLifeCell(cells,48,32,focusCell.x,focusCell.y),[outcome,reason]=lifeOutcomes[cell.rule];
  // Generations, focus and bitmap recovery often leave this local reading
@@ -739,7 +745,7 @@ function previousLifeGeneration(){
 }
 function renderLifeRewind(){
  const previous=previousLifeGeneration();
- $('#life-back').setAttribute('aria-disabled',String(!previous));
+ setControlAttribute($('#life-back'),'aria-disabled',String(!previous));
  setReadingText($('#life-rewind-status'),previous?`可退回第 ${previous.generation} 代；本段记录最早为第 ${lifeHistory[0].generation} 代。退回后暂停，再前进会重现相同图案。`:'暂无上一代记录；先前进一代即可退回。绘制或载入图案后，从当前代重新记录。');
 }
 $('#life-back').addEventListener('click',()=>{
@@ -1113,7 +1119,7 @@ function lifeDrawingSnapshot(){
 }
 function rememberLifeEdit(){lifeEdited=lifeDrawingSnapshot();}
 function renderLifeEdit(){
- $('#life-undo-edit').setAttribute('aria-disabled',String(!lifeEdited));
+ setControlAttribute($('#life-undo-edit'),'aria-disabled',String(!lifeEdited));
  setReadingText($('#life-edit-status'),lifeEdited?'可撤销上一笔：恢复本次轻点、逐格切换或整段拖动前的图案。':'暂无可撤销的绘制。');
 }
 function undoLifeEdit(){
@@ -1173,7 +1179,7 @@ $('#wave-back').addEventListener('keydown',event=>{
 });
 // One bounded recovery for an explicit Clear; fresh work cannot be overwritten.
 function renderLifeClear(){
- $('#life-undo-clear').setAttribute('aria-disabled',String(!lifeCleared));
+ setControlAttribute($('#life-undo-clear'),'aria-disabled',String(!lifeCleared));
  setReadingText($('#life-clear-status'),lifeCleared?`可撤销清空：恢复第 ${lifeCleared.generation} 代的 ${lifeCleared.count} 个活格。重新绘制、推进或载入图案后失效。`:'清空后可撤销一次；重新绘制、推进或载入图案后失效。仅保留在本页。');
 }
 $('#clear').addEventListener('click',()=>{
@@ -1392,9 +1398,9 @@ function renderFractalJump(){
  $('#fractal-touch-reading').textContent=fractalReading()+(fractal.count>=FRACTAL_LIMIT?'；已达 12,000 点上限，可退回一点或重置。':fractal.count<=300?'；已回到 300 点起点。':'。');
  // Native disabled would discard focus on the key press that reaches a limit.
  // Keep each button discoverable; the handlers below enforce the same bounds.
- $('#fractal-back').setAttribute('aria-disabled',String(fractal.count<=300));
- $('#fractal-forward').setAttribute('aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
- $('#fractal-step').setAttribute('aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
+ setControlAttribute($('#fractal-back'),'aria-disabled',String(fractal.count<=300));
+ setControlAttribute($('#fractal-forward'),'aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
+ setControlAttribute($('#fractal-step'),'aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
  $('#fractal-jump-note').textContent=paused?'空心圈是出发点，橙色实心点是新落点；橙线是本次前进，虚线指向选中的顶点。':'运行中暂隐连线；暂停或只走一步，即可拆开看最后一次跳跃。';
 }
 function stepFractalPoint(){
@@ -1720,8 +1726,8 @@ function renderWalkDistance(){
  const previous=Math.max(0,walk.steps-1),dx=path.x-walk.path[previous*2],dy=path.y-walk.path[previous*2+1];
  const direction=dx>0?'向右':dx<0?'向左':dy>0?'向上':dy<0?'向下':'尚未迈步';
  $('#walk-step-reading').textContent=`白色漫步者 · 第 ${walk.steps} 步${walk.steps?' '+direction:''}；累计走过 ${path.length}，离起点 ${path.distance.toFixed(2)} 步长${walk.steps>=WALK_LIMIT?'；已达 512 步上限，可退回一步、重置或比较 16 / 64 步':walk.steps<=16?'；已回到 16 步起点':''}。`;
- $('#walk-back').setAttribute('aria-disabled',String(walk.steps<=16));
- $('#walk-step-one').setAttribute('aria-disabled',String(walk.steps>=WALK_LIMIT));
+ setControlAttribute($('#walk-back'),'aria-disabled',String(walk.steps<=16));
+ setControlAttribute($('#walk-step-one'),'aria-disabled',String(walk.steps>=WALK_LIMIT));
  $('#walk-length').textContent=path.length+' 步长';
  $('#walk-displacement').textContent=path.distance.toFixed(2)+' 步长';
  const horizontal=path.x===0?'左右抵消':`净向${path.x>0?'右':'左'} ${Math.abs(path.x)} 步`;
