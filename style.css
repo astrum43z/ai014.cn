@@ -366,6 +366,10 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .controls>.return-to-canvas{grid-column:1/-1;justify-self:start;max-width:100%;margin:0 0 9px;white-space:normal;overflow-wrap:anywhere}
 
 /* Match exact replay controls while preserving focus at the history boundary. */
+/* Revisit wave phases beside the canvas without losing focus at the origin. */
+#wave-back{min-height:44px;white-space:normal}
+.wave-rewind-status{margin:0;padding:0 18px 12px;background:#e6ecd8;color:#526451;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+@media(max-width:720px){.wave-rewind-status{padding:0 12px 12px}}
 #life-back{min-height:44px;white-space:normal}
 #mission-result:focus-visible{outline:3px solid var(--focus-ring);outline-offset:5px}
 
