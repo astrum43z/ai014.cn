@@ -137,5 +137,5 @@ test('visual measurement changes cannot earn or rewrite a discovery without an e
 
 test('the release refreshes the application asset while preserving the stylesheet token',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;render=positive-scale-1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;wave=quarter-rewind-1"'));
+ assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;render=positive-scale-1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;browse=living-cells-1&amp;wave=quarter-rewind-1"'));
 });

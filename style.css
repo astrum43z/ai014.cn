@@ -399,6 +399,11 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 /* An explicit drag eraser leaves tap/keyboard toggles unchanged. */
 /* Keep central selection outside the compact five-way drawing grid. */
+/* Find a sparse Life pattern without precise pointing or a long empty scan. */
+.life-touch .life-find-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 8px}
+.life-touch .life-find-actions button{flex:1 1 120px;min-height:44px;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+.life-touch .life-find-actions button[aria-disabled="true"]{opacity:.6;cursor:default}
+.life-touch #life-find-help{display:block;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 .life-touch .life-center-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
 .life-touch #life-center{flex:0 1 auto;min-height:44px;white-space:normal;font-size:13px}
 .life-touch #life-center-help{flex:1 1 150px;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}

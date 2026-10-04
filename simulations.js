@@ -16,6 +16,16 @@ export function inspectLifeCell(cells,cols,rows,x,y){
  const rule=alive?(next?'survive':neighbors<2?'lonely':'crowded'):(next?'born':'empty');
  return {alive,neighbors,next,rule,neighborhood};
 }
+// Browse the current board in reading order, including the starting square
+// only after one full circuit. This never edits cells or advances the model.
+export function findLivingCell(cells,start,direction=1){
+ if(!Number.isInteger(start)||start<0||start>=cells.length||(direction!==1&&direction!==-1))return -1;
+ for(let offset=1;offset<=cells.length;offset++){
+  const index=(start+direction*offset+cells.length)%cells.length;
+  if(cells[index])return index;
+ }
+ return -1;
+}
 export function lifeStep(cells,cols,rows){
  const next=new Uint8Array(cells.length);
  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){

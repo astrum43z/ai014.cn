@@ -56,7 +56,7 @@ test('every authored focus outline uses the surface token while retaining its vi
 
 test('dark instruments, pale controls and stage shortcuts remain separate existing containers',()=>{
  for(const name of ['stage','stage-controls','experiment-shortcuts','instrument-drawer'])assert.match(html,new RegExp('class="'+name+'"'));
- assert.match(html,/href="style\.css\?v=saved-observation-copy-1&amp;wave=quarter-rewind-1"/);
+ assert.match(html,/href="style\.css\?v=saved-observation-copy-1&amp;browse=living-cells-1&amp;wave=quarter-rewind-1"/);
  assert.doesNotMatch(css,/forced-color-adjust:none/,'system forced colors remain free to replace authored colors');
 });
 

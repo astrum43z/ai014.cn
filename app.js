@@ -14,7 +14,7 @@ import {createFractal,addFractalPoints,fractalVertices,FRACTAL_LIMIT} from './fr
 import {experimentGuides} from './guides.js?v=wave-paths-1';
 import {createSnapshotSaver} from './snapshot.js?v=context-safe-save-1';
 import {createAnimationLoop} from './animation.js';
-import {lifeStep,inspectLifeCell,orbitStep,waveComponents,population,repeatPeriod,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1';
+import {lifeStep,inspectLifeCell,findLivingCell,orbitStep,waveComponents,population,repeatPeriod,wavePathDifference,parseSettings,serializeSettings} from './simulations.js?v=wave-paths-1&browse=living-cells-1';
 const $=s=>document.querySelector(s), canvas=$('#canvas'),ctx=canvas.getContext('2d');
 const getWaveField=createWaveFieldCache();
 const getWaveCycle=createWaveCycleCache();
@@ -553,6 +553,9 @@ const lifeOutcomes={
 };
 function renderLifeInspector(){
  renderLifeDragTool();renderLifeEdit();
+ const hasLiving=cells.some(Boolean);
+ for(const id of ['life-previous-live','life-next-live'])$('#'+id).setAttribute('aria-disabled',String(!hasLiving));
+ setReadingText($('#life-find-help'),hasLiving?'按行寻找并暂停：从左到右、从上到下，越过首尾循环；只移动橙框，不改图案。':'当前没有活格；可先绘制或载入图案。寻找按钮只移动橙框，不改图案。');
  const cell=inspectLifeCell(cells,48,32,focusCell.x,focusCell.y),[outcome,reason]=lifeOutcomes[cell.rule];
  // Generations, focus and bitmap recovery often leave this local reading
  // unchanged. Preserve readable text nodes and the mini-grid's attributes.
@@ -968,6 +971,22 @@ function touchLife(dx,dy,toggle=false){
  focusCell={x:(focusCell.x+48+dx)%48,y:(focusCell.y+32+dy)%32};
  if(toggle){rememberLifeEdit();lifeTrial=null;lifeCleared=null;cells[focusCell.y*48+focusCell.x]^=1;lifeHistory=[];}
  draw();announce('已暂停；'+lifeReading());
+}
+// Sparse or moving patterns should not require searching 1,536 empty squares.
+// Reuse the quiet cell inspector and existing action announcement.
+function selectLivingCell(direction){
+ if(mode!=='life')return;
+ const current=focusCell.y*48+focusCell.x,next=findLivingCell(cells,current,direction);
+ if(next<0)return;
+ interruptPainting();paused=true;updatePause();
+ focusCell={x:next%48,y:Math.floor(next/48)};
+ draw();announce('已暂停，'+(next===current?'只有这一个活格；':'已找到'+(direction>0?'下':'上')+'一个活格；')+lifeReading());
+}
+for(const [id,direction] of [['life-previous-live',-1],['life-next-live',1]]){
+ $('#'+id).addEventListener('click',()=>selectLivingCell(direction));
+ $('#'+id).addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
 }
 function centerLifeSelection(){
  if(mode!=='life')return;
