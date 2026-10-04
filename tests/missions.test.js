@@ -190,7 +190,7 @@ test('progress only marks verified milestones, with Life blank setup as the exce
 
 test('very narrow Life precision controls retain large targets in a directional grid',async()=>{
  const css=await readFile(new URL('../style.css',import.meta.url),'utf8');
- assert.match(css,/@media\(max-width:380px\)\{\.life-touch>div\{display:grid;grid-template-columns:44px minmax\(100px,1fr\) 44px/);
+ assert.match(css,/@media\(max-width:380px\)\{\.life-touch>div\{display:grid;grid-template-columns:44px minmax\(44px,1fr\) 44px/);
  assert.match(css,/grid-template-areas:"\. up \." "left toggle right" "\. down \."/);
- for(const id of ['left','up','toggle','down','right'])assert.match(css,new RegExp('\\.life-touch #life-'+id+'\\{grid-area:'+id+'\\}'));
+ for(const id of ['left','up','toggle','down','right'])assert.match(css,new RegExp('\\.life-touch #life-'+id+'\\{grid-area:'+id+'(?:;[^}]+)?\\}'));
 });

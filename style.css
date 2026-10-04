@@ -259,8 +259,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 @media(max-width:720px){.life-touch{padding:12px}.life-touch>span{font-size:12px}.life-touch>div{gap:5px}.life-touch button{padding:10px 5px}.life-touch #life-toggle{min-width:100px}}
 @media(max-width:720px){.tab,.tab:last-child{padding:10px 2px;min-height:44px}.tabs{gap:4px}.mission{scroll-margin-top:12px}}
 
-/* Keep precise Life controls reachable at 320px without shrinking touch targets. */
-@media(max-width:380px){.life-touch>div{display:grid;grid-template-columns:44px minmax(100px,1fr) 44px;grid-template-areas:". up ." "left toggle right" ". down ."}.life-touch #life-left{grid-area:left}.life-touch #life-up{grid-area:up}.life-touch #life-toggle{grid-area:toggle}.life-touch #life-down{grid-area:down}.life-touch #life-right{grid-area:right}}
+/* Let the Life cross fit extreme zoom while retaining 44px targets. */
+@media(max-width:380px){.life-touch>div{display:grid;grid-template-columns:44px minmax(44px,1fr) 44px;grid-template-areas:". up ." "left toggle right" ". down ."}.life-touch #life-left{grid-area:left}.life-touch #life-up{grid-area:up}.life-touch #life-toggle{grid-area:toggle;min-width:44px;white-space:normal;overflow-wrap:anywhere}.life-touch #life-down{grid-area:down}.life-touch #life-right{grid-area:right}}
 
 /* Read the selected cell beside its controls, even with instruments collapsed. */
 .life-touch #life-selection{margin:0 0 10px;font-size:13px;line-height:1.6;color:#e6ecd8;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}

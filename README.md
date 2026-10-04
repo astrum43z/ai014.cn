@@ -70,6 +70,12 @@ Orbit’s four direction buttons now wrap when their existing row has insufficie
 
 `tests/orbit-control-reflow.test.js` guards the CSS wrapping/target-size contract and native button order, with sizing arithmetic explicitly separate from real-browser layout verification. Existing Orbit interaction tests cover behavior; physical touch and screen-reader speech remain unverified.
 
+### Keep the Life direction cross inside its stage at extreme zoom
+
+Life’s narrow direction grid now allows its central toggle track to shrink to the same 44-pixel minimum as the arrow targets. At 500% public cloud-browser zoom, the 233-pixel page left 171 pixels inside the grid, while its former fixed minimums and gaps required 198 pixels; the right arrow overhung the stage by 15 pixels. The center label may wrap when needed, without reducing its text size, clipping controls or changing the existing cross arrangement. At 171 pixels the center track has 73 pixels; ordinary cross widths retain their previous geometry and wider flex rows are unchanged.
+
+The five buttons keep their native left/up/toggle/down/right focus order, names, selection description and focus ring. `tests/life-control-reflow.test.js` guards the media-aware CSS cascade, minimum targets, sizing arithmetic and markup; arithmetic is not a browser layout engine. Public cloud-browser geometry and keyboard behavior are checked separately. No simulation, event handling, sharing, recovery, storage, dependency or domain setting changes; physical touch and screen-reader speech remain unverified.
+
 ### Keep expanded Wave instruments readable at extreme zoom
 
 At viewports up to 400 CSS pixels, Wave source labels now sit above their displacement bars and signed readings. Cycle labels likewise sit above the scale and plot, with the time-axis labels aligned to the wider plot. This removes the fixed-column pressure that made the public 233-pixel layout expand to 242 pixels when the instrument drawer opened at 500% zoom. Text sizes, 56-pixel cycle-plot heights, native disclosure/focus order and 44-pixel time controls are retained; wider layouts keep their existing rows.
