@@ -641,6 +641,42 @@ function renderLifeInspector(count){
   if(element.getAttribute?.('data-alive')!==value)element.setAttribute('data-alive',value);
  });
 }
+// Address any living or empty cell without editing it or walking the whole
+// torus. Targets are 1-based visitor drafts, independent of the live selection.
+function positionLifeCell(){
+ if(mode!=='life')return;
+ const inputs=['column','row'].map(axis=>$('#life-target-'+axis));
+ const raw=inputs.map(input=>normalizeTargetNumber(input.value)),limits=[48,32];
+ const numbers=raw.map(Number),invalid=numbers.map((value,i)=>!/^\d+$/.test(raw[i])||!Number.isSafeInteger(value)||value<1||value>limits[i]);
+ inputs.forEach((input,i)=>input.setAttribute('aria-invalid',String(invalid[i])));
+ if(invalid.some(Boolean)){
+  const message='请输入第 1–48 列、第 1–32 行的整数；支持全角数字，不含小数或分隔符。';
+  setReadingText($('#life-position-error'),message);$('#life-position-error').hidden=false;
+  inputs[invalid.indexOf(true)].focus();announce(message);return;
+ }
+ $('#life-position-error').hidden=true;setReadingText($('#life-position-error'),'');
+ inputs.forEach((input,i)=>input.value=String(numbers[i]));
+ interruptPainting();paused=true;updatePause();
+ focusCell={x:numbers[0]-1,y:numbers[1]-1};draw();
+ announce('已暂停并框选，不改图案；'+lifeReading());
+}
+$('#life-position').addEventListener('click',positionLifeCell);
+$('#life-position').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
+for(const axis of ['column','row']){
+ const input=$('#life-target-'+axis);
+ input.addEventListener('input',()=>{
+  input.setAttribute('aria-invalid','false');
+  if(['column','row'].every(name=>$('#life-target-'+name).getAttribute('aria-invalid')!=='true')){
+   $('#life-position-error').hidden=true;setReadingText($('#life-position-error'),'');
+  }
+ });
+ input.addEventListener('keydown',event=>{
+  if(event.key!=='Enter'||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+  event.preventDefault();if(!event.repeat)positionLifeCell();
+ });
+}
 // Optional construction challenge. One bounded trial snapshot survives tab
 // switches, but a new edit or model advance discards the old comparison.
 function renderLifeChallenge(count){

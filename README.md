@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Inspect an exact Life cell without changing it
+
+Inside the optional Life instruments, column (1–48) and row (1–32) targets now move the orange selection directly to any living or empty cell and pause. Clicking the canvas changes a cell, and living/change navigation cannot directly reach an arbitrary empty target; the existing toroidal arrows can require 40 moves. Exact selection makes edge-neighbor inspection and revisiting a known location practical without adding another canvas tool mode.
+
+Both integer fields are validated before anything moves or pauses, with associated correction text and focus on the first invalid field. Full-width digits are supported. Typing, animation, redraws and world returns preserve draft targets. Fresh Enter submits; repeated, modified or composing Enter does not. Selection preserves the board, generation, fractional timing, history, comparison, edit/clear recovery and discoveries. An active drawing is safely interrupted and its trailing click remains suppressed. No simulation, sharing, storage, dependency or domain change is introduced.
+
+`tests/life-position.test.js` covers all destinations, independent wrapped-neighbor readings, validation atomicity, keyboard/focus, drawing interruption, recovery, retained worlds, animation, sharing and simulated reflow/context loss. Public cloud-browser keyboard and zoomed-reflow checks are reported separately; physical touch, mobile keyboards/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and download receipt remain unverified.
+
 ### Keep a verified Life repeat with its observation
 
 A real 120-generation oscillator used to show “重复周期 · 120 代” once, then change to “尚未发现重复” when the visitor merely moved the selection or resized the canvas. Its matching oldest board had just rolled out of the 120-entry plot. Edit/clear undo, comparison return and rewind could lose the same verified reading.

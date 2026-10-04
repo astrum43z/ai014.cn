@@ -53,13 +53,18 @@ test('blinker endpoint prediction alternates death and birth while the center su
  }
 });
 
-test('inspector adds no control or live region and includes text equivalents and boundary guidance',async()=>{
+test('inspector readings stay quiet and exact selection adds only its scoped controls',async()=>{
  const html=await readFile(new URL('../index.html',import.meta.url),'utf8');
  const panel=html.match(/<section id="life-inspector".*?<\/section>/s)?.[0];
  assert.ok(panel);assert.ok(panel.includes('aria-labelledby="life-inspector-title" hidden'));
  assert.ok(panel.includes('class="life-neighborhood" aria-hidden="true"'));
  assert.equal((panel.match(/id="life-neighbor-\d"/g)||[]).length,9);
- assert.doesNotMatch(panel,/<button|tabindex|aria-live|role="status"/);
+ const readings=panel.slice(0,panel.indexOf('<div class="life-position"'));
+ assert.doesNotMatch(readings,/<button|tabindex|aria-live|role="status"/);
+ assert.equal((panel.match(/<input /g)||[]).length,2);
+ assert.equal((panel.match(/<button /g)||[]).length,1);
+ assert.doesNotMatch(panel,/aria-live="(?:polite|assertive)"|role="status"|tabindex/);
+ assert.match(panel,/<p id="life-position-error" aria-live="off" hidden>/);
  for(const id of ['position','state','next','reason'])assert.ok(panel.includes('id="life-cell-'+id+'"'));
  assert.match(panel,/含斜角/);assert.match(panel,/所有格子同时更新/);assert.match(panel,/方向键只移动/);
  assert.ok(html.indexOf('class="stage-controls"')<html.indexOf('id="life-inspector"'));
