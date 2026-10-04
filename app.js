@@ -82,7 +82,7 @@ function observationReading(){
  const progress=mode==='life'?`第 ${generation} 代；`:mode==='walk'?`${walk.steps} 步；`:'';
  const readings=['a','b','c'].map(key=>$('#observation-'+key).textContent).join('；');
  const atLimit=(mode==='fractal'&&fractal.count>=FRACTAL_LIMIT)||(mode==='walk'&&walk.steps>=WALK_LIMIT);
- return progress+readings+(mode==='orbit'?'；'+$('#orbit-radial-reading').textContent+'；'+orbitLaunchReading():mode==='wave'?'；'+waveReading():mode==='life'?'；'+lifeReading()+($('#life-transition-legend').hidden?'':'；'+$('#life-transition-legend').textContent):mode==='fractal'?'；'+fractalReading():mode==='walk'?'；'+walkReading():'')+(atLimit?(mode==='walk'?'；已达到上限，可退回一步或重置后继续':'；已达到上限，请重置后继续'):'');
+ return progress+readings+(mode==='orbit'?'；'+$('#orbit-radial-reading').textContent+'；'+orbitLaunchReading():mode==='wave'?'；'+waveReading():mode==='life'?'；'+lifeReading()+($('#life-transition-legend').hidden?'':'；'+$('#life-transition-legend').textContent):mode==='fractal'?'；'+fractalReading():mode==='walk'?'；'+walkReading():'')+(atLimit?(mode==='walk'?'；已达到上限，可退回一步或重置后继续':'；已达到上限，可退回一点或重置后继续'):'');
 }
 
 // Progress-limited worlds keep their primary controls focusable at the cap.

@@ -18,6 +18,12 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep Fractal's limit announcement non-destructive
+
+The final action announcement at 12,000 points now names the existing “退回一点” option before reset. Single-point controls, the canvas arrow key, batch Step, exact targeting and saved-observation return/undo previously ended with reset-only advice; manual advances overwrote the correct automatic-limit message. Visitors can now follow the announcement to rewind one point, retain their work and re-enable Continue.
+
+Only this guidance changes; the seeded sequence, limits, focus, fixed links, discoveries and intentional batch-key repeats are unchanged. `tests/fractal-limit-guidance.test.js` covers each affected route and follows the suggested recovery through identical replay. It checks the polite live-region text, not screen-reader speech.
+
 ### Return to the world chooser from the experiment
 
 The near-canvas shortcut row now includes “回到世界选择 ↑” beside the parameter link. Desktop and short-height layouts do not pin the five-world selector, so visitors can reach it directly without scrolling back through a long experiment or reversing through its controls. The native link goes to the existing named `#lab` section; it does not select, reset or restart a world. Use the existing tabs to switch, retaining each world’s current page-only session.
