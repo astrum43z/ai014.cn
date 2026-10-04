@@ -28,6 +28,14 @@ Each accepted asynchronous request reserves its announcement once. A newer actio
 
 `tests/async-action-feedback.test.js` covers success and failure, all five worlds, competing requests in both completion orders, tab changes, repeated messages, validation, automatic limits, redraws and busy controls. These tests inspect live-region text and controlled asynchronous ordering, not screen-reader speech or real clipboard/encoder latency. Public cloud-browser normal interaction and zoomed reflow are checked separately; automatic clipboard success, downloaded-file receipt, physical touch and mobile keyboard/IME remain unverified.
 
+### Visit the cells that just changed in Life
+
+“下一处生灭” finds the next actual birth or death in the immediately preceding generation, cycling through the board in row order. Existing living-cell navigation cannot visit cells that have just died; the new route selects them as well as births and brings their previous-neighbor explanation into the same near-canvas reading. It pauses without editing, evolving or resetting the board. A single changed cell is found again with explicit guidance.
+
+Without an adjacent previous record, or when the board did not change, the focusable button stays inert and explains why. Construction comparisons use their existing original board; edits, undo, rewind, comparison return and retained worlds follow the existing history boundaries. Availability reuses the already computed turnover or comparison report, and only activation scans for a destination. No additional board, history, live region, storage or dependency is introduced. Held Enter cannot race through destinations; native Space and button focus remain intact.
+
+`tests/life-change-navigation.test.js` checks independently computed births and deaths, row-order wrap, extinction, stable and unavailable records, comparison and editing recovery, animation, sharing, discoveries, quiet redraws and canvas unavailability. Public cloud-browser pointer/keyboard interaction and zoomed reflow are checked separately. Physical touch, screen-reader speech, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Explain how the selected Life cell reached this generation
 
 A quiet “刚才这一代” reading now sits between the selected cell's current state and its next-generation prediction. After a blinker step, the selected end cell has just died despite now having three living neighbors and being predicted to return next time. The new explanation shows that it had only one living neighbor in the preceding board, distinguishing the cause of the past change from the next prediction. It also explains births, survival, overcrowding and unchanged empty cells.

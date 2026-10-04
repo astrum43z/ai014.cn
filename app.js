@@ -632,7 +632,7 @@ function renderLifeInspector(count){
  setReadingText($('#life-cell-reason'),reason+'。');
  // Keep precise editing readable without opening the detailed instruments.
  setReadingText($('#life-selection'),`第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行 · ${cell.alive?'活格':'空格'} · ${cell.neighbors} 个活邻居`);
- renderLifeCellTransition();
+ renderLifeCellTransition();renderLifeChangeNavigation();
  setReadingText($('#life-next-reading'),`下一代：${outcome}。${reason}。`);
  setReadingText($('#life-neighbor-help'),`${paused?'虚线框标出':'暂停可显示'} 8 个邻居（含斜角），不含橙色实框本格；边缘相连，邻居可能在画面对侧。所有格子同时更新。`);
  setReadingText($('#life-toggle'),cell.alive?'熄灭所选格':'点亮所选格');
@@ -738,6 +738,34 @@ function renderLifeCellTransition(){
  const reason=wasAlive?(neighbors<2?'少于 2':neighbors>3?'超过 3':'为 2 或 3'):(neighbors===3?'恰好为 3':'不等于 3');
  setReadingText(output,`刚才这一代 · 第 ${previous.generation} → ${generation} 代：原为${wasAlive?'活格':'空格'}，当时 ${neighbors} 个活邻居；${reason}，因而${outcome}。`);
 }
+// Availability shares the existing comparison counters. Only an explicit
+// activation scans for a destination; unchanged draws retain the same readings.
+function renderLifeChangeNavigation(){
+ const previous=lifeTransitionBefore();
+ const changes=previous?(lifeTrial?.report||readLifeHistory(lifeHistory,generation).turnover):null;
+ const count=changes?changes.born+changes.died:0;
+ setControlAttribute($('#life-next-change'),'aria-disabled',String(!count));
+ setReadingText($('#life-change-help'),!previous?'暂无相邻上一代记录；前进一代后可寻找新生或消失的格子。':
+  count?`第 ${previous.generation} → ${generation} 代有 ${count} 处生灭；从橙框后按行循环寻找，选中后暂停，不改图案。`:
+  `第 ${previous.generation} → ${generation} 代没有格子新生或消失。`);
+}
+function selectLifeChange(){
+ if(mode!=='life')return;
+ const previous=lifeTransitionBefore();if(!previous)return;
+ const current=focusCell.y*48+focusCell.x;
+ for(let distance=1;distance<=cells.length;distance++){
+  const next=(current+distance)%cells.length;
+  if(Number(previous.cells[next])===cells[next])continue;
+  interruptPainting();paused=true;updatePause();
+  focusCell={x:next%48,y:Math.floor(next/48)};
+  draw();announce('已暂停，'+(next===current?'这一代只有这一处生灭；':'已找到下一处生灭；')+$('#life-selection').textContent+'；'+$('#life-cell-transition').textContent);
+  return;
+ }
+}
+$('#life-next-change').addEventListener('click',selectLifeChange);
+$('#life-next-change').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function testLifeDrawing(){
  if(mode!=='life'||lifeTrial)return;
  cancelPainting();paused=true;acc=0;updatePause();

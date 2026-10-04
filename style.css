@@ -482,6 +482,12 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 .canvas-retry p{margin:0 0 8px;overflow-wrap:anywhere}
 .canvas-retry button{max-width:100%;min-width:44px;min-height:44px;padding:10px 14px;border:1px solid #a9bfab;border-radius:8px;background:#203f36;color:#e7eee1;font:inherit;white-space:normal;overflow-wrap:anywhere}
 
+/* Navigate actual Life births/deaths outside the narrow direction grid. */
+.life-touch .life-change-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+.life-touch #life-next-change{flex:0 1 auto;min-height:44px;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+.life-touch #life-next-change[aria-disabled="true"]{opacity:.6;cursor:default}
+.life-touch #life-change-help{flex:1 1 150px;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+
 /* Keep earned findings recognizable in the compact selector without relying
    on border color. The short label is already decorative to assistive tech. */
 @media(max-width:720px){
@@ -500,4 +506,3 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 
 /* Reach the existing five-world chooser from the near-canvas controls. */
 .experiment-shortcuts #worlds-return{margin-left:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px}
-
