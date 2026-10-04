@@ -1580,14 +1580,15 @@ function renderFractalJump(){
  renderFractalRegions();
  const counts=fractal.vertexCounts;
  setReadingText($('#fractal-choice-reading'),`当前序列前 ${fractal.count} 次 · A ${counts[0]} 次，B ${counts[1]} 次，C ${counts[2]} 次`);
- $('#fractal-jump-reading').textContent=fractalReading();
- $('#fractal-touch-reading').textContent=fractalReading()+(fractal.count>=FRACTAL_LIMIT?'；已达 12,000 点上限，可退回一点或重置。':fractal.count<=300?'；已回到 300 点起点。':'。');
+ // Preserve reading selections across redraws that keep the same last jump.
+ setReadingText($('#fractal-jump-reading'),fractalReading());
+ setReadingText($('#fractal-touch-reading'),fractalReading()+(fractal.count>=FRACTAL_LIMIT?'；已达 12,000 点上限，可退回一点或重置。':fractal.count<=300?'；已回到 300 点起点。':'。'));
  // Native disabled would discard focus on the key press that reaches a limit.
  // Keep each button discoverable; the handlers below enforce the same bounds.
  setControlAttribute($('#fractal-back'),'aria-disabled',String(fractal.count<=300));
  setControlAttribute($('#fractal-forward'),'aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
  setControlAttribute($('#fractal-step'),'aria-disabled',String(fractal.count>=FRACTAL_LIMIT));
- $('#fractal-jump-note').textContent=paused?'空心圈是出发点，橙色实心点是新落点；橙线是本次前进，虚线指向选中的顶点。':'运行中暂隐连线；暂停或只走一步，即可拆开看最后一次跳跃。';
+ setReadingText($('#fractal-jump-note'),paused?'空心圈是出发点，橙色实心点是新落点；橙线是本次前进，虚线指向选中的顶点。':'运行中暂隐连线；暂停或只走一步，即可拆开看最后一次跳跃。');
 }
 function stepFractalPoint(){
  if(mode!=='fractal'||fractal.count>=FRACTAL_LIMIT)return;

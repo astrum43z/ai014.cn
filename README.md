@@ -18,6 +18,12 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Fractal jump reading selected during redraws
+
+The three last-jump paragraphs now use the existing DOM-comparing text helper. At a paused 731-point observation, 120 unchanged redraws previously replaced these text nodes 360 times. The public cloud-browser baseline also reproduced the practical effect: selecting the near-canvas 300-point reading, then changing zoom from 100% to 110%, cleared the selection although the words and model stayed the same. Focus, layout, density and canvas-recovery redraws now retain unchanged reading nodes.
+
+Actual point/vertex/ratio changes, lower and upper limits, and paused/running explanations still update. Comparing actual DOM text repairs stale content without another cache. No model, draw order, control, layout, live region, sharing, recovery, storage or dependency change is introduced. `tests/fractal-reading-stability.test.js` uses an independent BigInt recurrence for the final vertex and covers counted writes, animation, exact targets, replay, retained worlds, saved return/undo, discoveries and intentional batch repeats. Public cloud-browser selection retention and zoomed reflow require separate validation; simulated tests do not establish physical touch, screen-reader speech, mobile keyboard/IME, rotation, hardware graphics loss, actual layout collapse, clipboard delivery or downloaded-file receipt.
+
 ### Keep the measured Orbit planet distinct during overlaps
 
 The white diamond identifying the first planet could merge with another bright planet. In a paused 600 × 414 view, an ordinary launch at (373.5, 202.5) canvas pixels puts a planet directly across one diamond edge. The fourth planet gives only 1.71:1 contrast; the eighth is the same white as the marker, giving 1:1. Returning the launcher home leaves this overlap intact. The public cloud-browser baseline reproduced the missing edge with eight planets at t = 0.
