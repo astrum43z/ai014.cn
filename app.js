@@ -354,6 +354,10 @@ $('#orbit-recall').addEventListener('keydown',event=>{
 // Buttons and canvas keys share positioning, pause, bounds and launch semantics.
 function orbitCommand(key){
  if(mode!=='orbit')return;
+ const scale=orbitScale(),maxX=(width/2-34)/scale,maxY=(height/2-34)/scale;
+ // Positioning needs valid visible bounds before changing the point or pause
+ // choice. Home and launch act on model coordinates and remain available.
+ if(key.startsWith('Arrow')&&(![width,height,scale,maxX,maxY].every(Number.isFinite)||width<=0||height<=0||scale<=0||maxX<0||maxY<0))return;
  paused=true;updatePause();
  if(key==='Enter'||key===' '){launchOrbit();return;}
  if(key==='Home'){orbitPoint={x:140,y:0};orbitView=null;}

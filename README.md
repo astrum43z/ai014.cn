@@ -963,3 +963,12 @@ Wave's directional buttons and canvas arrow keys now reject movement when the ob
 The explicit center action remains available because it resets a model-space position without requiring viewport bounds. Normal two-unit movement, held directional keys, edge clamping and fitted distant probes remain unchanged after a usable view returns. No new state, UI, simulation rule, dependency, storage or domain change is introduced.
 
 `tests/wave-position-safety.test.js` reproduces the former failure for buttons and keys, running and paused sessions, zero/negative scale boundaries, exact field restoration, fixed checkpoints, return undo, completed discoveries, context/density/tab interruptions, center reset and fractional reflow. Layout collapse is simulated; actual device layout-collapse timing, physical touch, IME input, screen-reader speech, hardware context loss and download receipt are not established by these tests.
+
+
+## Keep Orbit positioning inside a usable view
+
+Orbit's directional buttons and canvas arrow keys now leave the selected launch position and running choice untouched while the observed canvas dimensions, fitted scale or derived placement bounds are unusable. A simulated 20 × 20 collapse previously let a right command move (140, −5) to (145, −5), changing the next launch speed and pausing the scene despite having no usable placement bounds. The altered selection survived layout recovery. Rejected movement now leaves feedback, focus, pending animation, existing planets and recall unchanged.
+
+Home and explicit launch remain available as model-space actions. Once usable geometry returns, five-unit movement, held directional keys and the existing edge clamp work normally. No simulation rule, shared-link content, notebook, storage, dependency or domain setting changes.
+
+`tests/orbit-position-safety.test.js` covers running and paused buttons/keys, collapsed and nonfinite geometry, exact preview and body/trail restoration, subsequent integration, recall, fixed parameters/share state, discovery evidence, retained worlds, context/density interruptions, Home/launch compatibility, fractional reflow and native key exclusions. Collapse and invalid dimensions are simulated; physical touch, IME candidate windows, screen-reader speech, device rotation, hardware graphics loss and downloaded-file receipt remain unverified.
