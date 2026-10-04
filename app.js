@@ -1359,7 +1359,8 @@ canvas.addEventListener('pointerdown',e=>{
   if(mode!=='life')return;
   const wasRunning=!paused;
   paintingPointer=e.pointerId;paintingBounds=canvas.getBoundingClientRect();wasDragging=false;paused=true;updatePause();lastPaint=lifeCell(e,paintingBounds);paintingBefore=lifeDrawingSnapshot();
-  if(wasRunning)draw();
+  // Pausing is a new action even before this press becomes a drawing.
+  if(wasRunning){announcementRevision++;draw();}
   canvas.setPointerCapture(e.pointerId);
 });
 function lifeCell(event,rect=canvas.getBoundingClientRect()){
@@ -1378,6 +1379,10 @@ function paintTo(event){
   // crosses a cell boundary, join samples so fast mouse/touch strokes stay solid.
   if(!next||!lastPaint||(next.x===lastPaint.x&&next.y===lastPaint.y))return;
   const changed=paintLifeLine(cells,48,lastPaint,next,lifeErasing?0:1);
+  // Keep older copy/save completions quiet while a newer stroke is in flight,
+  // including cancellation that retains its edits or selected-cell reading.
+  // An unchanged board, selection and pause choice must remain a true no-op.
+  if(changed||next.x!==focusCell.x||next.y!==focusCell.y)announcementRevision++;
   if(changed){
     if(paintingBefore){lifeEdited=paintingBefore;paintingBefore=null;}
     lifeTrial=null;lifeCleared=null;lifeHistory=[];

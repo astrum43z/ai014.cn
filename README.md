@@ -28,6 +28,14 @@ Each accepted asynchronous request reserves its announcement once. A newer actio
 
 `tests/async-action-feedback.test.js` covers success and failure, all five worlds, competing requests in both completion orders, tab changes, repeated messages, validation, automatic limits, redraws and busy controls. These tests inspect live-region text and controlled asynchronous ordering, not screen-reader speech or real clipboard/encoder latency. Public cloud-browser normal interaction and zoomed reflow are checked separately; automatic clipboard success, downloaded-file receipt, physical touch and mobile keyboard/IME remain unverified.
 
+### Keep Life pointer work ahead of an older export
+
+A Life press that pauses a running model, a drag that changes cells, or a drag that moves the selected-cell reading now supersedes an older copy/PNG announcement. Previously, an image completing during a stroke could replace current action feedback; cancelling the pointer or losing window focus retained the partial drawing but left the old image result as the final announcement. Each meaningful segment claims feedback independently, including edits made after a save starts mid-stroke.
+
+The drag stays quiet until its normal completion. Pointer samples that leave board, selection and pause state unchanged, rejected samples and redraws leave a pending result eligible; a normally completed drag still gives its existing completion announcement. Visible copy and save outcomes, fixed links, filenames, stroke undo and trailing-click protection are unchanged. No new live region, timer, model state, control, storage or dependency is introduced.
+
+`tests/life-drag-feedback.test.js` controls asynchronous ordering across painting, erasing, pause-only and selection-only work, cancellation, capture/window/visibility/layout/context interruptions, true no-ops, fresh saves and parameter copying. It checks live-region text rather than screen-reader speech or real encoder latency. Public cloud-browser drawing and reflow checks are reported separately; physical touch, mobile keyboard/IME, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Keep Fractal's limit announcement non-destructive
 
 The final action announcement at 12,000 points now names the existing “退回一点” option before reset. Single-point controls, the canvas arrow key, batch Step, exact targeting and saved-observation return/undo previously ended with reset-only advice; manual advances overwrote the correct automatic-limit message. Visitors can now follow the announcement to rewind one point, retain their work and re-enable Continue.
