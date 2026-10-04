@@ -18,6 +18,16 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Select an exact Orbit launch point before adding a planet
+
+The optional Orbit instruments now accept an exact x/y target. The existing arrows move by 5 model units, while a canvas click immediately adds a planet; neither can directly select a fresh fractional point such as (137.5, −42.5) for a preview alone. The public cloud-browser baseline confirmed the five-unit move and the absence of coordinate fields in those instruments.
+
+“选位并暂停” validates both coordinates together, then changes only the launch marker and pauses. Existing planets, trails, time, parameters, newest-launch recall and exploration evidence remain intact. The existing fitted view widens only when needed; Home still restores (140, 0) and the ordinary view. Coordinates inside the 22-unit launch exclusion are valid selections with the existing correction guidance, and the 24-planet cap still applies. A link returns to the canvas; launching remains a separate action there.
+
+Targets accept finite values from −10000 to 10000, including decimals, scientific notation and supported full-width glyphs, using the shared numeric parser. Nonzero underflow is rejected. The first invalid field receives focus and associated correction text, without a partial move or pause. Valid Enter keeps focus; repeated, modified or composing Enter does not submit. Drafts survive redraws and other controls; a separate quiet reading shows the exact current Number coordinates. Pointer-derived floating-point digits are retained rather than suggesting rounded coordinates are exact.
+
+`tests/orbit-exact-position.test.js` checks independent launch/preview integration, preserved bodies and trails, atomic errors, drafts, focus, small/fractional layouts, density, model-space selection without a bitmap, recall, sharing, asynchronous feedback, retained worlds and discoveries. No model equations, RNG, checkpoint format, storage, dependency or domain configuration changes. Public cloud-browser interaction and zoomed reflow are checked separately. Physical touch, screen-reader speech, mobile keyboard/IME, rotation, actual layout collapse, hardware graphics loss, clipboard delivery and downloaded-file receipt remain unverified.
+
 ### Keep Life comparison evidence selected during redraws
 
 The optional four-cell challenge's result now retains its text node and solved marker when their displayed values are unchanged. In a paused 10 → 11-cell comparison, 120 same-size redraws previously replaced the text 120 times and rewrote its unchanged marker 120 times. The public cloud-browser baseline reproduced the reading interruption: selecting the comparison evidence and zooming from 100% to 110% cleared the selection, although the text and generation were unchanged.

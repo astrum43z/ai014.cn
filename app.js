@@ -361,6 +361,7 @@ function renderOrbitLaunch(){
  setReadingText($('#orbit-preview-reading'),prediction?`预演 10 秒后：x ${prediction.end.x.toFixed(1)}，y ${prediction.end.y.toFixed(1)} · 距中心 ${Math.hypot(prediction.end.x,prediction.end.y).toFixed(1)}`:'');
  setReadingText($('#orbit-launch-note'),bodies.length>=24?'已达到 24 颗上限，可撤回最近发射或重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。');
  setReadingText($('#orbit-touch-reading'),$('#orbit-position').textContent+'；'+$('#orbit-speed').textContent);
+ setReadingText($('#orbit-position-current'),`当前发射点 x ${orbitPoint.x}，y ${orbitPoint.y}；输入框保留目标。`);
  setReadingText($('#orbit-touch-status'),$('#orbit-launch-note').textContent);
  setControlAttribute($('#orbit-fire'),'aria-disabled',String(!launch.valid||bodies.length>=24));
  const canRecall=orbitCanRecall();
@@ -1141,17 +1142,52 @@ function normalizeTargetNumber(raw){
 // coordinates before changing either axis, time, motion or the fixed checkpoint.
 // Accept the same scientific notation used by exact readings and shared links.
 // Never turn a nonzero target into zero when it is too small for Number.
-function readWaveTarget(raw){
+function readTargetNumber(raw){
  raw=normalizeTargetNumber(raw);
  if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(raw))return NaN;
  const number=Number(raw);
  if(!Number.isFinite(number)||(number===0&&/[1-9]/.test(raw.split(/[eE]/)[0])))return NaN;
  return number;
 }
+// Exact launch positioning is independent of launching and viewport size.
+// Validate the complete draft before pausing or touching the current model.
+function positionOrbitPoint(){
+ if(mode!=='orbit')return;
+ const inputs=['x','y'].map(axis=>$('#orbit-target-'+axis));
+ const numbers=inputs.map(input=>readTargetNumber(input.value));
+ const invalid=numbers.map(number=>!Number.isFinite(number)||Math.abs(number)>10000);
+ inputs.forEach((input,i)=>input.setAttribute('aria-invalid',String(invalid[i])));
+ if(invalid.some(Boolean)){
+  const message='请输入 −10000 到 10000 之间的两个坐标，可含小数或科学记数法（如 1e-7）；非零数不能过小而被舍入为 0。';
+  setReadingText($('#orbit-position-error'),message);$('#orbit-position-error').hidden=false;
+  inputs[invalid.indexOf(true)].focus();announce(message);return;
+ }
+ $('#orbit-position-error').hidden=true;setReadingText($('#orbit-position-error'),'');
+ inputs.forEach((input,i)=>input.value=String(numbers[i]).includes('e')?normalizeTargetNumber(input.value):String(numbers[i]));
+ paused=true;updatePause();orbitPoint={x:numbers[0],y:numbers[1]};fitOrbitPoint();draw();
+ announce(`已暂停并选定发射点：x ${numbers[0]}，y ${numbers[1]}；未添加行星，保留轨迹与时刻；`+orbitLaunchReading());
+}
+$('#orbit-position-apply').addEventListener('click',positionOrbitPoint);
+$('#orbit-position-apply').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
+for(const axis of ['x','y']){
+ const input=$('#orbit-target-'+axis);
+ input.addEventListener('input',()=>{
+  input.setAttribute('aria-invalid','false');
+  if(['x','y'].every(name=>$('#orbit-target-'+name).getAttribute('aria-invalid')!=='true')){
+   $('#orbit-position-error').hidden=true;setReadingText($('#orbit-position-error'),'');
+  }
+ });
+ input.addEventListener('keydown',event=>{
+  if(event.key!=='Enter'||event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+  event.preventDefault();if(!event.repeat)positionOrbitPoint();
+ });
+}
 function positionWaveProbe(){
  if(mode!=='wave')return;
  const inputs=['x','y'].map(axis=>$('#wave-target-'+axis));
- const numbers=inputs.map(input=>readWaveTarget(input.value));
+ const numbers=inputs.map(input=>readTargetNumber(input.value));
  const invalid=numbers.map(number=>!Number.isFinite(number)||Math.abs(number)>10000);
  inputs.forEach((input,i)=>input.setAttribute('aria-invalid',String(invalid[i])));
  if(invalid.some(Boolean)){
@@ -1190,7 +1226,7 @@ function clearWaveTimeError(){
 }
 function seekWaveTime(){
  if(mode!=='wave')return;
- const input=$('#wave-time'),raw=normalizeTargetNumber(input.value),time=readWaveTarget(raw);
+ const input=$('#wave-time'),raw=normalizeTargetNumber(input.value),time=readTargetNumber(raw);
  if(raw.startsWith('-')||!Number.isFinite(time)||time<0||time>1e9){
   const message='请输入 0 到 1000000000 之间的模型秒数，可含小数或科学记数法（如 1e-7）；非零数不能过小而被舍入为 0。';
   input.setAttribute('aria-invalid','true');
