@@ -86,6 +86,14 @@ At viewports up to 400 CSS pixels, Wave source labels now sit above their displa
 
 ## Animation efficiency
 
+### Reuse unchanged Wave field colors
+
+Moving a paused Wave probe, focusing the canvas or redrawing at a different pixel density now reuses the field's exact current colors. The field depends on geometry, parameters and model time, not the probe overlay. Previously each such redraw repeated both sine evaluations and color-string construction for every five-pixel square. At 600 × 414 CSS pixels, 120 unchanged redraws now avoid 2,390,400 field sine evaluations; the two instantaneous probe readings per redraw still update normally.
+
+One borrowed color array is retained for the current field geometry and phase. Advancing time overwrites its slots using the identical sine and RGB arithmetic; changing geometry or parameters replaces the array. Returning to an earlier time recomputes rather than retaining past frames. Existing field grids are immutable by application convention and the array is read-only to callers. This trades one current grid of color strings for less repeated paused-input work; it does not cache canvases, skip painting or change animation cadence. Every field square, marker, path, reading and control still redraws.
+
+`tests/wave-color-reuse.test.js` checks exact sample colors, bounded reuse, invalidation, fractional and extreme saved times, changed geometry, target drafts, checkpoint return/undo, retained worlds, visibility gates, discoveries and simulated display/context recovery. Controlled operation counts are not device frame-rate, latency or battery measurements. Public cloud-browser interaction and zoomed reflow are checked separately. No model, UI, sharing format, storage, dependency or domain change is introduced.
+
 ### Record a Life board once per observation
 
 Life focus, cursor and layout redraws now reuse the current history reading instead of removing and rebuilding an identical observation. A one-entry recorder skips repeated board-to-string allocation, population counting and full-board repeat searches while the board, generation and owned history stay unchanged. Evolution and rewind replace the board; drawing replaces the history. Presets, comparison return, edit/clear recovery and retained worlds therefore refresh the reading at their existing boundaries.
