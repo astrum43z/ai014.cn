@@ -1,6 +1,7 @@
 import {createLifeHistoryRecorder} from './life-history.js?v=stable-repeat-1';
 import {createLifeHistoryView} from './life-history-view.js';
 import {fractalRegions} from './fractal-regions.js';
+import {createFractalPathCache} from './fractal-path.js';
 import {fieldNotesText,saveFieldNotes} from './field-notes.js';
 import {missions,checkMission,createCentralGapCounter} from './missions.js?v=discovery-passport-1&gap=count-once-1';
 import {createOrbitPreview} from './orbit-preview.js';
@@ -35,6 +36,7 @@ const readLifeHistory=createLifeHistoryView();
 const getWaveCycle=createWaveCycleCache();
 let renderedWaveCycle=null;
 const getOrbitPreview=createOrbitPreview();
+const getFractalPath=createFractalPathCache();
 // The field, probe readings and manual quarter-cycle step share one clock.
 const WAVE_ANGULAR_SPEED=3,WAVE_QUARTER_PERIOD=Math.PI/(2*WAVE_ANGULAR_SPEED);
 const waveMeetingNames={constructive:'接近加强',destructive:'接近抵消',mixed:'部分叠加'};
@@ -1688,8 +1690,12 @@ function drawFractal(){
  ctx.strokeStyle='#385046';ctx.lineWidth=1;ctx.beginPath();
  fractalVertices.forEach(([x,y],i)=>i?ctx.lineTo(cx+x*scale,cy+y*scale):ctx.moveTo(cx+x*scale,cy+y*scale));
  ctx.closePath();ctx.stroke();ctx.fillStyle='#d3f35b';ctx.beginPath();
- for(let i=0;i<fractal.count;i++)ctx.rect(cx+fractal.points[i*2]*scale,cy+fractal.points[i*2+1]*scale,1.3,1.3);
- ctx.fill();
+ const samplePath=getFractalPath(fractal,scale,cx,cy);
+ if(samplePath)ctx.fill(samplePath);
+ else{
+  for(let i=0;i<fractal.count;i++)ctx.rect(cx+fractal.points[i*2]*scale,cy+fractal.points[i*2+1]*scale,1.3,1.3);
+  ctx.fill();
+ }
  // Keep the comparison region fixed at the outer triangle's side midpoints.
  // This is the same open central triangle counted by discovery checks, even
  // when another jump percentage puts points inside it. It consumes no RNG.
