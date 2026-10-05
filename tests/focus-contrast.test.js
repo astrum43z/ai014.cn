@@ -56,7 +56,7 @@ test('every authored focus outline uses the surface token while retaining its vi
 
 test('dark instruments, pale controls and stage shortcuts remain separate existing containers',()=>{
  for(const name of ['stage','stage-controls','experiment-shortcuts','instrument-drawer'])assert.match(html,new RegExp('class="'+name+'"'));
- assert.match(html,/href="style\.css\?v=saved-observation-copy-1&amp;orbit-target=exact-1&amp;cell-position=exact-1&amp;cell-history=explain-1&amp;change-browse=1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;time=exact-wave-1&amp;instruments=narrow-reflow-1&amp;worlds-return=1&amp;life-grid=flexible-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1&amp;life-inspector=stack-1"/);
+ assert.match(html,/href="style\.css\?v=saved-observation-copy-1&amp;orbit-target=exact-1&amp;cell-position=exact-1&amp;cell-history=explain-1&amp;change-browse=1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;time=exact-wave-1&amp;instruments=narrow-reflow-1&amp;worlds-return=1&amp;life-grid=flexible-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1&amp;life-inspector=stack-1&amp;walk-probability=stack-1"/);
  assert.doesNotMatch(css,/forced-color-adjust:none/,'system forced colors remain free to replace authored colors');
 });
 

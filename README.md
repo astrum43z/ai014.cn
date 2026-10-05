@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Compare Walk direction probabilities in narrow views
+
+At actual 500% zoom in the public cloud browser, Walk’s 139-CSS-pixel instrument area left only 28.35 pixels for each probability track. With rightward bias 25%, the 12.5% leftward chance occupied 3.29 pixels, while the 37.5% rightward chance occupied 9.88. The exact percentages remained readable, but their adjacent bars had little room to show the difference.
+
+At viewport widths up to 320 CSS pixels, each direction and its percentage now share the first row, with the unchanged 100% scale on a full-width second row. All four tracks get the same width. Wider views retain their original single-row layout. Type size, colors, bar height, direction order, numeric probabilities, quiet semantics and instrument disclosure are unchanged. The decorative tracks remain hidden from assistive technology; the direction and percentage stay paired in DOM reading order. No JavaScript, simulation, seed, control, observation, recovery, storage, dependency or domain behavior changes.
+
+`tests/walk-probability-reflow.test.js` checks the responsive cascade, fractional breakpoint boundary, full-width track placement, unchanged ordinary layouts and visual properties, reading order, quiet semantics and asset reference. These contracts are not a browser layout engine; public cloud-browser geometry, visible bars and keyboard interactions are checked separately. Existing Walk suites independently verify all 26 supported biases, actual sampler thresholds, exact ensemble replay and recovery. Physical touch, mobile keyboard/IME, screen-reader speech, rotation, real layout collapse, hardware graphics loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Read the Life rule beneath its neighborhood in narrow views
 
 At actual 500% zoom in the public cloud browser, Life’s 139-CSS-pixel instrument area reserved 60 pixels for its neighborhood diagram and left only 67 pixels for the selected-cell rule. The state reading broke into three lines, “下一代：存活” into two, and its short explanation into four. The diagram also sat far below the beginning of the adjacent text.

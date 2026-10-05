@@ -129,6 +129,12 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .walk-choice-track>span{display:block;height:100%;background:#b5d99b}
 .walk-choices small{font-size:13px;line-height:1.7;overflow-wrap:anywhere;color:#b8cdbb}
 @media(max-width:720px){.walk-choices h5,.walk-choices #walk-choice-reading{font-size:14px}.walk-choice-bars li{gap:8px}}
+/* Give direction probabilities a full-width scale in a narrow instrument. */
+@media(max-width:320px){
+ .walk-choice-bars li{grid-template-columns:minmax(0,1fr) max-content}
+ .walk-choice-track{grid-column:1/-1;grid-row:2}
+ .walk-choice-bars li>span:last-child{grid-column:2;grid-row:1}
+}
 
 /* Geometry stays beside the existing signed wave contributions, without extra controls. */
 .wave-path-reading{border-top:1px solid #345046;margin-top:10px;padding-top:3px}
