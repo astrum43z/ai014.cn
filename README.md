@@ -18,6 +18,16 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Rewind a whole Fractal batch
+
+Fractal now offers “退回 100 点 −” beside its primary forward batch. The public cloud-browser baseline advanced from 300 to 400 with one press but returned only to 399 with its backward control; retracing the batch required a hundred one-point presses or entering an exact target. The new button replays the current seed and jump ratio to one hundred points earlier, then pauses. A partial batch stops at the existing 300-point start. Every point, vertex-choice count and final-jump overlay follows the same sequence, and advancing again reproduces the original drawing.
+
+Like the primary forward batch, native held Enter can continue in batches. The canvas arrows and one-point buttons keep their existing single-press behavior. At the lower bound the new button stays focusable and quietly unavailable, leaving even a running initial model untouched. Valid replay clears partial animation timing. Nearby help explains the boundary, repeated use and unchanged canvas keys; the native button inherits the wrapping row and 44-pixel minimum target.
+
+Target drafts and errors, fixed shared observations, one-level return recovery, retained worlds and completed discoveries remain intact. Only Share captures a new checkpoint, and only an explicit successful Check records a discovery. No physics, RNG, storage, dependency, security or domain settings change.
+
+`tests/fractal-batch-rewind.test.js` uses an independent BigInt recurrence, vertex selection and Float32 projection to verify every point, all 36 supported ratios, vertex-choice counts, final-jump geometry, exact next draws, partial and full batches, both limits, running interruption, focus and keyboard exclusions. It also covers saved and pending sharing, return recovery, retained drafts and worlds, discovery integrity and simulated display/context interruptions. Public cloud-browser interaction and zoomed reflow are checked separately. Controlled tests do not establish physical touch, mobile keyboard/IME behavior, screen-reader speech, hardware key timing, rotation, actual layout collapse, graphics-device loss, clipboard contents or downloaded-file receipt.
+
 ### Rewind a whole random-walk batch
 
 Walk now offers “退回 16 步 −” beside its existing forward batch, plus the canvas Left arrow. The public cloud-browser baseline advanced from 16 to 32 with +16, but Left did nothing; returning the same distance otherwise took sixteen −1 presses or an exact target. The new action replays the current seed and bias to sixteen steps earlier and pauses. A partial batch stops at the existing 16-step start, so 25 returns to 16 rather than creating an unsupported checkpoint. All 256 walkers and the representative path follow the same seeded sequence; advancing again reproduces the same positions.
