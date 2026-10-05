@@ -140,7 +140,7 @@ test('availability follows real visibility changes, skips unchanged writes and r
 // This reachable trajectory used to recover under the opaque canvas legend.
 function upperLeftEscape(h){for(let i=0;i<42;i++)click(h,'step');h.el('gravity').handlers.input({target:{value:'30'}});for(let i=0;i<168;i++)click(h,'step');}
 function legendRect(h,width,height){
- const s=scale(h),rect=h.drawing().find(c=>c[0]==='fillRect'&&Math.abs(c[3]*s-196)<1e-8&&Math.abs(c[4]*s-23)<1e-8);
+ const s=scale(h),rect=h.drawing().find(c=>c[0]==='fillRect'&&[[196,23],[148,23],[148,39]].some(([w,v])=>Math.abs(c[3]*s-w)<1e-8&&Math.abs(c[4]*s-v)<1e-8));
  return rect&&{left:width/2+rect[1]*s,top:height/2+rect[2]*s,right:width/2+(rect[1]+rect[3])*s,bottom:height/2+(rect[2]+rect[4])*s};
 }
 for(const [width,height] of [[600,414],[320,240],[195,260],[768,330]])test(`recovered upper-left planet and direction cue are not covered by the legend at ${width} × ${height}`,async()=>{
@@ -155,6 +155,13 @@ for(const [width,height] of [[600,414],[320,240],[195,260],[768,330]])test(`reco
   const ex=width/2+(square[1]+square[3]/2)*s,ey=height/2+(square[2]+square[4]/2)*s;
   assert.ok(ex+4.75>=8&&ex-4.75<=204&&ey+4.75>=height-85&&ey-4.75<=height-62,'lower row conflicts with the full endpoint stroke');
   assert.match(h.el('orbit-measured-reading').textContent,/首颗行星/);assert.match(h.el('orbit-preview-reading').textContent,/预演 10 秒后/);
+ }else if(width===195){
+  assert.equal(rect,undefined,'both compact positions conflict, so the equivalent HTML reading remains');
+  assert.ok(px+38>=8&&px-38<=156&&py+38>=38&&py-38<=77,'the full upper compact panel conflicts with the first-body cue');
+  const launch=h.drawing().find(c=>c[0]==='arc'&&Math.abs(c[3]*s-8)<1e-8);assert.ok(launch);
+  const lx=width/2+launch[1]*s,ly=height/2+launch[2]*s;
+  assert.ok(lx+30>=8&&lx-30<=156&&ly+30>=height-101&&ly-30<=height-62,'the lower compact panel conflicts with the existing launch-arrow clearance');
+  assert.match(h.el('orbit-measured-help').textContent,/蓝色箭头.*长度不表示速率/);
  }else{
   assert.ok(rect,'a clear view retains the informative legend');assert.ok(rect.top>=32,'the label stays below the preview legend');
   if(rect.top>height/2)assert.ok(rect.bottom<height-56,'the lower row clears the ruler');

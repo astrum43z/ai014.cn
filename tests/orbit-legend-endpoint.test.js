@@ -6,7 +6,7 @@ const click=(h,id)=>h.el(id).handlers.click();
 const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} ≈ ${b}`);
 const scale=h=>h.drawing().find(c=>c[0]==='scale')?.[1];
 function position(h,x,y){for(const [axis,value] of [['x',x],['y',y]]){const el=h.el('orbit-target-'+axis);el.value=String(value);el.handlers.input();}click(h,'orbit-position-apply');}
-function geometry(h){const s=scale(h),r=h.el('canvas').getBoundingClientRect(),commands=h.drawing();const rect=c=>c&&({x:r.width/2+c[1]*s,y:r.height/2+c[2]*s,w:c[3]*s,h:c[4]*s});return {s,r,commands,square:rect(commands.find(c=>c[0]==='strokeRect')),legend:rect(commands.find(c=>c[0]==='fillRect'&&Math.abs(c[3]*s-196)<1e-8&&Math.abs(c[4]*s-23)<1e-8))};}
+function geometry(h){const s=scale(h),r=h.el('canvas').getBoundingClientRect(),commands=h.drawing();const rect=c=>c&&({x:r.width/2+c[1]*s,y:r.height/2+c[2]*s,w:c[3]*s,h:c[4]*s});return {s,r,commands,square:rect(commands.find(c=>c[0]==='strokeRect')),legend:rect(commands.find(c=>c[0]==='fillRect'&&[[196,23],[148,23],[148,39]].some(([w,v])=>Math.abs(c[3]*s-w)<1e-8&&Math.abs(c[4]*s-v)<1e-8)))};}
 const overlaps=(a,b,p=.75)=>a.x+a.w+p>=b.x&&a.x-p<=b.x+b.w&&a.y+a.h+p>=b.y&&a.y-p<=b.y+b.h;
 // Scalar softened integration independent of the production preview and stepper.
 function endpoint(x,y,gravity=80,speed=100){const r=Math.hypot(x,y),v=Math.sqrt(gravity*1000/r)*speed/100;let vx=-y/r*v,vy=x/r*v;for(let i=0;i<1000;i++){const d=Math.max(Math.hypot(x,y),18);vx-=gravity*1000*x/(d*d*d)*.01;vy-=gravity*1000*y/(d*d*d)*.01;x+=vx*.01;y+=vy*.01;}return {x,y};}

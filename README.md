@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Orbit measurement legend readable in narrow canvases
+
+The first-planet legend used a fixed 196-pixel panel and one long line. The public cloud browser reproduced the final words clipped at actual 500% zoom in a 171 × 240 CSS-pixel canvas, even though the HTML explanation still fit below it.
+
+The legend now uses two unchanged-size text rows in a 148-pixel panel for narrow views: the line measures distance, and the arrow only indicates direction. Running, zero-speed and offscreen states retain accurate shorter captions. The collision checks use the full panel, including its second row, and keep clear of the first planet, direction cue, launch marker and preview endpoint. A lower fallback remains above the ruler; when neither position fits, only this duplicate canvas explanation is omitted. Views at least 212 CSS pixels wide retain the original single-line legend. No physical position, simulation, parameter, control, state, storage, dependency or domain change is introduced.
+
+`tests/orbit-legend-reflow.test.js` checks panel bounds, width thresholds, exact stroke-edge collisions, both placements, unchanged font size, independent orbit integration, responsive/density changes, controls, recall/limits, retained worlds, discoveries, capture requests and simulated canvas recovery. Public cloud-browser interaction and zoomed reflow are verified separately. Controlled checks do not establish physical touch, screen-reader speech, mobile keyboard/IME, rotation, hardware graphics loss, actual layout collapse, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Walk straight-line distance visible through the sample cloud
 
 The paused blue dashed line connects the origin to the representative walker's current position. It was painted below the sample cloud. At seed 14 and 64 steps in the public 767 × 317.9375 canvas, that walker is at (10, −4); samples at (4, −2) and (6, −2) overlap visible dash segments. The public cloud-browser baseline showed the blue measurement blending into the cloud, making it harder to compare straight-line distance with the white folded path.

@@ -518,28 +518,34 @@ function drawOrbitMeasuredMarker(scale){
 }
 function drawOrbitMeasurementLegend(scale){
  if(!(scale>0))return;
+ // Keep the explanation readable at extreme zoom without shrinking its font.
+ // Below the supported compact width, the equivalent HTML reading remains.
+ const compact=width<212,boxWidth=compact?148:196;
+ if(width<boxWidth+16)return;
  const visible=orbitMeasuredBodyVisible(scale),speed=Math.hypot(bodies[0].vx,bodies[0].vy);
  const showVelocity=paused&&visible&&Number.isFinite(speed)&&speed>0;
- // Keep the late-painted label clear of the actual measured planet, including
- // its direction cue, the unchanged launch marker/arrow and the full preview
- // endpoint stroke. None may disappear behind the relocated opaque label.
+ const lines=compact?(visible?(showVelocity?['首颗 · 实线量距离','箭头仅表示方向']:paused?['首颗 · 实线量距离']:['首颗行星']):['首颗行星 · 画外']):[visible?(showVelocity?'首颗 · 线量距，箭头仅方向':paused?'首颗行星 · 实线量距离':'首颗行星'):'首颗行星 · 当前在画外'];
+ const boxHeight=23+(lines.length-1)*16;
+ // Keep the full late-painted panel clear of the actual measured planet,
+ // its direction cue, launch marker/arrow and preview endpoint stroke.
  const body=bodies[0],px=width/2+body.x*scale,py=height/2+body.y*scale,clearance=showVelocity?38:11;
  const prediction=orbitPrediction();
- const covers=(x,y,r,top)=>x+r>=8&&x-r<=204&&y+r>=top-3&&y-r<=top+20;
+ const covers=(x,y,r,top)=>x+r>=8&&x-r<=8+boxWidth&&y+r>=top-3&&y-r<=top+boxHeight-3;
  const overlaps=top=>(visible&&covers(px,py,clearance,top))||covers(width/2+orbitPoint.x*scale,height/2+orbitPoint.y*scale,30,top)||(prediction&&covers(width/2+prediction.end.x*scale,height/2+prediction.end.y*scale,4.75,top));
+ const fits=top=>top>=11&&top+boxHeight-3<=height-8&&!overlaps(top);
  let labelTop=prediction?41:12;
- if(overlaps(labelTop)){
-  const lower=height-82; // Above the ruler, whose background starts at height−56.
-  if(lower<labelTop||overlaps(lower))return; // HTML readings remain in very short views.
+ if(!fits(labelTop)){
+  const lower=height-boxHeight-59; // Keep six pixels above the ruler background.
+  if(lower<labelTop||!fits(lower))return; // HTML readings remain when neither fits.
   labelTop=lower;
  }
  ctx.save();ctx.setLineDash([]);ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5/scale;
  // Paint the legend last so a moving planet trail cannot cross its text.
  const left=-width/(2*scale)+12/scale,top=-height/(2*scale)+labelTop/scale;
- ctx.fillStyle='#122e29';ctx.fillRect(left-4/scale,top-3/scale,196/scale,23/scale);
+ ctx.fillStyle='#122e29';ctx.fillRect(left-4/scale,top-3/scale,boxWidth/scale,boxHeight/scale);
  ctx.beginPath();ctx.moveTo(left+7/scale,top+2/scale);ctx.lineTo(left+13/scale,top+8/scale);ctx.lineTo(left+7/scale,top+14/scale);ctx.lineTo(left+1/scale,top+8/scale);ctx.closePath();ctx.stroke();
  ctx.fillStyle='#e7eee1';ctx.font=`${12/scale}px sans-serif`;
- ctx.fillText(visible?(showVelocity?'首颗 · 线量距，箭头仅方向':paused?'首颗行星 · 实线量距离':'首颗行星'):'首颗行星 · 当前在画外',left+22/scale,top+12/scale);
+ lines.forEach((text,i)=>ctx.fillText(text,left+22/scale,top+(12+i*16)/scale));
  ctx.restore();
 }
 // Label the actual model-to-screen scale even after fitting a distant launcher.
