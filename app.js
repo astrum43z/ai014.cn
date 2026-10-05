@@ -207,7 +207,7 @@ function changeMode(next,sharedValues=null,saved=null){
  experimentSessions.delete(next);
  paused=true;animation?.sync();
  mode=next;paused=previousPause;
- renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts','Escape'+(mode==='life'?' Home Control+z Meta+z':mode==='fractal'?' ArrowLeft ArrowRight':mode==='walk'?' ArrowLeft ArrowRight Home':''));canvas.setAttribute('aria-describedby','canvas-pause-help'+(mode==='life'?' life-center-help life-edit-help':mode==='fractal'?' fractal-touch-help':mode==='walk'?' walk-batch-help':''));$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#fractal-back-batch').hidden=mode!=='fractal';$('#fractal-batch-help').hidden=mode!=='fractal';$('#walk-back-batch').hidden=mode!=='walk';$('#walk-batch-help').hidden=mode!=='walk';$('#wave-back').hidden=mode!=='wave';$('#wave-rewind-status').hidden=mode!=='wave';$('#life-back').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-transition-legend').hidden=true;$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#fractal-regions').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
+ renderDiscovery();preset=0;const c=configs[mode];values=sharedValues||Object.fromEntries(c.sliders.map(s=>[s[0],s[4]]));document.querySelectorAll('.tab').forEach(tab=>{const selected=tab.dataset.mode===mode;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$('#panel').setAttribute('aria-labelledby','tab-'+mode);$('#panel').setAttribute('data-experiment',mode);$('#stage-title').textContent=`0${Object.keys(configs).indexOf(mode)+1} — ${c.title}`;$('#control-title').textContent=c.heading;$('#description').textContent=c.description;$('#challenge').textContent=experimentGuides[mode].instructions;$('#guide-title').textContent=experimentGuides[mode].title;$('#explanation').textContent=c.explanation;$('#model-note').textContent=c.note;renderReadingSource();canvas.setAttribute('aria-label',c.title+'模拟；'+c.hint);canvas.setAttribute('aria-keyshortcuts','Escape'+(mode==='life'?' Home Control+z Meta+z':mode==='fractal'?' ArrowLeft ArrowRight':mode==='walk'?' ArrowLeft ArrowRight Home':''));canvas.setAttribute('aria-describedby','canvas-pause-help'+(mode==='life'?' life-center-help life-edit-help':mode==='fractal'?' fractal-touch-help':mode==='walk'?' walk-batch-help':''));$('#preset').textContent=mode==='life'?'随机播种 ↗':mode==='wave'?'换一组波源 ↗':'换一种初始状态 ↗';$('#preset-select').innerHTML='<option value="" disabled selected>先选择一个预设</option>'+presets[mode].map(([label,value])=>`<option value="${value}">${label}</option>`).join('');$('#step').textContent=mode==='life'?'下一代 +1':mode==='fractal'?'增加 100 点 +':mode==='walk'?'前进 16 步 +':mode==='wave'?'推进 ¼ 周期 +':'前进一步 +';$('#step').setAttribute('aria-label',mode==='wave'?'推进四分之一周期并暂停':$('#step').textContent);$('#step').setAttribute('aria-describedby',mode==='wave'?'wave-step-help':'');$('#fractal-back-batch').hidden=mode!=='fractal';$('#fractal-batch-help').hidden=mode!=='fractal';$('#walk-back-batch').hidden=mode!=='walk';$('#walk-batch-help').hidden=mode!=='walk';$('#wave-back').hidden=mode!=='wave';$('#wave-rewind-status').hidden=mode!=='wave';$('#life-back').hidden=mode!=='life';$('#life-back-batch').hidden=mode!=='life';$('#life-batch-help').hidden=mode!=='life';$('#life-rewind-status').hidden=mode!=='life';$('#clear').hidden=mode!=='life';$('#life-undo-clear').hidden=mode!=='life';$('#life-clear-status').hidden=mode!=='life';$('#walk-comparison').hidden=mode!=='walk';$('#walk-legend').hidden=mode!=='walk';$('#wave-key').hidden=mode!=='wave';$('#walk-distance').hidden=mode!=='walk';$('#wave-components').hidden=mode!=='wave';$('#life-inspector').hidden=mode!=='life';$('#life-transition-legend').hidden=true;$('#life-challenge').hidden=mode!=='life';$('#life-trial-result-link').hidden=mode!=='life'||!lifeTrial;$('#orbit-launch').hidden=mode!=='orbit';$('#fractal-jump').hidden=mode!=='fractal';$('#fractal-regions').hidden=mode!=='fractal';$('#share-link').hidden=true;renderSharing();renderParameters();
  if(saved){
   restoreExperiment(saved);
   choosePreset(saved.presetChoice||'');
@@ -939,20 +939,28 @@ function previousLifeGeneration(){
 }
 function renderLifeRewind(){
  const previous=previousLifeGeneration();
- setControlAttribute($('#life-back'),'aria-disabled',String(!previous));
+ for(const id of ['life-back','life-back-batch'])setControlAttribute($('#'+id),'aria-disabled',String(!previous));
  setReadingText($('#life-rewind-status'),previous?`可退回第 ${previous.generation} 代；本段记录最早为第 ${lifeHistory[0].generation} 代。退回后暂停，再前进会重现相同图案。`:'暂无上一代记录；先前进一代即可退回。绘制或载入图案后，从当前代重新记录。');
 }
-$('#life-back').addEventListener('click',()=>{
+// Revisit only a consecutive recorded prefix, never reverse Life's rule or
+// fabricate a skipped board. One batch scans at most ten history entries.
+function rewindLifeGenerations(limit){
  if(mode!=='life')return;
- const previous=previousLifeGeneration();if(!previous)return;
+ let index=lifeHistory.length-1,steps=0;
+ while(steps<limit&&index>0&&lifeHistory[index-1].generation===generation-steps-1){index--;steps++;}
+ if(!steps)return;
+ const previous=lifeHistory[index];
  cancelPainting();paused=true;acc=0;updatePause();
  lifeTrial=null;lifeCleared=null;lifeEdited=null;
- lifeHistory.pop();cells=Uint8Array.from(previous.key,Number);generation=previous.generation;
- draw();announce('已暂停并退回一代；'+observationReading());
-});
-$('#life-back').addEventListener('keydown',event=>{
- if(event.repeat&&event.key==='Enter')event.preventDefault();
-});
+ lifeHistory.splice(index+1);cells=Uint8Array.from(previous.key,Number);generation=previous.generation;
+ draw();announce((limit===1?'已暂停并退回一代；':`已暂停并退回 ${steps} 代；`)+observationReading());
+}
+for(const [id,limit] of [['life-back',1],['life-back-batch',10]]){
+ $('#'+id).addEventListener('click',()=>rewindLifeGenerations(limit));
+ $('#'+id).addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
+}
 // Record after canvas transition painting, as before. Share its exact count
 // with every population display and living-cell availability instead of
 // rescanning the same board. The recorder owns the existing edit boundaries.
