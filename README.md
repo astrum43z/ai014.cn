@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Return from Walk’s distance reading to its path
+
+Walk’s optional instruments now offer “回到画布，对照路径与直线” after the path-length and straight-line explanation, before the direction-probability bars. In the public cloud-browser baseline at 137 steps, reading the white walker’s 137-step route and 12.53-step displacement left the canvas bottom 605.8 CSS pixels above the viewport. That instrument section had no canvas-return link. The new native link is the first keyboard destination inside the opened Walk instruments and returns focus to the existing canvas.
+
+Returning only changes reading position and focus. It does not replay, reset, advance, pause, collapse the drawer or replace a target draft. The full seeded ensemble, representative path, fixed observations, return undo and completed discoveries remain intact. Existing viewport visibility rules still suspend offscreen animation and resume a running experiment when it re-enters view. The link wraps at narrow widths, has the existing 44-pixel minimum target and dark-surface focus ring. No JavaScript, model, random seed, storage, dependency, security or domain change is introduced.
+
+`tests/walk-distance-view.test.js` checks native markup, reading order and style contracts, independent seeded direction counts and displacement, exact continuation, both step boundaries, drafts/errors, fixed checkpoints and return undo, pending sharing, running timing, same-query history, retained worlds, discoveries, intentional held batches and simulated reflow/context recovery. Public cloud-browser keyboard navigation, Back/Forward and zoomed reflow are checked separately. Controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, hardware input timing, rotation, actual layout collapse, graphics-device loss, clipboard contents or downloaded-file receipt.
+
 ### Leave the closed Life neighborhood diagram idle
 
 Life’s optional nine-cell neighborhood diagram now waits while its native instrument drawer is closed. Public cloud-browser baseline inspection confirmed that a generation step changed the hidden diagram’s bottom-left cell while the drawer remained closed. In a controlled 120-generation blinker run, the previous implementation made 360 hidden `data-alive` writes; the updated implementation makes none while preserving all 120 canvas frames and exact boards. This counts avoided presentation writes, not frame rate, latency or battery use.

@@ -107,6 +107,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 
 
 /* One recorded walk separates distance traveled from displacement. */
+/* Return from the detailed Walk reading to its white path and blue distance. */
+.walk-distance #walk-distance-view{max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px;line-height:1.7;color:#d3f35b;margin:8px 0 0}
 .walk-distance{padding:12px 18px;background:#1b3931;border-top:1px solid #345046;color:#d9e4cf}
 .walk-distance h4{font-size:11px;font-weight:500;margin:0 0 10px}
 .walk-distance-readings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
