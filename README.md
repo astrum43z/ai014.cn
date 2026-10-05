@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Start a Life row or column edit from the selected cell
+
+Life’s optional exact cell editor now offers “填入当前行列”. In the public cloud-browser baseline, “下一个活格” selected column 12, row 7 while both draft targets remained empty. Entering only row 8 failed because the column was missing. The explicit fill action copies the selected cell’s 1-based column and row, then selects the column field. A visitor can change just one axis without transcribing the other reading.
+
+Filling replaces drafts only on request and clears obsolete validation errors. It does not select another cell, pause, evolve, redraw, interrupt a captured painting gesture or discard edit/clear/comparison recovery. Ordinary drawing and world switches continue to preserve drafts; Apply keeps its existing integer and range checks. Fresh Enter and native Space remain available, while held Enter cannot repeatedly refill or accidentally submit after focus moves. The two separate actions reuse the wrapping coordinate row and 44-pixel minimum target heights.
+
+`tests/life-coordinate-draft.test.js` covers every one of the 1,536 selected cells, one-axis edits, borders, errors, focus and key exclusions, running continuity with an independent toroidal next-generation oracle, draft retention, painting, all recovery actions, sharing and discoveries, retained worlds, intentional Fractal/Walk batch repetition and simulated canvas interruptions. No physics, RNG, storage, dependency, security or domain settings change. Public cloud-browser interaction and zoomed reflow are checked separately; physical touch, mobile keyboard/IME, screen-reader speech, hardware key timing, rotation, real layout collapse, graphics-device loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Start an exact edit from the current coordinates
 
 The Orbit and Wave coordinate editors now offer “填入当前坐标”. In the public cloud-browser baseline, a saved Wave observation displayed current x = 8, y = 12 while its draft targets still read 0, 0. Changing only one coordinate therefore required copying both readings manually. The new explicit action fills both targets from the exact current model position and selects target x, ready for editing. Tiny values retain their round-trippable scientific notation. Existing drafts are replaced only by this requested action; ordinary redraws and world switches still preserve them.

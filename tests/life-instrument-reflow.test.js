@@ -99,6 +99,6 @@ test('the quiet inspector keeps its DOM reading order, disclosure and exact-posi
  }
  assert.doesNotMatch(reading,/tabindex|role=|aria-live|button|input/);
  assert.match(html,/<details id="instruments" class="instrument-drawer"/);
- assert.equal((panel.match(/<input /g)||[]).length,2);assert.equal((panel.match(/<button /g)||[]).length,1);
+ assert.equal((panel.match(/<input /g)||[]).length,2);assert.deepEqual([...panel.matchAll(/<button id="([^"]+)"/g)].map(match=>match[1]),['life-use-current','life-position']);
  assert.match(html,/style\.css\?[^"\n]*&amp;life-inspector=stack-1/);
 });

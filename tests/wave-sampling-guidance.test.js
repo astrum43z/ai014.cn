@@ -103,6 +103,6 @@ test('guidance uses the existing quiet wrapping scale reading with no new contro
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
  assert.match(html,/<small id="wave-scale-reading" aria-live="off"><\/small>/);
  assert.match(css,/\.wave-key\{[^}]*overflow-wrap:anywhere/);
- assert.match(html,/<script type="module" src="app\.js\?[^"]*&amp;sampling=wave-field-fallback-1&amp;nudge=single-enter-1&amp;walk-batch=reverse-1&amp;fractal-batch=reverse-1&amp;cycle=disclosure-1&amp;coordinate-draft=current-1"/);
+ assert.match(html,/<script type="module" src="app\.js\?[^"]*&amp;sampling=wave-field-fallback-1&amp;nudge=single-enter-1&amp;walk-batch=reverse-1&amp;fractal-batch=reverse-1&amp;cycle=disclosure-1&amp;coordinate-draft=current-1&amp;life-draft=current-1"/);
  assert.doesNotMatch(html,/<link rel="stylesheet"[^>]*sampling=/);
 });

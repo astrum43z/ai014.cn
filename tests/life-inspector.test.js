@@ -62,7 +62,7 @@ test('inspector readings stay quiet and exact selection adds only its scoped con
  const readings=panel.slice(0,panel.indexOf('<div class="life-position"'));
  assert.doesNotMatch(readings,/<button|tabindex|aria-live|role="status"/);
  assert.equal((panel.match(/<input /g)||[]).length,2);
- assert.equal((panel.match(/<button /g)||[]).length,1);
+ assert.deepEqual([...panel.matchAll(/<button id="([^"]+)"/g)].map(match=>match[1]),['life-use-current','life-position']);
  assert.doesNotMatch(panel,/aria-live="(?:polite|assertive)"|role="status"|tabindex/);
  assert.match(panel,/<p id="life-position-error" aria-live="off" hidden>/);
  for(const id of ['position','state','next','reason'])assert.ok(panel.includes('id="life-cell-'+id+'"'));

@@ -689,6 +689,19 @@ function renderLifeInspector(count){
 }
 // Address any living or empty cell without editing it or walking the whole
 // torus. Targets are 1-based visitor drafts, independent of the live selection.
+$('#life-use-current').addEventListener('click',()=>{
+ if(mode!=='life')return;
+ for(const [axis,value] of [['column',focusCell.x+1],['row',focusCell.y+1]]){
+  const input=$('#life-target-'+axis);
+  input.value=String(value);input.setAttribute('aria-invalid','false');
+ }
+ $('#life-position-error').hidden=true;setReadingText($('#life-position-error'),'');
+ const input=$('#life-target-column');input.focus();input.select();
+ announce(`已填入当前框选：第 ${focusCell.x+1} 列，第 ${focusCell.y+1} 行；仅替换目标输入，实验状态未改变。`);
+});
+$('#life-use-current').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function positionLifeCell(){
  if(mode!=='life')return;
  const inputs=['column','row'].map(axis=>$('#life-target-'+axis));
