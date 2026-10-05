@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Return from an exact Life selection to its canvas cell
+
+Life’s optional cell inspector now offers “回到画布，查看框选格” immediately after the exact row/column editor. In the public cloud-browser baseline, selecting column 48, row 32 left the canvas bottom 1,154.8 CSS pixels above the viewport, with no canvas-return link in that section. Visitors can now follow the next native keyboard destination after Apply to see the orange selection and continue with the existing canvas arrow keys.
+
+The link moves reading position and focuses the existing canvas. It does not select a different cell, toggle life, evolve, reset, collapse the instruments or replace a draft. Board history, comparison return, edit/clear recovery and completed discoveries stay intact. Existing visibility rules still suspend offscreen animation and resume a running experiment when it re-enters view; the link does not change the visitor’s running choice. It wraps in narrow views, retains a 44-pixel minimum target and uses the existing dark-surface focus ring. No JavaScript, simulation, seed, storage, dependency, security or domain change is introduced.
+
+`tests/life-position-view.test.js` checks native markup and keyboard order, styling, independently evaluated toroidal neighbors and evolution, border/interior selection, drafts and errors, recovery, running visibility/timing, same-query history, retained worlds, pending sharing, discoveries and simulated display/context interruptions. Public cloud-browser keyboard navigation, Back/Forward and zoomed reflow are checked separately. Controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, hardware key timing, rotation, actual layout collapse, graphics-device loss, clipboard contents or downloaded-file receipt.
+
 ### Bring the complete Orbit preview into view
 
 Orbit now offers “收进完整预演” beside its existing launch controls. At gravity 160 and launch speed 150%, the public cloud-browser baseline showed a ten-second endpoint at (−43.3, 365.9), below the 767 × 317.9375 CSS-pixel canvas. The existing fit action correctly served the first actual planet, so it could not reveal this proposed trajectory.

@@ -514,6 +514,9 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 .life-position #life-position-help{font-size:13px;overflow-wrap:anywhere}
 .life-position #life-position-error{margin:8px 0 0;color:#ffac86;font-size:13px;overflow-wrap:anywhere}
 
+/* A native return keeps exact Life selection available to keyboard visitors. */
+.life-position #life-position-view{max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px;line-height:1.7;color:#d3f35b;margin:8px 0 0}
+
 /* Exact Orbit destinations stay in the optional instruments, clear of the
    launch controls. Targets are drafts, with a separate current-point reading. */
 .orbit-target{max-width:650px;margin-top:16px;padding-top:14px;border-top:1px solid #486358}
