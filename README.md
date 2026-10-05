@@ -18,6 +18,16 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep an observed seeded count as a replay target
+
+Fractal and Walk now offer “填入当前点数” and “填入当前步数” beside their exact replay editors. The public cloud-browser baseline showed Fractal at 513 points while its retained target still read 300; Walk at 73 steps had an empty target. Capturing the current count explicitly avoids transcribing it, so a visitor can advance and then replay the observed sample, or edit the count first.
+
+Filling only replaces and selects the target and clears its obsolete validation error. It does not pause, redraw, consume random draws, reset partial animation timing, change parameters, replace saved links or discard return undo. Ordinary redraws and world changes keep the draft. Replay uses the current seed and parameters, as the nearby help explains; a filled count is not a stored model or a new shared checkpoint. The existing integer bounds and separate Apply action remain unchanged.
+
+Fresh Enter and Space stay native; held Enter cannot repeatedly refill or accidentally replay after focus moves. Intentional primary Fractal/Walk batch repeats are unchanged. The native buttons use the existing wrapping rows and 44-pixel minimum targets. Only Share records a new fixed link, and only a successful Check records a discovery. No physics, RNG, storage, dependency, security or domain change is introduced.
+
+`tests/seeded-count-draft.test.js` checks exact capture at both bounds, independent seeded geometry and continuation, running timing, focus and key exclusions, draft/error retention, inactive controls, saved and pending sharing, return undo, history, discoveries and simulated display/context interruptions. Public cloud-browser interaction and zoomed reflow are checked separately. Physical touch, mobile keyboard/IME, screen-reader speech, hardware key timing, rotation, actual layout collapse, graphics-device loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Keep an exact Wave phase as a time target
 
 The optional Wave instruments now offer “填入当前时刻”. In the public cloud-browser baseline, a quarter-step left the target at 0.125 while the current reading was t = 0.6485987755982988. Returning to that observed phase required manually transcribing the longer decimal. The explicit fill action copies the exact current model time into the target and selects it. Visitors can advance the wave and later use the existing seek action to revisit that phase, or edit the filled number first.

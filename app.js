@@ -1748,6 +1748,13 @@ function clearFractalSeekError(){
  $('#fractal-seek-error').hidden=true;
  setReadingText($('#fractal-seek-error'),'');
 }
+// Capture this seeded observation as an editable draft; do not replay or pause.
+$('#fractal-count-current-fill').addEventListener('click',()=>{
+ if(mode!=='fractal')return;
+ const input=$('#fractal-count');input.value=String(fractal.count);clearFractalSeekError();
+ input.focus();input.select();
+ announce(`已填入当前点数：${fractal.count} 点；仅替换目标输入，实验状态未改变。`);
+});
 function seekFractalCount(){
  if(mode!=='fractal')return;
  const input=$('#fractal-count'),raw=normalizeTargetNumber(input.value),count=Number(raw);
@@ -1846,6 +1853,13 @@ function clearWalkSeekError(){
  $('#walk-count').setAttribute('aria-invalid','false');
  $('#walk-seek-error').hidden=true;setReadingText($('#walk-seek-error'),'');
 }
+// Capture this seeded observation as an editable draft; do not replay or pause.
+$('#walk-count-current-fill').addEventListener('click',()=>{
+ if(mode!=='walk')return;
+ const input=$('#walk-count');input.value=String(walk.steps);clearWalkSeekError();
+ input.focus();input.select();
+ announce(`已填入当前步数：${walk.steps} 步；仅替换目标输入，实验状态未改变。`);
+});
 function seekWalkCount(){
  if(mode!=='walk')return;
  const input=$('#walk-count'),raw=normalizeTargetNumber(input.value),steps=Number(raw);
@@ -1877,7 +1891,7 @@ $('#walk-step-one').addEventListener('click',()=>{
 });
 // Explicit replay is one destination per press, like the fractal canvas key.
 // Keep native Space keyup and fresh presses; only cancel held Enter repeats.
-for(const id of ['fractal-back','fractal-forward','fractal-step','fractal-seek','walk-back','walk-step-one','walk-seek']){
+for(const id of ['fractal-back','fractal-forward','fractal-step','fractal-seek','fractal-count-current-fill','walk-back','walk-step-one','walk-seek','walk-count-current-fill']){
  $('#'+id).addEventListener('keydown',event=>{
   if(event.repeat&&event.key==='Enter')event.preventDefault();
  });
