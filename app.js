@@ -826,28 +826,30 @@ function renderLifeChangeNavigation(){
  const previous=lifeTransitionBefore();
  const changes=previous?(lifeTrial?.report||readLifeHistory(lifeHistory,generation).turnover):null;
  const count=changes?changes.born+changes.died:0;
- setControlAttribute($('#life-next-change'),'aria-disabled',String(!count));
+ for(const id of ['life-previous-change','life-next-change'])setControlAttribute($('#'+id),'aria-disabled',String(!count));
  setReadingText($('#life-change-help'),!previous?'暂无相邻上一代记录；前进一代后可寻找新生或消失的格子。':
-  count?`第 ${previous.generation} → ${generation} 代有 ${count} 处生灭；从橙框后按行循环寻找，选中后暂停，不改图案。`:
+  count?`第 ${previous.generation} → ${generation} 代有 ${count} 处生灭；按行向前或向后循环寻找，选中后暂停，不改图案。`:
   `第 ${previous.generation} → ${generation} 代没有格子新生或消失。`);
 }
-function selectLifeChange(){
+function selectLifeChange(direction){
  if(mode!=='life')return;
  const previous=lifeTransitionBefore();if(!previous)return;
  const current=focusCell.y*48+focusCell.x;
  for(let distance=1;distance<=cells.length;distance++){
-  const next=(current+distance)%cells.length;
+  const next=(current+direction*distance+cells.length)%cells.length;
   if(Number(previous.cells[next])===cells[next])continue;
   interruptPainting();paused=true;updatePause();
   focusCell={x:next%48,y:Math.floor(next/48)};
-  draw();announce('已暂停，'+(next===current?'这一代只有这一处生灭；':'已找到下一处生灭；')+$('#life-selection').textContent+'；'+$('#life-cell-transition').textContent);
+  draw();announce('已暂停，'+(next===current?'这一代只有这一处生灭；':direction<0?'已找到上一处生灭；':'已找到下一处生灭；')+$('#life-selection').textContent+'；'+$('#life-cell-transition').textContent);
   return;
  }
 }
-$('#life-next-change').addEventListener('click',selectLifeChange);
-$('#life-next-change').addEventListener('keydown',event=>{
- if(event.repeat&&event.key==='Enter')event.preventDefault();
-});
+for(const [id,direction] of [['life-previous-change',-1],['life-next-change',1]]){
+ $('#'+id).addEventListener('click',()=>selectLifeChange(direction));
+ $('#'+id).addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
+}
 function testLifeDrawing(){
  if(mode!=='life'||lifeTrial)return;
  cancelPainting();paused=true;acc=0;updatePause();

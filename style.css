@@ -494,8 +494,8 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 
 /* Navigate actual Life births/deaths outside the narrow direction grid. */
 .life-touch .life-change-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
-.life-touch #life-next-change{flex:0 1 auto;min-height:44px;white-space:normal;overflow-wrap:anywhere;font-size:13px}
-.life-touch #life-next-change[aria-disabled="true"]{opacity:.6;cursor:default}
+.life-touch #life-previous-change,.life-touch #life-next-change{flex:0 1 auto;min-height:44px;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+.life-touch #life-previous-change[aria-disabled="true"],.life-touch #life-next-change[aria-disabled="true"]{opacity:.6;cursor:default}
 .life-touch #life-change-help{flex:1 1 150px;color:#e6ecd8;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
 
 /* Optional Life cell destinations do not add another tool to the canvas row. */

@@ -1,9 +1,11 @@
-import test from 'node:test';
+import nodeTest from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {setup} from './life-challenge-harness.js';
 
-const id='life-next-change',click=(h,name=id)=>h.el(name).handlers.click();
+for(const [id,direction] of [['life-previous-change',-1],['life-next-change',1]]){
+const test=(name,...args)=>nodeTest(`${id}: ${name}`,...args);
+const click=(h,name=id)=>h.el(name).handlers.click();
 const selected=h=>{const m=h.el('life-selection').textContent.match(/第 (\d+) 列，第 (\d+) 行/);return (Number(m[2])-1)*48+Number(m[1])-1;};
 function board(h){
  const r=h.el('canvas').getBoundingClientRect(),result=new Uint8Array(1536);let color;
@@ -28,7 +30,7 @@ function checkCircuit(h,before,after){
  const changed=changes(before,after),unchanged=preserved(h);available(h,changed.length>0);
  assert.deepEqual(board(h),evolve(before));
  for(let step=0;step<changed.length+1;step++){
-  const current=selected(h),next=changed.find(i=>i>current)??changed[0];click(h);
+  const current=selected(h),next=direction<0?(changed.findLast(i=>i<current)??changed.at(-1)):(changed.find(i=>i>current)??changed[0]);click(h);
   assert.equal(selected(h),next);assert.deepEqual(preserved(h),unchanged);
   assert.match(h.el('life-cell-transition').textContent,after[next]?/原为空格.*因而诞生/:/原为活格.*因而消失/);
   assert.ok(h.el('announcement').textContent.includes(h.el('life-cell-transition').textContent));
@@ -49,7 +51,7 @@ test('glider and pulsar navigation follows independently evolved boards over suc
  }
 });
 
-test('wrapped edge changes follow board row order and wrap to the first actual change',async()=>{
+test('wrapped edge changes follow the requested row direction and wrap at either end',async()=>{
  const h=await setup('?experiment=life');click(h,'clear');for(const p of [[47,31],[0,31],[1,31]])tap(h,...p);
  const before=board(h);click(h,'step');checkCircuit(h,before,board(h));
  assert.deepEqual(changes(before,board(h)),[0,1440,1489,1535]);
@@ -165,8 +167,30 @@ test('held Enter is ignored while native click and Space keep their normal activ
 
 test('a named quiet native control wraps independently of the directional grid with the existing stage focus ring',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),css=readFileSync(new URL('../style.css',import.meta.url),'utf8');
- assert.match(html,/<p class="life-change-actions"><button id="life-next-change" type="button" aria-controls="canvas" aria-disabled="true" aria-describedby="life-change-help">下一处生灭<\/button><small id="life-change-help" aria-live="off"><\/small><\/p>/);
- assert.equal((html.match(/id="life-next-change"/g)||[]).length,1);assert.equal((html.match(/&amp;change-browse=1/g)||[]).length,2);
- assert.match(css,/\.life-touch \.life-change-actions\{[^}]*flex-wrap:wrap/);assert.match(css,/\.life-touch #life-next-change\{[^}]*min-height:44px[^}]*overflow-wrap:anywhere/);
+ assert.match(html,/<p class="life-change-actions"><button id="life-previous-change" type="button" aria-controls="canvas" aria-disabled="true" aria-describedby="life-change-help">上一处生灭<\/button><button id="life-next-change" type="button" aria-controls="canvas" aria-disabled="true" aria-describedby="life-change-help">下一处生灭<\/button><small id="life-change-help" aria-live="off"><\/small><\/p>/);
+ for(const name of ['life-previous-change','life-next-change'])assert.equal((html.match(new RegExp(`id="${name}"`,'g'))||[]).length,1);assert.equal((html.match(/&amp;change-browse=2/g)||[]).length,2);
+ assert.match(css,/\.life-touch \.life-change-actions\{[^}]*flex-wrap:wrap/);assert.match(css,/\.life-touch #life-previous-change,\.life-touch #life-next-change\{[^}]*min-height:44px[^}]*overflow-wrap:anywhere/);
+ assert.match(css,/\.life-touch #life-previous-change\[aria-disabled="true"\],\.life-touch #life-next-change\[aria-disabled="true"\]/);
  assert.match(css,/\.stage,\.instrument-drawer\{--focus-ring:var\(--focus-on-dark\)\}/);
+});
+
+}
+
+nodeTest('next then previous returns to each changed cell without rebuilding the generation',async()=>{
+ const h=await setup('?experiment=life'),click=id=>h.el(id).handlers.click();
+ click('step');const original=h.drawing(),metrics=h.el('metrics').textContent,history=h.el('history-line').getAttribute('points');
+ assert.match(h.el('life-change-help').textContent,/有 7 处生灭/);
+ click('life-next-change');
+ for(let i=0;i<7;i++){
+  const selection=h.el('life-selection').textContent,transition=h.el('life-cell-transition').textContent;
+  click('life-next-change');const next=h.el('life-selection').textContent;assert.notEqual(next,selection);
+  h.el('life-previous-change').focus();click('life-previous-change');
+  assert.equal(h.el('life-selection').textContent,selection);assert.equal(h.el('life-cell-transition').textContent,transition);
+  assert.match(h.el('announcement').textContent,/已找到上一处生灭/);assert.equal(document.activeElement,h.el('life-previous-change'));
+  click('life-next-change');assert.equal(h.el('life-selection').textContent,next);
+  assert.equal(h.el('metrics').textContent,metrics);assert.equal(h.el('history-line').getAttribute('points'),history);
+ }
+ assert.equal(h.frames.size,0);assert.equal(h.el('notes-count').textContent,'0 / 5');
+ // No model fill changes: selection and transition overlays may differ.
+ const fills=d=>d.filter(([name])=>name==='fillRect');assert.deepEqual(fills(h.drawing()),fills(original));
 });
