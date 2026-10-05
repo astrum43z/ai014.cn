@@ -81,6 +81,9 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 /* A single seeded jump makes the chaos-game construction visible at human pace. */
 .fractal-jump{padding:12px 18px;background:#1b3931;border-top:1px solid #345046;color:#d9e4cf}
 .fractal-jump-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px}
+/* Inspect the just-added Fractal jump without traversing another diagram. */
+.fractal-jump #fractal-jump-view{max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px;line-height:1.7;color:#d3f35b;margin:4px 0 8px}
+
 .fractal-jump h4{font-size:11px;font-weight:500;margin:0}.fractal-jump button{min-height:44px;padding:10px 14px;background:#e6ecd8;border-color:#acbca4;font-size:12px}
 .fractal-jump p{margin:9px 0 5px;font-size:11px;line-height:1.7}.fractal-jump #fractal-jump-reading{color:#ffac86;font-variant-numeric:tabular-nums}
 .fractal-jump #fractal-jump-note,.fractal-jump small{font-size:10px;line-height:1.7;color:#a9bfab}.fractal-jump small{display:block;margin-top:8px}
