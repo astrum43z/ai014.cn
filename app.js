@@ -1293,6 +1293,17 @@ function clearWaveTimeError(){
  $('#wave-time').setAttribute('aria-invalid','false');
  $('#wave-time-error').hidden=true;setReadingText($('#wave-time-error'),'');
 }
+// Capture an exact phase in the draft without seeking, pausing or redrawing.
+// A running clock can exceed the editor's range; Apply still validates it.
+$('#wave-time-current-fill').addEventListener('click',()=>{
+ if(mode!=='wave')return;
+ const input=$('#wave-time');input.value=String(t);clearWaveTimeError();
+ input.focus();input.select();
+ announce(`已填入当前时刻：t = ${t} 模型秒；仅替换目标输入，实验状态未改变。`);
+});
+$('#wave-time-current-fill').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function seekWaveTime(){
  if(mode!=='wave')return;
  const input=$('#wave-time'),raw=normalizeTargetNumber(input.value),time=readTargetNumber(raw);

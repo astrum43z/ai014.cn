@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep an exact Wave phase as a time target
+
+The optional Wave instruments now offer “填入当前时刻”. In the public cloud-browser baseline, a quarter-step left the target at 0.125 while the current reading was t = 0.6485987755982988. Returning to that observed phase required manually transcribing the longer decimal. The explicit fill action copies the exact current model time into the target and selects it. Visitors can advance the wave and later use the existing seek action to revisit that phase, or edit the filled number first.
+
+Filling replaces only the target and its obsolete validation error. It does not pause, advance, redraw, change probe or parameters, modify a saved link or discard return undo. Animation and ordinary redraws never refill the draft. Tiny times retain round-trippable scientific notation. If the running clock exceeds the editor’s existing maximum, filling preserves that exact value and the separate seek action still rejects it. Fresh Enter and Space remain native; held Enter cannot repeatedly refill or accidentally seek after focus moves. The action uses the existing wrapping time-editor row and 44-pixel minimum targets.
+
+`tests/wave-time-draft.test.js` covers exact phase replay with independent two-source readings, precision and bounds, focus and key exclusions, running continuity, errors and retained drafts, fixed and pending sharing, return undo, discoveries, inactive worlds and simulated display/context interruptions. Existing full-suite checks retain intentional Fractal/Walk batch repeats and slider repeats. Public cloud-browser interaction and zoomed reflow are checked separately. No physics, RNG, storage, dependency, security or domain change is introduced; physical touch, mobile keyboard/IME, screen-reader speech, hardware input timing, rotation, actual layout collapse, graphics-device loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Start a Life row or column edit from the selected cell
 
 Life’s optional exact cell editor now offers “填入当前行列”. In the public cloud-browser baseline, “下一个活格” selected column 12, row 7 while both draft targets remained empty. Entering only row 8 failed because the column was missing. The explicit fill action copies the selected cell’s 1-based column and row, then selects the column field. A visitor can change just one axis without transcribing the other reading.

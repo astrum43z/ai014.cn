@@ -78,7 +78,7 @@ test('ordinary instrument grids and native accessible time controls are unchange
  assert.equal(styles(1000,'.wave-cycle-row')['grid-template-columns'],'76px 24px minmax(0,1fr)');
  assert.equal(styles(320,'.wave-time-seek input')['min-height'],'44px');
  assert.equal(styles(320,'.wave-time-seek button')['min-height'],'44px');
- assert.match(html,/<input id="wave-time"[^>]+aria-describedby="wave-time-current wave-time-help wave-time-error"[^>]*><button id="wave-time-seek" type="button"/);
+ assert.match(html,/<input id="wave-time"[^>]+aria-describedby="wave-time-current wave-time-help wave-time-error"[^>]*><button id="wave-time-current-fill" type="button" aria-controls="wave-time" aria-describedby="wave-time-help">填入当前时刻<\/button><button id="wave-time-seek" type="button"/);
  assert.match(html,/<details id="instruments" class="instrument-drawer"/);
  for(const key of ['left','right','combined'])assert.match(html,new RegExp('aria-live="off" id="wave-value-'+key+'" aria-label="[^"]+"'));
  assert.match(html,/<div class="wave-cycle-axis" aria-hidden="true"><span>0<\/span><span>T\/4<\/span><span>T\/2<\/span><span>3T\/4<\/span><span>T<\/span><\/div>/);
