@@ -7,19 +7,27 @@ const click=(h,id)=>h.el(id).handlers.click();
 const reading=h=>h.el('wave-scale-reading').textContent;
 function ruler(h,scale,height){
  const marks=h.drawing(),label=marks.find(item=>item[0]==='fillText'&&/^\d+(?:\.\d+)? 模型单位$/.test(item[1]));
- assert.ok(label,'the canvas has a model-unit ruler');
- const units=Number(label[1].split(' ')[0]),at=marks.indexOf(label);
- const pathMark=marks.findIndex(item=>item[0]==='setLineDash'&&JSON.stringify(item[1])==='[7,5]');
+ const width=h.el('canvas').getBoundingClientRect().width,probe=marks.find(item=>item[0]==='arc'&&item[3]===9);
+ const candidates=[16,width-148].filter(left=>left>=16&&left+132<=width-16&&height>=66);
+ const left=candidates.find(left=>!(probe[1]+16.5>=left&&probe[1]-16.5<=left+132&&probe[2]+16.5>=height-56&&probe[2]-16.5<=height-10));
+ const capacity=80/scale,power=10**Math.floor(Math.log10(capacity)),units=Number([5,2,1].map(n=>n*power).find(n=>n<=capacity).toPrecision(6));
+ const warning=Number(h.el('wavelength').value)*scale<=10?'当前视图条纹过密，色场暂隐以避免假条纹，底色不表示位移；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
+ if(left===undefined){
+  assert.equal(label,undefined,'a ruler cannot cover the probe when neither corner fits');
+  assert.equal(reading(h),`标尺暂隐以留出画面；视图缩放不改变实验参数与探针位置。${warning}`);
+  return units;
+ }
+ assert.ok(label,'a clear corner has a model-unit ruler');assert.equal(Number(label[1].split(' ')[0]),units);
+ const at=marks.indexOf(label),pathMark=marks.findIndex(item=>item[0]==='setLineDash'&&JSON.stringify(item[1])==='[7,5]');
  if(pathMark>=0)assert.ok(pathMark<at,'measuring paths cannot cross the readable ruler label');
  const path=marks.slice(at+1).find(item=>item[0]==='lineTo');
- assert.ok(path);assert.equal(path[2],height-21);
- assert.ok(Math.abs(path[1]-24-units*scale)<1e-9,'drawn length equals the labelled model length times the actual view scale');
+ assert.ok(path);assert.equal(path[2],height-21);assert.equal(label[2],left+8);
+ assert.ok(Math.abs(path[1]-label[2]-units*scale)<1e-9,'drawn length equals the labelled model length times the actual view scale');
  assert.ok(units*scale>31.99&&units*scale<=80.0000001,'a readable 1/2/5 ruler fits the same small corner');
  const mantissa=units/10**Math.floor(Math.log10(units));
  assert.ok([1,2,5].some(n=>Math.abs(n-mantissa)<1e-8));
- const warning=Number(h.el('wavelength').value)*scale<=10?'当前视图条纹过密，色场暂隐以避免假条纹，底色不表示位移；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
- assert.equal(reading(h),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。${warning}`);
- assert.ok(marks.findIndex(item=>item[0]==='arc'&&item[3]===9)>at,'probe is drawn above the ruler, including overlapping corner measurements');
+ assert.equal(reading(h),`${left===16?'左下':'右下'}标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。${warning}`);
+ assert.ok(marks.indexOf(probe)>at,'probe keeps the original paint priority');
  return units;
 }
 function state(h){return {metrics:h.el('metrics').textContent,probe:h.el('wave-probe-reading').textContent,envelope:h.el('wave-envelope').textContent,instant:h.el('wave-instant-reading').textContent,url:location.href,notes:h.el('field-notes-list').innerHTML,mission:h.el('mission-result').textContent};}

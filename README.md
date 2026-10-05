@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Wave ruler clear of its measuring probe
+
+At probe (−240, 110) in the public 647 × 317.9375 CSS-pixel canvas, the crosshair crossed the lower-left ruler’s “模型单位” label. The probe correctly retained its exact position above the ruler, but their overlapping strokes made the scale harder to read. The public cloud browser reproduced this collision.
+
+The ruler now uses its original lower-left corner when clear, or the lower-right corner if the probe’s complete crosshair and dark casing overlap its panel. If neither corner has room, only the duplicate canvas ruler is omitted. The quiet HTML reading names the actual corner or explains the omission, and always retains the dense-field sampling warning when applicable. The font, backing, 1/2/5 scale intervals, tick lengths, probe, source locations, paths and physical readings are unchanged. The omitted ruler is also absent from canvas-only PNG captures, which do not include the HTML explanation. No controls, physics, seeds, observation format, recovery, storage, dependencies or domain settings change.
+
+`tests/wave-ruler-probe.test.js` covers the reproduced collision, inclusive casing-edge boundaries, both-corner conflicts, width and height limits, unchanged ruler geometry, independently computed two-source readings, exact targeting and keyboard behavior, animation and quarter stepping, fixed checkpoints and return undo, retained worlds, discoveries, capture requests and simulated display/context recovery. Existing scale tests retain their unit, scale and layering assertions for either corner and omission. Public cloud-browser interaction and zoomed reflow are checked separately; controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Orbit ruler clear of the preview endpoint
 
 At exact launch target (−1000, 600), the lower-left ruler's opaque backing completely covered the ten-second preview endpoint. The public cloud browser reproduced the missing square in a 647 × 317.9375 CSS-pixel canvas; its full stroke lay inside the ruler panel even though the preview's HTML coordinates remained correct.

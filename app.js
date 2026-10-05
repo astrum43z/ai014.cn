@@ -1928,18 +1928,24 @@ function drawWaveScale(scale){
  if(!Number.isFinite(scale)||scale<=0){setReadingText($('#wave-scale-reading'),'');return;}
  const capacity=80/scale,power=10**Math.floor(Math.log10(capacity));
  const units=Number(([5,2,1].map(n=>n*power).find(n=>n<=capacity)).toPrecision(6));
- const length=units*scale,x=24,y=height-21;
+ const length=units*scale,y=height-21;
+ // The later-painted probe must remain exact, but can erase the ruler text.
+ // Reserve its whole crosshair and dark casing before choosing a corner.
+ const px=width/2+probe.x*scale,py=height/2+probe.y*scale;
+ const clear=x=>!(px+16.5>=x-8&&px-16.5<=x+124&&py+16.5>=height-56&&py-16.5<=height-10);
+ const x=[24,width-140].find(x=>x>=24&&x+124<=width-16&&height>=66&&clear(x));
+ // A distant fitted probe can put a whole wavelength between color samples.
+ // Preserve the sampling warning even when neither corner can hold a ruler.
+ const samplingNote=waveFieldTooDense(scale)?'当前视图条纹过密，色场暂隐以避免假条纹，底色不表示位移；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
+ const context='视图缩放不改变实验参数与探针位置。'+samplingNote;
+ if(x===undefined){setReadingText($('#wave-scale-reading'),'标尺暂隐以留出画面；'+context);return;}
  ctx.save();
- ctx.fillStyle='#122e29e6';ctx.fillRect(16,height-56,132,46);
+ ctx.fillStyle='#122e29e6';ctx.fillRect(x-8,height-56,132,46);
  ctx.fillStyle='#e7eee1';ctx.font='11px sans-serif';ctx.fillText(`${units} 模型单位`,x,y-12);
  ctx.strokeStyle='#e7eee1';ctx.lineWidth=1.5;ctx.setLineDash([]);ctx.beginPath();
  ctx.moveTo(x,y);ctx.lineTo(x+length,y);
  ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.moveTo(x+length,y-4);ctx.lineTo(x+length,y+4);ctx.stroke();ctx.restore();
- // A distant fitted probe can put a whole wavelength between color samples.
- // Omit at or below two samples per wavelength; a higher count is not a
- // promise of exact reconstruction. The probe still evaluates model geometry.
- const samplingNote=waveFieldTooDense(scale)?'当前视图条纹过密，色场暂隐以避免假条纹，底色不表示位移；请以探针读数为准，可试试“探针回中央”恢复近景。':'';
- setReadingText($('#wave-scale-reading'),`左下标尺：${units} 模型单位；视图缩放不改变实验参数与探针位置。${samplingNote}`);
+ setReadingText($('#wave-scale-reading'),`${x===24?'左下':'右下'}标尺：${units} 模型单位；`+context);
 }
 
 // Dual-tone markers remain visible across bright peaks and dark zero crossings.
