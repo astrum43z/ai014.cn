@@ -86,8 +86,8 @@ test('expired undo cannot roll back a model step, a Clear recovery or a replacem
 for(const experiment of ['orbit','wave','fractal','walk'])test(`undo shortcut is not intercepted in ${experiment}`,async()=>{
  const h=await setup('?experiment='+experiment,'',false),before=state(h);
  assert.equal(key(h),false);assert.equal(key(h,{ctrlKey:false,metaKey:true}),false);assert.deepEqual(state(h),before);
- assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'',experiment==='fractal'?'Escape ArrowLeft ArrowRight':'Escape');
- assert.equal(h.el('canvas').getAttribute('aria-describedby')||'',experiment==='fractal'?'canvas-pause-help fractal-touch-help':'canvas-pause-help');
+ assert.equal(h.el('canvas').getAttribute('aria-keyshortcuts')||'',experiment==='fractal'?'Escape ArrowLeft ArrowRight':experiment==='walk'?'Escape ArrowLeft ArrowRight Home':'Escape');
+ assert.equal(h.el('canvas').getAttribute('aria-describedby')||'',experiment==='fractal'?'canvas-pause-help fractal-touch-help':experiment==='walk'?'canvas-pause-help walk-batch-help':'canvas-pause-help');
 });
 
 test('shortcut never checks an exploration or rewrites earned notebook entries',async()=>{

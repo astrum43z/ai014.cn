@@ -18,6 +18,16 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Rewind a whole random-walk batch
+
+Walk now offers “退回 16 步 −” beside its existing forward batch, plus the canvas Left arrow. The public cloud-browser baseline advanced from 16 to 32 with +16, but Left did nothing; returning the same distance otherwise took sixteen −1 presses or an exact target. The new action replays the current seed and bias to sixteen steps earlier and pauses. A partial batch stops at the existing 16-step start, so 25 returns to 16 rather than creating an unsupported checkpoint. All 256 walkers and the representative path follow the same seeded sequence; advancing again reproduces the same positions.
+
+Like the existing forward batch, holding the key can continue in batches. The one-step controls retain their single-press guards. At the lower bound the backward button remains focusable and quietly unavailable; activation leaves even a running initial state unchanged. Valid replay clears partial animation timing through the existing checkpoint operation. Canvas focus stays put, modifiers and composing keys remain native, and shortcut names plus nearby help explain both directions and bounds. The native button shares the wrapping control row and its minimum target size.
+
+Targets, validation drafts, fixed shared observations, one-level return recovery, retained worlds and completed discoveries remain intact. Only Share captures a new checkpoint, and only an explicit successful Check records a discovery. No physics, RNG, storage, dependency, security or domain settings change.
+
+`tests/walk-batch-rewind.test.js` uses an independent BigInt recurrence to verify every walker and the full path, all 26 biases, exact next draws, partial and full batches, both limits, held inputs, running interruption, focus and keyboard exclusions, saved and asynchronous sharing, return recovery, retained drafts and worlds, discovery integrity and simulated display/context interruptions. Public cloud-browser interaction and zoomed reflow are checked separately. Physical touch, mobile keyboard/IME behavior, screen-reader speech, hardware key timing, rotation, actual layout collapse, graphics-device loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Revisit the previous changed Life cell
 
 Life now offers “上一处生灭” beside “下一处生灭”. The public cloud-browser baseline had seven births/deaths in the default first generation but only forward browsing; revisiting a just-passed change required cycling through the other changes. The new action searches backward in row order, wrapping from the first cell to the last. Next keeps its existing forward order. Both select only an actual birth or death relative to the retained previous board and explain that cell’s transition through the existing reading.
