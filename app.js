@@ -1729,7 +1729,14 @@ function drawFractal(){
  fractalVertices.forEach(([x,y],i)=>{
   const px=cx+x*scale,py=cy+y*scale;
   ctx.fillStyle=palette[i];ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#e7eee1';ctx.fillText('ABC'[i],px+(i===0?-4:i===1?-14:9),py+(i===0?-13:15));
+  // Keep the vertex names inside a narrow canvas without moving its geometry.
+  // Measure the active font; maxWidth also covers a view smaller than a glyph.
+  const label='ABC'[i],measured=ctx.measureText(label)?.width,room=width-8;
+  const labelWidth=Number.isFinite(measured)&&measured>0?measured:12;
+  if(room>0){
+   const labelX=Math.max(4,Math.min(width-4-Math.min(labelWidth,room),px+(i===0?-4:i===1?-14:9)));
+   ctx.fillStyle='#e7eee1';ctx.fillText(label,labelX,py+(i===0?-13:15),room);
+  }
  });
  
 }
