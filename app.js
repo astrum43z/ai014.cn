@@ -1741,13 +1741,19 @@ function fractalReading(){
 }
 // Images of the whole outer triangle under one jump, not point samples or
 // the final attractor. Seed and count never affect this first-level geometry.
-function renderFractalRegions(){
+function renderFractalRegionGeometry(){
+ // Hidden first-level triangles need no affine construction or DOM checks.
+ // Opening reads the current ratio; text and model readings stay live.
+ if(!$('#instruments').open)return;
  const regions=fractalRegions(values.jump);
  regions.forEach((vertices,index)=>{
   const element=$('#fractal-region-'+index);
   const points=vertices.map(([x,y])=>`${160+x*140},${166+y*140}`).join(' ');
   if(element.getAttribute?.('points')!==points)element.setAttribute('points',points);
  });
+}
+function renderFractalRegions(){
+ renderFractalRegionGeometry();
  const relation=values.jump<50?'三块范围部分重叠；重叠处不一定被实际落点填满。':values.jump===50?'三块只在外框的边中点相接，中央留空。':'三块范围彼此分离，中间留有空隙。';
  setReadingText($('#fractal-regions-reading'),`前进 ${values.jump}% → 每块边长为外框的 ${100-values.jump}%。${relation}`);
 }
@@ -2172,6 +2178,10 @@ $('#instruments').addEventListener('toggle',()=>{
  if(!$('#instruments').open)return;
  if(mode==='life'){
   renderLifeNeighborhood(inspectLifeCell(cells,48,32,focusCell.x,focusCell.y));
+  return;
+ }
+ if(mode==='fractal'){
+  renderFractalRegionGeometry();
   return;
  }
  if(mode!=='wave')return;

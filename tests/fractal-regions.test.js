@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fractalRegions} from '../fractal-regions.js';
 import {createFractal,addFractalPoints} from '../fractal.js';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupClosed} from './life-challenge-harness.js';
+// These tests inspect the displayed diagram; closed disclosure is tested separately.
+async function setup(...args){const h=await setupClosed(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 
 const click=(h,id)=>h.el(id).handlers.click();
 const input=(h,id,value)=>h.el(id).handlers.input({target:{value:String(value)}});
