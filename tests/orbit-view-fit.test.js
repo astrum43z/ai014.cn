@@ -148,9 +148,18 @@ for(const [width,height] of [[600,414],[320,240],[195,260],[768,330]])test(`reco
  if(available(h))click(h,'orbit-fit');else{const unchanged=state(h);click(h,'orbit-fit');assert.deepEqual(state(h),unchanged);}
  assert.deepEqual(model(h),before);assert.deepEqual(fixed(h),original);
  const s=scale(h),[x,y]=before.positions[0],px=width/2+x*s,py=height/2+y*s,rect=legendRect(h,width,height);
- assert.ok(rect,'ordinary view retains the informative legend');assert.ok(rect.top>=32,'the label stays below the preview legend');
- if(rect.top>height/2)assert.ok(rect.bottom<height-56,'the lower row clears the ruler');
- assert.ok(px+38<rect.left||px-38>rect.right||py+38<rect.top||py-38>rect.bottom,'neither the marker nor its 34px direction cue is masked');
+ if(width===320){
+  assert.equal(rect,undefined,'both existing rows conflict, so only the duplicate legend is omitted');
+  assert.ok(px+38>=8&&px-38<=204&&py+38>=38&&py-38<=61,'upper row conflicts with the actual first-body cue');
+  const square=h.drawing().find(c=>c[0]==='strokeRect');assert.ok(square,'the exact preview endpoint remains drawn');
+  const ex=width/2+(square[1]+square[3]/2)*s,ey=height/2+(square[2]+square[4]/2)*s;
+  assert.ok(ex+4.75>=8&&ex-4.75<=204&&ey+4.75>=height-85&&ey-4.75<=height-62,'lower row conflicts with the full endpoint stroke');
+  assert.match(h.el('orbit-measured-reading').textContent,/首颗行星/);assert.match(h.el('orbit-preview-reading').textContent,/预演 10 秒后/);
+ }else{
+  assert.ok(rect,'a clear view retains the informative legend');assert.ok(rect.top>=32,'the label stays below the preview legend');
+  if(rect.top>height/2)assert.ok(rect.bottom<height-56,'the lower row clears the ruler');
+  assert.ok(px+38<rect.left||px-38>rect.right||py+38<rect.top||py-38>rect.bottom,'neither the marker nor its 34px direction cue is masked');
+ }
  if(width===600)assert.ok(rect.top>height/2,'the exact reported upper-left collision moves below the planet');
  assert.equal(available(h),false);const after=h.drawing();h.resize(width,height);assert.deepEqual(h.drawing(),after);
 });

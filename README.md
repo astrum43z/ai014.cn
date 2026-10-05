@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Orbit first-planet legend clear of the preview endpoint
+
+The opaque first-planet legend could hide the separate ten-second preview endpoint. At target (−500, −35) in the public 767 × 317.9375 canvas, the endpoint center is approximately CSS (51.16, 48.11), inside that legend. The public cloud-browser baseline reproduced the missing square even though the preview caption itself was clear.
+
+The existing legend-placement check now includes the endpoint’s full 8-pixel square and 1.5-pixel stroke. A collision uses the existing lower position; if that also conflicts, only this duplicate canvas legend is omitted and the HTML readings remain. Ordinary placement, endpoint/path geometry, launch marker, first-planet marker and direction arrow are unchanged. No model, physics, seed, control, sharing, recovery, storage, dependency or domain change is introduced.
+
+`tests/orbit-legend-endpoint.test.js` checks independent endpoint integration, exact stroke boundaries, both legend locations, narrow/fractional sizes and density, running/paused states, recall and limits, retained worlds, discovery evidence and intentional batch repeats. Public cloud-browser interaction and zoomed reflow are checked separately. Controlled tests do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Walk theoretical scale visible through the point cloud
 
 The lilac dashed circle was painted below the sample cloud and representative path. In the default paused 16-step observation, the circle has a theoretical radius of 4 step lengths and passes through occupied lattice sites, including (4, 0). At the public 767 × 317.9375 canvas, its screen radius is about 16.13 CSS pixels; the public cloud-browser baseline showed the reference partly merging into the bright cloud.

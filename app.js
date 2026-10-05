@@ -519,12 +519,13 @@ function drawOrbitMeasurementLegend(scale){
  const visible=orbitMeasuredBodyVisible(scale),speed=Math.hypot(bodies[0].vx,bodies[0].vy);
  const showVelocity=paused&&visible&&Number.isFinite(speed)&&speed>0;
  // Keep the late-painted label clear of the actual measured planet, including
- // its direction cue, and the unchanged launch marker/arrow. Neither fitted
- // position may disappear behind the relocated opaque label.
+ // its direction cue, the unchanged launch marker/arrow and the full preview
+ // endpoint stroke. None may disappear behind the relocated opaque label.
  const body=bodies[0],px=width/2+body.x*scale,py=height/2+body.y*scale,clearance=showVelocity?38:11;
+ const prediction=orbitPrediction();
  const covers=(x,y,r,top)=>x+r>=8&&x-r<=204&&y+r>=top-3&&y-r<=top+20;
- const overlaps=top=>(visible&&covers(px,py,clearance,top))||covers(width/2+orbitPoint.x*scale,height/2+orbitPoint.y*scale,30,top);
- let labelTop=paused&&orbitPrediction()?41:12;
+ const overlaps=top=>(visible&&covers(px,py,clearance,top))||covers(width/2+orbitPoint.x*scale,height/2+orbitPoint.y*scale,30,top)||(prediction&&covers(width/2+prediction.end.x*scale,height/2+prediction.end.y*scale,4.75,top));
+ let labelTop=prediction?41:12;
  if(overlaps(labelTop)){
   const lower=height-82; // Above the ruler, whose background starts at height−56.
   if(lower<labelTop||overlaps(lower))return; // HTML readings remain in very short views.
