@@ -310,6 +310,14 @@ A “重试画面” button appears only for that initial allocation failure. It
 
 ## Animation efficiency
 
+### Keep unchanged Wave displacement bars stable
+
+The three Wave displacement bars now compare their current SVG position and width before writing an attribute. In a controlled run of 120 unchanged redraws, the previous implementation rewrote all six attributes 720 times; the new implementation makes no bar-attribute writes while still painting all 120 requested canvas frames. Time, probe or parameter changes immediately update each changed attribute with the same unrounded numerical value. This measures eliminated DOM writes, not device latency, frame rate or battery use.
+
+The comparison reads the actual DOM, so a missing or altered attribute is repaired on the next draw without a new cache or invalidation rule. Signs, near-zero values, rounded text readings, animation timing, announcements and all model state remain unchanged. No control, simulation law, seed, sharing format, storage, dependency or domain setting changes.
+
+`tests/wave-bar-stability.test.js` covers the 720-to-zero write count, independent exact bar geometry, zero and tiny values, selective writes and repair, parameters and replay, input exclusions, running interruptions, fixed observations and return undo, pending sharing, retained worlds, discoveries, capture requests and simulated display/context recovery. Public cloud-browser interaction and zoomed reflow are verified separately. Controlled checks do not establish physical touch, mobile keyboard/IME behavior, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Reuse Life history plots while moving the cursor
 
 Life now reuses the current history plot geometry and adjacent-generation turnover counts during focus, cursor and layout redraws. In a controlled full-history test, 120 unchanged redraws previously performed 240 history maps (28,800 sample visits), rescanned the 1,536-cell transition 120 times and rewrote three SVG attributes 360 times. The derived view now avoids those repeated computations and unchanged writes. Canvas painting, neighborhood inspection, controls and current readings still refresh normally.

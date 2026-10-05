@@ -2020,8 +2020,10 @@ function renderWaveComponents(){
  for(const key of ['left','right','combined']){
   const value=parts[key];
   setReadingText($('#wave-value-'+key),waveNumber(value));
-  $('#wave-bar-'+key).setAttribute('x',String(100+Math.min(0,value)*100));
-  $('#wave-bar-'+key).setAttribute('width',String(Math.abs(value)*100));
+  // Keep unchanged SVG geometry in place; compare the live DOM so a missing
+  // or changed attribute is repaired without a second presentation cache.
+  setControlAttribute($('#wave-bar-'+key),'x',100+Math.min(0,value)*100);
+  setControlAttribute($('#wave-bar-'+key),'width',Math.abs(value)*100);
  }
  setReadingText($('#wave-probe-reading'),`探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)} · 整周期最大幅度 ${parts.envelope.toFixed(2)}`);
  // Keep the path comparison beside the controls that move its probe.
