@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep parameter controls separate in narrow views
+
+At actual 500% zoom in the public cloud browser, the 209-CSS-pixel page gave each parameter only a 60-pixel column. Its two 44-pixel buttons and 8-pixel gap need 96 pixels, so neighboring −1 / +1 controls overlapped by 21 pixels and the second pair extended outside the controls panel.
+
+At viewport widths up to 320 CSS pixels, the two complete parameter groups now stack vertically. Each label, current value, native slider and exact-button pair stays together in its original reading and keyboard order. The buttons keep their 44 × 44 pixel minimum targets, text size, spacing and focus outlines. Wider mobile two-column layouts and desktop stacking stay unchanged. This is one CSS track override: no control, keyboard, parameter, physics, seed, checkpoint, return-undo, storage, dependency or domain behavior changes.
+
+`tests/parameter-control-reflow.test.js` checks the final responsive cascade, breakpoint boundaries, target-size and sizing contracts, unchanged ordinary layouts and native markup/focus semantics. These contracts are not a browser engine; public cloud-browser geometry and keyboard checks are performed separately across all five worlds. Existing parameter and full behavioral suites retain their coverage. Physical touch, mobile keyboard/IME, screen-reader speech, device rotation, actual layout-collapse timing, hardware graphics loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Keep exact parameter adjustments to one Enter press
 
 Holding Enter on Fractal’s seed +1 button for 1.1 seconds in the public cloud browser changed seed 14 to 27 and repeatedly rebuilt its 300-point start. This skipped the intended one-unit comparison. The adjacent −1 / +1 buttons now ignore repeated Enter keydowns while accepting each fresh press once, across all ten parameters. Native Space, pointer and assistive click activation, slider-key repetition, and the intentional Orbit / Fractal / Walk primary Step repeats keep their existing behavior. No held-key state, timer or global keyboard listener is added.
