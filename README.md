@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep Wave source names clear of the measuring probe
+
+At probe (−50, −20), the white crosshair covered source A’s letter in the public 647 × 317.9375 CSS-pixel canvas. The public cloud browser reproduced the missing name while B remained readable.
+
+Source captions now keep their original upper baseline when clear and try a lower baseline when the full probe crosshair and dark casing would overlap their outlined text. If both positions conflict or the canvas is too short, only the duplicate canvas name is omitted; the HTML instruments still identify A and B. The same rule covers the compact “A / B” caption. Text size, contrast, horizontal anchors and source-pair threshold remain unchanged. Both source dots, exact model positions, probe, paths, field and readings stay fixed. Canvas-only PNG captures reflect the visible placement or omission and do not contain the HTML explanation.
+
+`tests/wave-source-probe.test.js` covers the reproduced collision, both sources, paired captions, inclusive casing-edge boundaries, both-position conflicts, short views, font fallbacks, independently calculated two-source readings, exact geometry, animation and quarter stepping, target drafts and keys, fixed observation return/undo, retained worlds, discoveries, capture requests and simulated display/context recovery. Existing marker-contrast checks retain their geometry, styles and paint-order assertions with the new collision-aware text baseline. Public cloud-browser interaction and zoomed reflow are checked separately. No physics, seed, control, sharing format, recovery, storage, dependency or domain change is introduced. Controlled tests do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Wave ruler clear of its measuring probe
 
 At probe (−240, 110) in the public 647 × 317.9375 CSS-pixel canvas, the crosshair crossed the lower-left ruler’s “模型单位” label. The probe correctly retained its exact position above the ruler, but their overlapping strokes made the scale harder to read. The public cloud browser reproduced this collision.

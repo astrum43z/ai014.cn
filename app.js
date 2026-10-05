@@ -1955,6 +1955,11 @@ function drawWaveScale(scale){
 function drawWaveMarkers(scale){
  ctx.save();ctx.setLineDash([]);ctx.lineJoin='round';ctx.font='11px sans-serif';
  const textWidth=text=>{const measured=ctx.measureText(text)?.width;return Number.isFinite(measured)&&measured>0?measured:text.length*11;};
+ const px=width/2+probe.x*scale,py=height/2+probe.y*scale;
+ // The later-painted crosshair can erase a source name. Keep the original
+ // baseline when clear, otherwise try below; omit only the duplicate name
+ // if neither fits. Reserve the full 16.5px probe casing and text outline.
+ const labelBaseline=(x,y,w)=>[y-12,y+32].find(baseline=>baseline-13>=2&&baseline+5<=height-2&&!(px+16.5>=x-2&&px-16.5<=x+w+2&&py+16.5>=baseline-13&&py-16.5<=baseline+5));
  // Each ordinary letter has a 2px dark outline; retain a 2px clear gap too.
  // A paired name never separates or shifts the actual source coordinates.
  const paired=values.separation*scale<Math.max(textWidth('A'),textWidth('B'))+6;
@@ -1963,13 +1968,15 @@ function drawWaveMarkers(scale){
   ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
   ctx.strokeStyle='#122e29';ctx.lineWidth=4;ctx.stroke();
   ctx.fillStyle='#f4f5eb';ctx.fill();
-  if(!paired){ctx.strokeText(label,x-4,y-12);ctx.fillText(label,x-4,y-12);}
+  if(!paired){
+   const baseline=labelBaseline(x-4,y,textWidth(label));
+   if(baseline!==undefined){ctx.strokeText(label,x-4,baseline);ctx.fillText(label,x-4,baseline);}
+  }
  }
  if(paired){
-  const label='A / B',room=Math.max(1,width-8),x=(width-Math.min(textWidth(label),room))/2,y=height/2-12;
-  ctx.strokeText(label,x,y,room);ctx.fillText(label,x,y,room);
+  const label='A / B',room=Math.max(1,width-8),w=Math.min(textWidth(label),room),x=(width-w)/2,y=labelBaseline(x,height/2,w);
+  if(y!==undefined){ctx.strokeText(label,x,y,room);ctx.fillText(label,x,y,room);}
  }
- const px=width/2+probe.x*scale,py=height/2+probe.y*scale;
  ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);
  ctx.moveTo(px-14,py);ctx.lineTo(px+14,py);ctx.moveTo(px,py-14);ctx.lineTo(px,py+14);
  ctx.strokeStyle='#122e29';ctx.lineWidth=5;ctx.stroke();
