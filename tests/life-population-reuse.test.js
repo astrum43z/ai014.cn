@@ -106,5 +106,5 @@ test('read reuse preserves explicit discoveries, pending sharing, retained draft
 test('the fresh entry keeps the existing history recorder, with no new population cache or model mutation',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
  assert.match(html,/app\.js\?[^"\n]+&amp;population=shared-1/);assert.match(app,/function renderLifeInspector\(count\)/);assert.match(app,/function renderLifeChallenge\(count\)/);
- assert.equal([...app.matchAll(/recordLifeHistory\(cells,generation,lifeHistory\)/g)].length,1);assert.doesNotMatch(app,/cells\.some\(Boolean\)/);
+ assert.equal([...app.matchAll(/recordLifeHistory\(cells,generation,lifeHistory\)/g)].length,2,'one observed render and one explicitly recorded forward-batch call site');assert.doesNotMatch(app,/cells\.some\(Boolean\)/);
 });

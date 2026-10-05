@@ -429,6 +429,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 @media(max-width:720px){.wave-rewind-status{padding:0 12px 12px}}
 #life-back{min-height:44px;white-space:normal}
 #life-back-batch{min-height:44px;white-space:normal}
+#life-forward-batch{min-height:44px;white-space:normal}
 #mission-result:focus-visible{outline:3px solid var(--focus-ring);outline-offset:5px}
 
 /* Keep the route to recorded findings next to the completed result. */
