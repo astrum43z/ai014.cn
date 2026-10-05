@@ -1803,17 +1803,25 @@ function drawWalk(){
  ctx.strokeStyle='#e7eee177';ctx.lineWidth=1.2;ctx.beginPath();
  for(let i=0;i<=walk.steps;i++)i?ctx.lineTo(px(walk.path[i*2]),py(walk.path[i*2+1])):ctx.moveTo(px(walk.path[0]),py(walk.path[1]));
  ctx.stroke();
- if(paused){
-  ctx.strokeStyle='#82d6dd';ctx.lineWidth=2;ctx.setLineDash([7,4]);ctx.beginPath();
-  ctx.moveTo(px(0),py(0));ctx.lineTo(px(walk.positions[0]),py(walk.positions[1]));ctx.stroke();ctx.setLineDash([]);
- }
  ctx.fillStyle='#d3f35ba6';ctx.beginPath();
  for(let i=0;i<WALK_COUNT;i++){ctx.moveTo(px(walk.positions[i*2])+2.1,py(walk.positions[i*2+1]));ctx.arc(px(walk.positions[i*2]),py(walk.positions[i*2+1]),2.1,0,Math.PI*2);}ctx.fill();
+ drawWalkDisplacement(px,py);
  drawWalkReference(px,py,stats,scale);
  drawWalkMarkers(px,py,stats);
  ctx.font='11px sans-serif';
  drawWalkScale(scale);
  ctx.fillStyle='#d9e4cf';ctx.fillText(`${walk.steps} 步 / ${WALK_LIMIT}`,22,25);
+}
+
+// Keep the paused distance measurement above the cloud that can obscure it.
+// Both layers retain the same exact endpoints and dash pattern; the origin,
+// centroid, representative marker and theoretical reference still paint later.
+function drawWalkDisplacement(px,py){
+ if(!paused)return;
+ ctx.save();ctx.setLineDash([7,4]);ctx.beginPath();
+ ctx.moveTo(px(0),py(0));ctx.lineTo(px(walk.positions[0]),py(walk.positions[1]));
+ ctx.strokeStyle='#122e29';ctx.lineWidth=5;ctx.stroke();
+ ctx.strokeStyle='#82d6dd';ctx.lineWidth=2;ctx.stroke();ctx.restore();
 }
 
 // Samples can overlap the theoretical scale itself. Keep this dashed reference

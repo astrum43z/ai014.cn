@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Walk straight-line distance visible through the sample cloud
+
+The paused blue dashed line connects the origin to the representative walker's current position. It was painted below the sample cloud. At seed 14 and 64 steps in the public 767 × 317.9375 canvas, that walker is at (10, −4); samples at (4, −2) and (6, −2) overlap visible dash segments. The public cloud-browser baseline showed the blue measurement blending into the cloud, making it harder to compare straight-line distance with the white folded path.
+
+The same dashed segment now has a narrow dark casing and is painted above the samples. Both layers keep the original endpoints, two-pixel blue foreground and seven/four-pixel dash pattern. The theoretical reference and exact position markers still paint afterward. Zero displacement remains zero; running continues to hide the blue measurement. The white trajectory, point cloud, view fitting, readings, simulation, seeded continuation and all controls are unchanged. This adds one paused stroke, with no new control, state, live region, storage, dependency or domain change.
+
+`tests/walk-displacement-contrast.test.js` checks every sample and the full trajectory against an independent BigInt recurrence, exact paired paths, paint order, zero distance, fractional and narrow layouts, display density, animation, replay, limits, recovery, retained worlds, discoveries, capture requests and intentional batch repeats. Public cloud-browser interaction and zoomed reflow are checked separately. Controlled tests do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Reuse Fractal sample geometry while exploring
 
 At the 12,000-point cap, 120 unchanged redraws previously reconstructed 1,440,000 sample rectangles. Growing from 300 to 12,000 in 100-point batches reconstructed 725,700 rectangles across the 118 observations. A single optional `Path2D` now retains the current CSS-space sample geometry: unchanged redraws construct none, and that growing sequence constructs only 12,000. The canvas still clears and paints each view normally; these are controlled construction counts, not device latency, frame-rate or battery measurements.
