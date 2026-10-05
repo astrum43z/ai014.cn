@@ -18,6 +18,16 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Bring the complete Orbit preview into view
+
+Orbit now offers “收进完整预演” beside its existing launch controls. At gravity 160 and launch speed 150%, the public cloud-browser baseline showed a ten-second endpoint at (−43.3, 365.9), below the 767 × 317.9375 CSS-pixel canvas. The existing fit action correctly served the first actual planet, so it could not reveal this proposed trajectory.
+
+While paused, the new action becomes available when any sampled part of the preview approaches or crosses the canvas edge. One explicit fit retains the existing view bounds and expands them to include all 201 preview samples, with the established 34-pixel camera margin. It checks the whole path because a curve can leave the view and return before its endpoint. The same cached ten-second prediction and integration remain unchanged. Existing planets, trails, launch coordinates, time, parameters, drafts, validation, recall, sharing and discoveries are preserved. It never launches a planet or starts playback. The view stays fixed afterward; Home still moves the launch point to (140, 0) and resets that view, as the nearby help explains.
+
+Running experiments, already visible previews, invalid launch positions, the 24-body limit and unusable layout dimensions leave the action quietly unavailable and focusable. Fresh Enter, Space and pointer activation remain native; held Enter cannot refit repeatedly. The native control uses the existing wrapping launch row, 44-pixel targets, unavailable appearance and dark-surface focus ring. No physics, seed, recovery format, storage, dependency, security or domain changes are introduced.
+
+`tests/orbit-preview-fit.test.js` checks independent softened integration and all sampled coordinates, interior-only excursions, both axes, bounds, unavailable states, exact next physics steps, retained trails and recall, drafts and errors, asynchronous sharing, retained worlds, discoveries, capture requests, quiet availability and simulated reflow/context recovery. Public cloud-browser interaction, keyboard behavior and zoomed reflow are checked separately. Controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, hardware input timing, rotation, actual layout collapse, graphics-device loss, clipboard contents or downloaded-file receipt.
+
 ### Return from a Fractal reading to its visible jump
 
 The optional Fractal instruments now offer “回到画布，查看这一步” directly after the last-jump reading and marker explanation. In the public 1180-CSS-pixel cloud-browser baseline, “只走一步 +1” advanced to 301 points while the canvas bottom was 444.8 pixels above the viewport. Neither Fractal instrument section had a canvas-return link; the next one came after the following range diagram and observation readings.

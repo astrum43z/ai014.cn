@@ -317,7 +317,7 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .orbit-touch .orbit-actions button{flex:1 1 130px;font-size:12px;white-space:normal;overflow-wrap:anywhere}
 .orbit-touch #orbit-recall-help{margin-bottom:10px}
 .orbit-touch #orbit-fire{background:#d3f35b}
-.orbit-touch #orbit-recall[aria-disabled="true"],.orbit-touch #orbit-fire[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
+.orbit-touch #orbit-preview-fit[aria-disabled="true"],.orbit-touch #orbit-recall[aria-disabled="true"],.orbit-touch #orbit-fire[aria-disabled="true"]{background:#8b9d85;color:#213b36;cursor:not-allowed}
 .orbit-touch small{display:block;color:#b7cbae;font-size:12px;line-height:1.6}
 @media(max-width:720px){.orbit-touch{padding:12px}.orbit-touch>div{gap:5px}}
 
@@ -552,3 +552,5 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 
 /* Give the rule its own readable line length in a narrow, zoomed view. */
 @media(max-width:320px){.life-inspector-body{grid-template-columns:minmax(0,1fr)}}
+
+.orbit-touch #orbit-preview-fit-help{margin-bottom:8px}

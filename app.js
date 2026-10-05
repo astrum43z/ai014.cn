@@ -364,6 +364,7 @@ function renderOrbitLaunch(){
  const escape=launch.circularSpeed*Math.SQRT2;
  setReadingText($('#orbit-escape-reading'),launch.valid?`下一次发射 · 逃逸参考 ${escape.toFixed(1)} 模型单位/秒 · 当前 ${values.speed}% ${launch.speed<escape?'低于':'高于'}参考`:'下一次发射 · 移到有效发射位置后显示逃逸参考');
  const prediction=orbitPrediction();
+ setControlAttribute($('#orbit-preview-fit'),'aria-disabled',String(!(prediction&&orbitPreviewFitBounds(prediction))));
  $('#orbit-preview-reading').hidden=!prediction;
  setReadingText($('#orbit-preview-reading'),prediction?`预演 10 秒后：x ${prediction.end.x.toFixed(1)}，y ${prediction.end.y.toFixed(1)} · 距中心 ${Math.hypot(prediction.end.x,prediction.end.y).toFixed(1)}`:'');
  setReadingText($('#orbit-launch-note'),bodies.length>=24?'已达到 24 颗上限，可撤回最近发射或重置。':!launch.valid?'请将标记移到距中心至少 22 的位置。':paused?'虚线预演下一颗的 10 秒，方框是终点；假设引力不变，离开画面不代表逃逸。':'暂停可看下一颗的 10 秒虚线预演；改变发射速度，再比较弯曲的路径。');
@@ -431,6 +432,27 @@ $('#orbit-fire').addEventListener('keydown',e=>{
 function orbitPrediction(){
  return paused&&bodies.length<24?getOrbitPreview(orbitPoint,values.gravity*1000,values.speed):null;
 }
+// Fit the complete sampled preview, not only its endpoint. A curved path may
+// leave the canvas and return. Keep the existing camera bounds and 34px margin.
+function orbitPreviewFitBounds(prediction=mode==='orbit'?orbitPrediction():null){
+ const scale=orbitScale();
+ if(mode!=='orbit'||!prediction||![width,height,scale].every(Number.isFinite)||scale<=0)return null;
+ let x=Math.max(Math.abs(orbitView?.x||0),Math.abs(orbitPoint.x)),y=Math.max(Math.abs(orbitView?.y||0),Math.abs(orbitPoint.y)),outside=false;
+ for(const [px,py] of prediction.points){
+  if(!Number.isFinite(px)||!Number.isFinite(py))return null;
+  x=Math.max(x,Math.abs(px));y=Math.max(y,Math.abs(py));
+  if(Math.abs(px)*scale>width/2-8||Math.abs(py)*scale>height/2-8)outside=true;
+ }
+ return outside?{x,y}:null;
+}
+$('#orbit-preview-fit').addEventListener('click',()=>{
+ const bounds=orbitPreviewFitBounds();if(!bounds)return;
+ orbitView=bounds;draw();
+ announce('已缩小视图，收进完整的 10 秒预演；行星、发射点、轨迹和时间保持不变。');
+});
+$('#orbit-preview-fit').addEventListener('keydown',event=>{
+ if(event.repeat&&event.key==='Enter')event.preventDefault();
+});
 function drawOrbitPreview(scale){
  const prediction=orbitPrediction();if(!prediction)return;
  ctx.save();ctx.strokeStyle='#ffac86';ctx.lineWidth=1.5/scale;
