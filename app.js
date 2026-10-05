@@ -2031,6 +2031,9 @@ function setWaveCycleAttribute(id,name,value){
  if(element.getAttribute?.(name)!==text)element.setAttribute(name,text);
 }
 function renderWaveCycle(paths,parts){
+ // Optional plots have no visible presentation while the native drawer is
+ // closed. Keep model readings current elsewhere; rebuild only when needed.
+ if(!$('#instruments').open)return;
  const cycle=getWaveCycle(paths.leftDistance,paths.rightDistance,values.wavelength);
  const x=waveCyclePosition(t*WAVE_ANGULAR_SPEED);
  for(const name of ['left','right','combined']){
@@ -2042,6 +2045,12 @@ function renderWaveCycle(paths,parts){
  renderedWaveCycle=cycle;
  setReadingText($('#wave-cycle-period'),`一周期 T ≈ ${(2*Math.PI/WAVE_ANGULAR_SPEED).toFixed(3)} 模型秒 · 当前周期位置约 ${(x/6).toFixed(1)}%。`);
 }
+// A native toggle may be coalesced or arrive after a world change. Read the
+// current disclosure and model, without drawing, changing focus or announcing.
+$('#instruments').addEventListener('toggle',()=>{
+ if(mode!=='wave'||!$('#instruments').open)return;
+ renderWaveCycle(wavePathDifference(probe.x,probe.y,values.separation,values.wavelength),waveComponents(probe.x,probe.y,t*WAVE_ANGULAR_SPEED,values.separation,values.wavelength));
+});
 function renderWaveComponents(){
  setReadingText($('#wave-time-current'),`当前时刻 · t ${t} 模型秒`);
  // Keep exact model coordinates beside the visitor's draft; the overview is rounded.

@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createWaveCycleCache,waveCyclePosition} from '../wave-cycle.js';
 import {waveComponents} from '../simulations.js';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupHarness} from './life-challenge-harness.js';
+// These checks inspect visible cycle plots; explicitly open the native drawer.
+async function setup(...args){const h=await setupHarness(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 
 const TAU=Math.PI*2,period=TAU/3,names=['left','right','combined'];
 const click=(h,id)=>h.el(id).handlers.click();
