@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Read both Wave source names in a distant fitted view
+
+When a distant probe fits the Wave canvas around a larger area, the unchanged A and B source dots can become only a few pixels apart. At probe (10000, 0), separation 100 and the public 647 × 317.9375 CSS-pixel canvas, the sources are 3.055 pixels apart and their letters visibly overprint one another.
+
+The two names now share one centered “A / B” caption when the measured letter widths, dark outlines and a small clear gap no longer fit separately. Ordinary views retain the original individual anchors. The caption uses the same font, baseline and contrasting outline; exceptionally narrow views constrain its drawing width. Both source dots, both exact model positions, the probe, paths and field remain unchanged, including any genuine visual overlap between nearby dots. This is a source-pair name, not a new combined source or a physical separation marker. No controls, model state, physics, seeds, live regions, storage, dependencies or domain settings change.
+
+`tests/wave-source-labels.test.js` checks the reproduced view, measured-width threshold and fallback, exact source/probe geometry and independently calculated two-source readings, responsive and density changes, phase stepping and animation, exact input, retained worlds, fixed links and return undo, discoveries, capture requests and simulated context/startup recovery. The existing marker-contrast suite also preserves normal label anchors and marker layering. Public cloud-browser interaction and zoomed reflow are verified separately. Controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Orbit preview caption clear of its launch arrow
 
 At launch target (−500, −215) in the public 647 × 317.9375 CSS-pixel canvas, the orange direction arrow crossed the words in the top-left “10 s preview” caption. The caption already avoided the predicted endpoint, but did not account for the later-painted launch cue. The public cloud browser reproduced the overlap.

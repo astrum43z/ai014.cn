@@ -7,7 +7,7 @@ const click=(h,id)=>h.el(id).handlers.click();
 const input=(h,id,value)=>h.el(id).handlers.input({target:{value:String(value)}});
 const reading=h=>['metrics','wave-probe-reading','wave-instant-reading','wave-distances','wave-difference','wave-envelope'].map(id=>h.el(id).textContent);
 function markers(h,width=600,height=414,x=0,y=0,separation=100,scale=Math.min(width,height)/280){
- const drawing=h.drawing(),labelIndex=drawing.findIndex(row=>row[0]==='strokeText'&&row[1]==='A');
+ const drawing=h.drawing(),labelIndex=drawing.findIndex(row=>row[0]==='strokeText'&&['A','A / B'].includes(row[1]));
  assert.ok(labelIndex>0,'A gets a dark text outline before its light fill');
  const start=drawing.findLastIndex((row,i)=>i<labelIndex&&row[0]==='save'),end=drawing.findIndex((row,i)=>i>labelIndex&&row[0]==='restore');
  assert.ok(start>=0&&end>labelIndex,'marker styles stay inside their own save/restore');
@@ -27,10 +27,16 @@ function markers(h,width=600,height=414,x=0,y=0,separation=100,scale=Math.min(wi
   assert.ok(strokes[i].index<fills[i].index,'source backing is painted before its light fill');
   assert.deepEqual(fills[i].path,strokes[i].path);assert.equal(fills[i].fillStyle,'#f4f5eb');
   assert.equal(strokes[i].strokeStyle,'#122e29');assert.equal(strokes[i].lineWidth,4);
+  if(separation*scale>=17){
   assert.deepEqual(texts[i*2].row,['strokeText','AB'[i],sourceX-4,sourceY-12]);
   assert.deepEqual(texts[i*2+1].row,['fillText','AB'[i],sourceX-4,sourceY-12]);
   assert.equal(texts[i*2].strokeStyle,'#122e29');assert.equal(texts[i*2].lineWidth,4);
   assert.equal(texts[i*2+1].fillStyle,'#f4f5eb');assert.equal(texts[i*2+1].font,'11px sans-serif');
+  }
+ }
+ if(separation*scale<17){
+  assert.deepEqual(texts.map(t=>t.row),[['strokeText','A / B',(width-55)/2,height/2-12,width-8],['fillText','A / B',(width-55)/2,height/2-12,width-8]]);
+  assert.equal(texts[0].lineWidth,4);assert.equal(texts[0].strokeStyle,'#122e29');assert.equal(texts[1].fillStyle,'#f4f5eb');
  }
  const px=width/2+x*scale,py=height/2+y*scale;
  assert.deepEqual(strokes[2].path,[['arc',px,py,9,0,Math.PI*2],['moveTo',px-14,py],['lineTo',px+14,py],['moveTo',px,py-14],['lineTo',px,py+14]]);
@@ -113,7 +119,7 @@ test('visual measurement never completes a discovery and preserves already earne
 
 test('marker rendering retains explicit asset versions and adds no live messages',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
- assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;preview-launcher=clear-1&amp;orbit-legend=compact-1&amp;vertex-label=inset-1&amp;walk-distance=contrast-1&amp;fractal-path=append-once-1&amp;legend-endpoint=clear-1&amp;walk-reference=contrast-1&amp;launcher=contrast-1&amp;orbit-target=exact-1&amp;walk-text=stable-1&amp;fractal-text=stable-1&amp;preview-caption=clear-1&amp;trial-text=stable-1&amp;cell-position=exact-1&amp;repeat=stable-evidence-1&amp;feedback=parameter-action-1&amp;drag-feedback=meaningful-action-1&amp;render=positive-scale-1&amp;orbit-marker=contrast-1&amp;cell-history=explain-1&amp;change-browse=1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;home=exact-orbit-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;checkpoint-reading=1&amp;time=exact-wave-1&amp;number=cn-target-glyphs-1&amp;fractal-limit=rewind-guidance-1&amp;canvas-pointer=loss-safe-1&amp;population=shared-1&amp;gap=count-once-1&amp;availability=quiet-1&amp;walk=read-once-1&amp;life=record-once-1&amp;history=read-once-1&amp;colors=wave-once-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1&amp;sampling=wave-field-fallback-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;orbit-target=exact-1&amp;cell-position=exact-1&amp;cell-history=explain-1&amp;change-browse=1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;time=exact-wave-1&amp;instruments=narrow-reflow-1&amp;worlds-return=1&amp;life-grid=flexible-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1"'));
+ assert.ok(html.includes('src="app.js?v=saved-observation-copy-1&amp;wave-sources=paired-label-1&amp;preview-launcher=clear-1&amp;orbit-legend=compact-1&amp;vertex-label=inset-1&amp;walk-distance=contrast-1&amp;fractal-path=append-once-1&amp;legend-endpoint=clear-1&amp;walk-reference=contrast-1&amp;launcher=contrast-1&amp;orbit-target=exact-1&amp;walk-text=stable-1&amp;fractal-text=stable-1&amp;preview-caption=clear-1&amp;trial-text=stable-1&amp;cell-position=exact-1&amp;repeat=stable-evidence-1&amp;feedback=parameter-action-1&amp;drag-feedback=meaningful-action-1&amp;render=positive-scale-1&amp;orbit-marker=contrast-1&amp;cell-history=explain-1&amp;change-browse=1&amp;wave=quarter-rewind-1&amp;probe=usable-view-1&amp;launch=usable-view-1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;home=exact-orbit-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;checkpoint-reading=1&amp;time=exact-wave-1&amp;number=cn-target-glyphs-1&amp;fractal-limit=rewind-guidance-1&amp;canvas-pointer=loss-safe-1&amp;population=shared-1&amp;gap=count-once-1&amp;availability=quiet-1&amp;walk=read-once-1&amp;life=record-once-1&amp;history=read-once-1&amp;colors=wave-once-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1&amp;sampling=wave-field-fallback-1"'));assert.ok(html.includes('href="style.css?v=saved-observation-copy-1&amp;orbit-target=exact-1&amp;cell-position=exact-1&amp;cell-history=explain-1&amp;change-browse=1&amp;browse=living-cells-1&amp;seek=exact-count-1&amp;wave=quarter-rewind-1&amp;position=exact-wave-1&amp;replay=exact-walk-1&amp;target-reading=1&amp;time=exact-wave-1&amp;instruments=narrow-reflow-1&amp;worlds-return=1&amp;life-grid=flexible-1&amp;orbit-fit=first-body-1&amp;canvas-start=retry-1"'));
  const helper=app.slice(app.indexOf('function drawWaveMarkers'),app.indexOf('// Paused measuring lines'));
  assert.doesNotMatch(helper,/announce\(|\.textContent|addEventListener|setTimeout|requestAnimationFrame/);
 });

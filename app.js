@@ -1934,16 +1934,25 @@ function drawWaveScale(scale){
 }
 
 // Dual-tone markers remain visible across bright peaks and dark zero crossings.
-// Keep their model positions, screen-size geometry and label anchors unchanged.
+// Keep their model positions and screen-size geometry unchanged. Nearby source
+// names share one caption when the fitted view cannot keep both letters apart.
 // Paint above paths and ruler; keep the probe unfilled.
 function drawWaveMarkers(scale){
- ctx.save();ctx.setLineDash([]);ctx.lineJoin='round';
+ ctx.save();ctx.setLineDash([]);ctx.lineJoin='round';ctx.font='11px sans-serif';
+ const textWidth=text=>{const measured=ctx.measureText(text)?.width;return Number.isFinite(measured)&&measured>0?measured:text.length*11;};
+ // Each ordinary letter has a 2px dark outline; retain a 2px clear gap too.
+ // A paired name never separates or shifts the actual source coordinates.
+ const paired=values.separation*scale<Math.max(textWidth('A'),textWidth('B'))+6;
  for(const sign of [-1,1]){
   const x=width/2+sign*values.separation/2*scale,y=height/2,label=sign<0?'A':'B';
   ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
   ctx.strokeStyle='#122e29';ctx.lineWidth=4;ctx.stroke();
   ctx.fillStyle='#f4f5eb';ctx.fill();
-  ctx.font='11px sans-serif';ctx.strokeText(label,x-4,y-12);ctx.fillText(label,x-4,y-12);
+  if(!paired){ctx.strokeText(label,x-4,y-12);ctx.fillText(label,x-4,y-12);}
+ }
+ if(paired){
+  const label='A / B',room=Math.max(1,width-8),x=(width-Math.min(textWidth(label),room))/2,y=height/2-12;
+  ctx.strokeText(label,x,y,room);ctx.fillText(label,x,y,room);
  }
  const px=width/2+probe.x*scale,py=height/2+probe.y*scale;
  ctx.beginPath();ctx.arc(px,py,9,0,Math.PI*2);
