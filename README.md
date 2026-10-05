@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Read the Life rule beneath its neighborhood in narrow views
+
+At actual 500% zoom in the public cloud browser, Life’s 139-CSS-pixel instrument area reserved 60 pixels for its neighborhood diagram and left only 67 pixels for the selected-cell rule. The state reading broke into three lines, “下一代：存活” into two, and its short explanation into four. The diagram also sat far below the beginning of the adjacent text.
+
+At viewport widths up to 320 CSS pixels, the same nine-cell diagram now comes first, followed by the state, prediction and explanation at the full instrument width. Reading order, the 60 × 60 diagram, its selected-cell outline, type sizes, colors and gap are unchanged. Wider views retain the side-by-side layout. This is one CSS track override plus a stylesheet cache-key update; no JavaScript, board, simulation, controls, disclosure, observation, recovery, storage, dependency or domain behavior changes.
+
+`tests/life-instrument-reflow.test.js` checks the responsive cascade, fractional breakpoint boundary, diagram geometry and order, unchanged type and colors, quiet semantics and asset reference. These contracts are not a layout engine; public cloud-browser geometry, visible readings and keyboard interactions are checked separately. Existing Life suites cover all 512 local neighborhoods, all 1,536 exact cell destinations, model evolution and recovery. Physical touch, mobile keyboard/IME, screen-reader speech, rotation, real layout collapse, hardware graphics loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Read Walk distance cards in narrow views
 
 At actual 500% zoom in the public cloud browser, Walk’s expanded instruments left each distance card only 46.5 CSS pixels for text. The straight-line-distance label broke across four lines, values and units appeared on separate lines, and the valid “119.04” reading extended beyond its text column.

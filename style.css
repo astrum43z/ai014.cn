@@ -535,3 +535,5 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 .experiment-shortcuts #worlds-return{margin-left:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px}
 
 
+/* Give the rule its own readable line length in a narrow, zoomed view. */
+@media(max-width:320px){.life-inspector-body{grid-template-columns:minmax(0,1fr)}}
