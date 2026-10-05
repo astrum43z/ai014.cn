@@ -115,6 +115,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .walk-distance #walk-distance-note,.walk-distance small{font-size:10px;line-height:1.7;color:#a9bfab}
 .walk-distance #walk-distance-note{margin:5px 0}.walk-distance small{display:block;margin-top:7px}
 @media(max-width:720px){.walk-distance{padding:12px}.walk-distance-readings p{padding:7px 8px}.walk-distance-readings strong{font-size:17px}}
+/* Keep each label, number and unit together when two reading cards are too narrow. */
+@media(max-width:320px){.walk-distance-readings{grid-template-columns:minmax(0,1fr)}}
 
 /* Direction labels and numbers explain the rule even without decorative bars. */
 .walk-choices{margin-top:16px;padding-top:14px;border-top:1px solid #426055;min-width:0}
