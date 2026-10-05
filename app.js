@@ -439,7 +439,12 @@ function drawOrbitPreview(scale){
  // narrow view leaves neither clear, omit only this duplicate canvas caption;
  // the path, endpoint and HTML preview reading retain their exact positions.
  const px=width/2+x*scale,py=height/2+y*scale;
- const clear=left=>left>=12&&left+149<=width-8&&!(px+4.75>=left-4&&px-4.75<=left+149&&py+4.75>=9&&py-4.75<=32);
+ // The launch cue paints later. Keep its ring, direction arrow and dark
+ // casing clear of the text too, including the arrow tip's default miter join.
+ // Its furthest dark corner is under 35 CSS px from the launch point.
+ const launchX=width/2+orbitPoint.x*scale,launchY=height/2+orbitPoint.y*scale;
+ const covers=(cx,cy,r,left)=>cx+r>=left-4&&cx-r<=left+149&&cy+r>=9&&cy-r<=32;
+ const clear=left=>left>=12&&left+149<=width-8&&!covers(px,py,4.75,left)&&!covers(launchX,launchY,35,left);
  const labelLeft=[12,width-157].find(clear);
  if(labelLeft===undefined){ctx.restore();return;}
  const left=-width/(2*scale)+labelLeft/scale,top=-height/(2*scale)+12/scale;

@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Orbit preview caption clear of its launch arrow
+
+At launch target (−500, −215) in the public 647 × 317.9375 CSS-pixel canvas, the orange direction arrow crossed the words in the top-left “10 s preview” caption. The caption already avoided the predicted endpoint, but did not account for the later-painted launch cue. The public cloud browser reproduced the overlap.
+
+Both candidate corners now also clear a conservative 35-CSS-pixel envelope around the selected launch point, including its hollow ring, arrowhead and the dark casing’s mitered tip. The caption keeps its original position when clear, moves to the opposite top corner when available, and is omitted if neither fits. Only the duplicate canvas caption moves or disappears; the exact launch cue, full preview path, endpoint square and HTML explanation remain. No physics, parameter, seed, control, recall, storage, dependency or domain change is introduced.
+
+`tests/orbit-preview-launcher.test.js` checks the reproduced collision, envelope boundaries, both-corner conflicts, unchanged font and marker geometry, independently integrated endpoints, fractional/narrow layouts, display density, controls, limits, retained worlds, discoveries, capture requests and simulated context restoration. Public cloud-browser interaction and zoomed reflow are checked separately. Controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep the Orbit measurement legend readable in narrow canvases
 
 The first-planet legend used a fixed 196-pixel panel and one long line. The public cloud browser reproduced the final words clipped at actual 500% zoom in a 171 × 240 CSS-pixel canvas, even though the HTML explanation still fit below it.
