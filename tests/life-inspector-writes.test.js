@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupHarness} from './life-challenge-harness.js';
+// These contracts describe the displayed inspector; closed diagrams are covered separately.
+async function setup(...args){const h=await setupHarness(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 
 const textIds=['life-cell-position','life-cell-state','life-cell-next','life-cell-reason','life-selection','life-toggle'];
 const neighborIds=Array.from({length:9},(_,i)=>'life-neighbor-'+i);

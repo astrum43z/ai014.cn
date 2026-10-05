@@ -704,6 +704,12 @@ function renderLifeInspector(count){
  setReadingText($('#life-next-reading'),`下一代：${outcome}。${reason}。`);
  setReadingText($('#life-neighbor-help'),`${paused?'虚线框标出':'暂停可显示'} 8 个邻居（含斜角），不含橙色实框本格；边缘相连，邻居可能在画面对侧。所有格子同时更新。`);
  setReadingText($('#life-toggle'),cell.alive?'熄灭所选格':'点亮所选格');
+ renderLifeNeighborhood(cell);
+}
+function renderLifeNeighborhood(cell){
+ // The decorative mini-grid has no visible presentation in a closed drawer.
+ // Text and action readings remain current; opening reads the current board.
+ if(!$('#instruments').open)return;
  cell.neighborhood.forEach((alive,i)=>{
   const element=$('#life-neighbor-'+i),value=String(alive);
   if(element.getAttribute?.('data-alive')!==value)element.setAttribute('data-alive',value);
@@ -2163,7 +2169,12 @@ function renderWaveCycle(paths,parts){
 // A native toggle may be coalesced or arrive after a world change. Read the
 // current disclosure and model, without drawing, changing focus or announcing.
 $('#instruments').addEventListener('toggle',()=>{
- if(mode!=='wave'||!$('#instruments').open)return;
+ if(!$('#instruments').open)return;
+ if(mode==='life'){
+  renderLifeNeighborhood(inspectLifeCell(cells,48,32,focusCell.x,focusCell.y));
+  return;
+ }
+ if(mode!=='wave')return;
  const parts=waveComponents(probe.x,probe.y,t*WAVE_ANGULAR_SPEED,values.separation,values.wavelength);
  renderWaveBars(parts);
  renderWaveCycle(wavePathDifference(probe.x,probe.y,values.separation,values.wavelength),parts);
