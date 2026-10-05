@@ -18,6 +18,12 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep exact parameter adjustments to one Enter press
+
+Holding Enter on Fractal’s seed +1 button for 1.1 seconds in the public cloud browser changed seed 14 to 27 and repeatedly rebuilt its 300-point start. This skipped the intended one-unit comparison. The adjacent −1 / +1 buttons now ignore repeated Enter keydowns while accepting each fresh press once, across all ten parameters. Native Space, pointer and assistive click activation, slider-key repetition, and the intentional Orbit / Fractal / Walk primary Step repeats keep their existing behavior. No held-key state, timer or global keyboard listener is added.
+
+`tests/parameter-nudge-key.test.js` covers both directions, running and paused starts, bounds and focus, fresh presses after repeats, control rebuilding, presets, retained worlds, exact target drafts, fixed observation return/undo, discovery evidence, native-default exclusions and simulated display/context recovery. Existing parameter tests continue to verify the unchanged model/reset/URL paths, including Life’s fractional generation progress. Public cloud-browser native-key interaction and zoomed reflow are checked separately. No physics, seed algorithm, controls, recovery format, storage, dependency or domain setting changes. Controlled tests and cloud keyboard input do not establish physical touch, mobile keyboard/IME, screen-reader speech, hardware key timing, rotation, actual layout collapse, graphics-device loss, clipboard delivery or downloaded-file receipt.
+
 ### Keep Wave source names clear of the measuring probe
 
 At probe (−50, −20), the white crosshair covered source A’s letter in the public 647 × 317.9375 CSS-pixel canvas. The public cloud browser reproduced the missing name while B remained readable.

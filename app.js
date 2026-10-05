@@ -184,6 +184,11 @@ function renderParameters(){
  c.sliders.forEach(([id,label,,,,unit])=>{
   $('#'+id).addEventListener('input',event=>{if(mode===parameterMode)setParameter(id,event.target.value);});
   for(const [direction,delta] of [['decrease',-1],['increase',1]]){
+   // Exact nudges make one comparison per Enter press. Keep native Space,
+   // clicks and range-key repetition; a held key must not skip seed values.
+   $('#'+direction+'-'+id).addEventListener('keydown',event=>{
+    if(event.repeat&&event.key==='Enter')event.preventDefault();
+   });
    $('#'+direction+'-'+id).addEventListener('click',()=>{
     if(mode!==parameterMode||!setParameter(id,values[id]+delta))return;
     const result=effect?.ids.includes(id)?effect.result:'';
