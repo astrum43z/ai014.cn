@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupHarness} from './life-challenge-harness.js';
+// These checks inspect visible displacement bars; open their native drawer.
+async function setup(...args){const h=await setupHarness(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 const names=['left','right','combined'],click=(h,id)=>h.el(id).handlers.click();
 function bars(h){return names.map(name=>{const el=h.el('wave-bar-'+name);return [el.getAttribute('x'),el.getAttribute('width')];});}
 function watch(h){const writes=[];for(const name of names){const el=h.el('wave-bar-'+name),set=el.setAttribute.bind(el);el.setAttribute=(key,value)=>{writes.push([name,key,String(value)]);set(key,value);};}return writes;}

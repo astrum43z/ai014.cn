@@ -400,6 +400,14 @@ A “重试画面” button appears only for that initial allocation failure. It
 
 ## Animation efficiency
 
+### Leave closed Wave displacement bars idle
+
+The optional Wave instruments now leave their three displacement bars unchanged while closed. Public cloud-browser DOM inspection confirmed that a quarter-cycle step previously changed all six hidden x/width attributes. In a controlled 120-frame run from the central probe at t = 0, the previous implementation made 534 bar-attribute writes; the same run now makes none while all 120 canvas frames and current readings still advance. This counts eliminated presentation writes, not frame rate, latency or battery use.
+
+Opening the native disclosure refreshes the bars from the exact current model values, together with the existing cycle plots. Text values and action feedback stay current while closed. The toggle handler uses the current world and open state, so rapid coalesced toggles and world changes cannot restore stale geometry. Opening does not redraw the canvas, move focus, announce, pause, advance time or reschedule animation. Existing attribute comparisons avoid redundant writes and repair missing or altered attributes when visible. No additional cache, timer, model state, control, CSS, dependency, persistence, security or domain change is introduced.
+
+`tests/wave-bar-disclosure.test.js` checks the 534-to-zero write count, exact two-source geometry against independent expressions, signs and cancellation, extreme and tiny times, quiet opening, rapid toggles, running/offscreen/context interruptions, text-only startup, validation drafts, fixed links and return undo, pending sharing, retained worlds, discoveries and capture requests. Existing bar-reading suites now explicitly open the instruments they inspect. Public cloud-browser interaction and zoomed reflow are checked separately. Physical touch, mobile keyboard/IME, screen-reader speech, hardware key timing, rotation, real layout collapse, graphics-device loss, clipboard contents and downloaded-file receipt remain unverified.
+
 ### Leave closed Wave-cycle plots idle
 
 The optional Wave instruments start closed, but their three cycle cursors and dots still updated on every animated frame. Public cloud-browser DOM inspection confirmed that a quarter-cycle step changed all hidden cursor positions and the hidden phase caption. A controlled 120-frame run previously wrote 1,080 SVG attributes (nine per frame); the same closed-drawer run now writes none while the model, canvas and near-canvas readings advance normally. This is eliminated presentation work, not a device latency, frame-rate or battery measurement.

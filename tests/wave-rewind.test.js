@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupHarness} from './life-challenge-harness.js';
+// These checks inspect visible displacement bars; open their native drawer.
+async function setup(...args){const h=await setupHarness(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 const quarter=Math.PI/6,click=(h,id='wave-back')=>h.el(id).handlers.click();
 const values=h=>['left','right','combined'].map(key=>{const b=h.el('wave-bar-'+key),v=Number(b.getAttribute('width'))/100;return Number(b.getAttribute('x'))<100?-v:v;});
 // Independent two-source displacement, using distances and fixed angular speed.

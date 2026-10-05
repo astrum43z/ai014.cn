@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupHarness} from './life-challenge-harness.js';
+// These checks inspect visible displacement bars; open their native drawer.
+async function setup(...args){const h=await setupHarness(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 import {waveComponents} from '../simulations.js';
 
 const quarter=Math.PI/6;

@@ -2064,6 +2064,17 @@ function setWaveCycleAttribute(id,name,value){
  const element=$('#'+id),text=String(value);
  if(element.getAttribute?.(name)!==text)element.setAttribute(name,text);
 }
+function renderWaveBars(parts){
+ // The optional bars are invisible while the native instruments are closed.
+ // Keep their text readings live, then refresh exact geometry when opened.
+ if(!$('#instruments').open)return;
+ for(const key of ['left','right','combined']){
+  const value=parts[key];
+  // Compare the live DOM so missing/changed attributes are still repaired.
+  setControlAttribute($('#wave-bar-'+key),'x',100+Math.min(0,value)*100);
+  setControlAttribute($('#wave-bar-'+key),'width',Math.abs(value)*100);
+ }
+}
 function renderWaveCycle(paths,parts){
  // Optional plots have no visible presentation while the native drawer is
  // closed. Keep model readings current elsewhere; rebuild only when needed.
@@ -2083,7 +2094,9 @@ function renderWaveCycle(paths,parts){
 // current disclosure and model, without drawing, changing focus or announcing.
 $('#instruments').addEventListener('toggle',()=>{
  if(mode!=='wave'||!$('#instruments').open)return;
- renderWaveCycle(wavePathDifference(probe.x,probe.y,values.separation,values.wavelength),waveComponents(probe.x,probe.y,t*WAVE_ANGULAR_SPEED,values.separation,values.wavelength));
+ const parts=waveComponents(probe.x,probe.y,t*WAVE_ANGULAR_SPEED,values.separation,values.wavelength);
+ renderWaveBars(parts);
+ renderWaveCycle(wavePathDifference(probe.x,probe.y,values.separation,values.wavelength),parts);
 });
 function renderWaveComponents(){
  setReadingText($('#wave-time-current'),`当前时刻 · t ${t} 模型秒`);
@@ -2097,10 +2110,6 @@ function renderWaveComponents(){
  for(const key of ['left','right','combined']){
   const value=parts[key];
   setReadingText($('#wave-value-'+key),waveNumber(value));
-  // Keep unchanged SVG geometry in place; compare the live DOM so a missing
-  // or changed attribute is repaired without a second presentation cache.
-  setControlAttribute($('#wave-bar-'+key),'x',100+Math.min(0,value)*100);
-  setControlAttribute($('#wave-bar-'+key),'width',Math.abs(value)*100);
  }
  setReadingText($('#wave-probe-reading'),`探针 x ${probe.x.toFixed(1)}，y ${probe.y.toFixed(1)} · 整周期最大幅度 ${parts.envelope.toFixed(2)}`);
  // Keep the path comparison beside the controls that move its probe.
@@ -2108,6 +2117,7 @@ function renderWaveComponents(){
  setReadingText($('#wave-path-context'),`波程差 ${paths.difference.toFixed(2)} ÷ 波长 ${values.wavelength} ≈ ${paths.cycles.toFixed(2)} 个波长 · ${waveMeetingNames[paths.kind]}`);
  setReadingText($('#wave-instant-reading'),'探针此刻 (A+B)/2 · '+waveNumber(parts.combined));
  setReadingText($('#wave-envelope'),'完整周期最大 |(A+B)/2| · '+parts.envelope.toFixed(2));
+ renderWaveBars(parts);
  renderWaveCycle(paths,parts);
 }
 

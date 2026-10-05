@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {setup} from './life-challenge-harness.js';
+import {setup as setupHarness} from './life-challenge-harness.js';
+// These checks inspect visible displacement bars; open their native drawer.
+async function setup(...args){const h=await setupHarness(...args);h.el('instruments').open=true;h.el('instruments').handlers.toggle();return h;}
 const click=(h,id)=>h.el(id).handlers.click();
 const field=(h,axis)=>h.el('wave-target-'+axis);
 function type(h,axis,value){field(h,axis).value=String(value);field(h,axis).handlers.input();}
