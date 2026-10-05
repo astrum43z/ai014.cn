@@ -152,6 +152,8 @@ footer{flex-wrap:wrap}.footer-contact{flex-basis:100%;display:flex;flex-wrap:wra
 .wave-time-seek #wave-time-current{margin:8px 0;color:#e6ecd8;font:13px/1.6 ui-monospace,monospace;overflow-wrap:anywhere}
 .wave-time-seek #wave-time-help{font-size:12px;line-height:1.7;overflow-wrap:anywhere}
 .wave-time-seek #wave-time-error{margin:8px 0 0;color:#ffac86;font:13px/1.6 sans-serif;overflow-wrap:anywhere}
+/* Return from exact time to its field using native navigation and focus. */
+.wave-time-seek #wave-time-view{max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px;line-height:1.7;color:#d3f35b;margin:8px 0 0}
 .wave-cycle{margin:18px 0 14px;padding-top:15px;border-top:1px solid #486358;max-width:650px;min-width:0}
 .wave-cycle figcaption{font-size:13px;line-height:1.7;margin-bottom:12px}
 .wave-cycle-row{display:grid;grid-template-columns:76px 24px minmax(0,1fr);gap:6px;align-items:center;margin:8px 0;font:12px ui-monospace,monospace}

@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Return from a Wave time reading to its canvas
+
+Wave’s optional time editor now offers “回到画布，查看这一刻” immediately after its exact-time controls and help. In the public cloud-browser baseline, selecting t = 0.125 left the canvas bottom 807.8 CSS pixels above the viewport, with no canvas-return link anywhere in the Wave instruments. The next native keyboard destination after Apply now returns to the field and focuses the existing canvas, where the probe’s arrow keys remain available.
+
+The link only moves reading position and focus. It does not seek again, move the probe, change the running choice, collapse the instruments or replace a time/coordinate draft. Component readings, the full-cycle plot, saved checkpoints, return undo and completed discoveries remain intact. Existing offscreen visibility rules still suspend animation and resume a running experiment when it re-enters view. The link wraps in narrow layouts and retains a 44-pixel minimum target and the existing dark-surface focus ring. No JavaScript, simulation, seed, storage, dependency, security or domain change is introduced.
+
+`tests/wave-time-view.test.js` checks native markup and keyboard order, styling, independently computed two-source readings, exact phases and boundaries, drafts/errors, fixed checkpoints and return undo, running visibility/timing, closed-instrument refresh, same-query history, retained worlds, asynchronous sharing, discoveries and simulated display/context interruptions. Public cloud-browser keyboard navigation, Back/Forward and zoomed reflow are verified separately. Controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, hardware key timing, rotation, actual layout collapse, graphics-device loss, clipboard contents or downloaded-file receipt.
+
 ### Return from an exact Life selection to its canvas cell
 
 Life’s optional cell inspector now offers “回到画布，查看框选格” immediately after the exact row/column editor. In the public cloud-browser baseline, selecting column 48, row 32 left the canvas bottom 1,154.8 CSS pixels above the viewport, with no canvas-return link in that section. Visitors can now follow the next native keyboard destination after Apply to see the orange selection and continue with the existing canvas arrow keys.
