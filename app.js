@@ -1184,6 +1184,27 @@ function readTargetNumber(raw){
  if(!Number.isFinite(number)||(number===0&&/[1-9]/.test(raw.split(/[eE]/)[0])))return NaN;
  return number;
 }
+// Copy the live model coordinates into an explicit visitor draft only. Reading
+// the model (not rounded text) also preserves tiny/scientific coordinates.
+// Validation still belongs to Apply, including points outside its input range.
+for(const world of ['orbit','wave']){
+ const button=$('#'+world+'-use-current');
+ button.addEventListener('click',()=>{
+  if(mode!==world)return;
+  const point=world==='orbit'?orbitPoint:probe;
+  for(const axis of ['x','y']){
+   const input=$('#'+world+'-target-'+axis);
+   input.value=String(point[axis]);input.setAttribute('aria-invalid','false');
+  }
+  const error=$('#'+world+'-position-error');
+  error.hidden=true;setReadingText(error,'');
+  const input=$('#'+world+'-target-x');input.focus();input.select();
+  announce(`已填入当前坐标：x ${point.x}，y ${point.y}；仅替换目标输入，实验状态未改变。`);
+ });
+ button.addEventListener('keydown',event=>{
+  if(event.repeat&&event.key==='Enter')event.preventDefault();
+ });
+}
 // Exact launch positioning is independent of launching and viewport size.
 // Validate the complete draft before pausing or touching the current model.
 function positionOrbitPoint(){

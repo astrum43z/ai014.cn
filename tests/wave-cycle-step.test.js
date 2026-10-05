@@ -104,7 +104,7 @@ test('cycle guidance stays quiet beside movement and exact-position controls',as
  const group=html.slice(html.indexOf('<div id="wave-touch"'),html.indexOf('<div id="fractal-touch"'));
  assert.match(group,/<small id="wave-step-help">/);assert.match(group,/保持参数与探针不变/);
  assert.match(group,/2 次后正负位移反转，4 次后回到相同波形/);
- assert.equal((group.match(/<button/g)||[]).length,5,'four arrows and one exact-position control');
+ assert.equal((group.match(/<button/g)||[]).length,6,'four arrows, explicit coordinate filling and exact positioning');
  assert.equal((group.match(/id="wave-position"/g)||[]).length,1);
  assert.doesNotMatch(group,/aria-live="polite"|role="status"/);
 });

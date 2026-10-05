@@ -58,6 +58,6 @@ test('hidden display/context interruptions, text-only startup and canvas capture
  toggle(h,false);let captures=0;h.el('canvas').toBlob=cb=>{captures++;cb(null);};click(h,'save');assert.equal(captures,1);toggle(h,true);check(h,8,12,.125);
 });
 test('native disclosure, existing quiet semantics, visible controls and intentional batch repeats are retained',async()=>{
- const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.match(html,/<details id="instruments" class="instrument-drawer">/);assert.match(html,/<p id="wave-cycle-period" aria-live="off">/);assert.match(html,/cycle=disclosure-1/);
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.match(html,/<details id="instruments" class="instrument-drawer">/);assert.match(html,/<p id="wave-cycle-period" aria-live="off">/);assert.match(html,/cycle=disclosure-1&amp;coordinate-draft=current-1/);
  const h=await setup('?experiment=wave');for(const world of ['fractal','walk']){click(h,'tab-'+world);toggle(h,true);for(const repeat of [false,true]){h.el('step').handlers.keydown({key:'Enter',repeat,preventDefault(){assert.fail('intentional batch repetition changed');}});click(h,'step');}assert.ok(h.el('metrics').textContent.includes(world==='fractal'?'500 个点':'48 步'));}
 });

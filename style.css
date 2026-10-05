@@ -521,6 +521,10 @@ canvas:focus-visible{position:relative;z-index:1;box-shadow:0 0 0 10px #122e29}
 .orbit-target #orbit-position-current,.orbit-target #orbit-position-help{font-size:13px;overflow-wrap:anywhere}
 .orbit-target #orbit-position-error{margin:8px 0 0;color:#ffac86;font-size:13px;overflow-wrap:anywhere}
 
+/* Explicit current-coordinate drafts keep both actions together and wrap. */
+.coordinate-actions{display:flex;flex-wrap:wrap;gap:8px}
+.coordinate-actions button{flex:1 1 150px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.wave-position .coordinate-actions button{font-size:13px}
 /* Keep earned findings recognizable in the compact selector without relying
    on border color. The short label is already decorative to assistive tech. */
 @media(max-width:720px){

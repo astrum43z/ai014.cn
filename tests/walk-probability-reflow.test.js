@@ -92,5 +92,5 @@ test('quiet probability text retains direction order and stays out of keyboard n
  }
  assert.doesNotMatch(section,/tabindex|role="status"|aria-live="polite"|aria-live="assertive"|<button|<input/);
  assert.match(html,/<details id="instruments" class="instrument-drawer"/);
- assert.match(html,/style\.css\?[^"\n]*&amp;walk-probability=stack-1/);
+ assert.match(html,/style\.css\?[^"\n]*&amp;walk-probability=stack-1&amp;coordinate-draft=current-1/);
 });
