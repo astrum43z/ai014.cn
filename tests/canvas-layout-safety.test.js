@@ -62,10 +62,13 @@ for(const mode of ['orbit','walk'])test(`${mode}: manual steps in a collapsed vi
 test('valid small and fractional layouts keep model rendering and ruler output',async()=>{
  for(const mode of ['orbit','walk'])for(const [width,height] of [[80,90],[259,240],[455.5,281.75],[600,414]]){
   const h=await setup('?experiment='+mode);strictArcs(h);h.resize(width,height);
-  assert.ok(h.drawing().some(mark=>mark[0]==='arc'),mode);assert.match(h.el(mode+'-scale-reading').textContent,/左下标尺/);
+  assert.ok(h.drawing().some(mark=>mark[0]==='arc'),mode);
+  const omitted=mode==='orbit'&&(width===80||width===259);
+  assert.match(h.el(mode+'-scale-reading').textContent,omitted?/^标尺暂隐以留出画面；同心圆半径/:/左下标尺/);
+  if(omitted)assert.ok(!h.drawing().some(mark=>mark[0]==='fillText'&&/模型单位$/.test(mark[1])),'no clipped or endpoint-covering ruler is painted');
  }
 });
 test('the updated renderer has its own cache key',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
- assert.match(html,/app\.js\?v=saved-observation-copy-1&amp;wave-sources=paired-label-1&amp;preview-launcher=clear-1&amp;orbit-legend=compact-1&amp;vertex-label=inset-1&amp;walk-distance=contrast-1&amp;fractal-path=append-once-1&amp;legend-endpoint=clear-1&amp;walk-reference=contrast-1&amp;launcher=contrast-1&amp;orbit-target=exact-1&amp;walk-text=stable-1&amp;fractal-text=stable-1&amp;preview-caption=clear-1&amp;trial-text=stable-1&amp;cell-position=exact-1&amp;repeat=stable-evidence-1&amp;feedback=parameter-action-1&amp;drag-feedback=meaningful-action-1&amp;render=positive-scale-1/);
+ assert.match(html,/app\.js\?v=saved-observation-copy-1&amp;ruler-endpoint=clear-1&amp;wave-sources=paired-label-1&amp;preview-launcher=clear-1&amp;orbit-legend=compact-1&amp;vertex-label=inset-1&amp;walk-distance=contrast-1&amp;fractal-path=append-once-1&amp;legend-endpoint=clear-1&amp;walk-reference=contrast-1&amp;launcher=contrast-1&amp;orbit-target=exact-1&amp;walk-text=stable-1&amp;fractal-text=stable-1&amp;preview-caption=clear-1&amp;trial-text=stable-1&amp;cell-position=exact-1&amp;repeat=stable-evidence-1&amp;feedback=parameter-action-1&amp;drag-feedback=meaningful-action-1&amp;render=positive-scale-1/);
 });

@@ -11,10 +11,17 @@ function check(h,width=600,height=414,view={x:140,y:0}){
  const marks=h.drawing(),s=Math.min(Math.min(width,height)/450,(width/2-34)/Math.max(1,Math.abs(view.x)),(height/2-34)/Math.max(1,Math.abs(view.y)));
  near(marks.find(row=>row[0]==='scale')[1],s);
  const labelIndex=marks.findIndex(row=>row[0]==='fillText'&&/^\d+(?:\.\d+)? 模型单位$/.test(row[1]));
- assert.ok(labelIndex>=0,'Orbit labels the actual model-unit scale');
+ if(labelIndex<0){
+  assert.match(reading(h),/^标尺暂隐以留出画面；同心圆半径为 50、100、150、200/);
+  const square=marks.find(row=>row[0]==='strokeRect');assert.ok(square);
+  const x=width/2+(square[1]+square[3]/2)*s,y=height/2+(square[2]+square[4]/2)*s;
+  for(const left of [22,width-142])if(left>=22&&left+126<=width-16)assert.ok(x+4.75>=left-6&&x-4.75<=left+126&&y+4.75>=height-56&&y-4.75<=height-10,'each available corner conflicts with the endpoint');
+  return {units:null,s,ops:[]};
+ }
  const start=marks.findLastIndex((row,i)=>i<labelIndex&&row[0]==='save'),end=marks.findIndex((row,i)=>i>labelIndex&&row[0]==='restore');
  const ops=marks.slice(start,end+1),label=marks[labelIndex],units=Number(label[1].split(' ')[0]);
- const left=-width/(2*s)+22/s,bottom=height/(2*s)-22/s;
+ const plate=ops.find(row=>row[0]==='fillRect'),screenLeft=width/2+plate[1]*s+6;
+ const left=-width/(2*s)+screenLeft/s,bottom=height/(2*s)-22/s;
  near(label[2],left);near(label[3],bottom-11/s);
  const lines=ops.filter(row=>['moveTo','lineTo'].includes(row[0]));
  const expected=[['moveTo',left,bottom],['lineTo',left+units,bottom],['moveTo',left,bottom-4/s],['lineTo',left,bottom+4/s],['moveTo',left+units,bottom-4/s],['lineTo',left+units,bottom+4/s]];
@@ -24,7 +31,7 @@ function check(h,width=600,height=414,view={x:140,y:0}){
  assert.ok(ops.some(row=>row[0]==='setLineDash'&&row[1].length===0));
  near(ops.find(row=>row[0]==='lineWidth')[1]*s,1);near(Number(ops.find(row=>row[0]==='font')[1].split('px')[0])*s,11);
  assert.equal(ops.at(-1)[0],'restore','styles do not leak into other marks');
- assert.equal(reading(h),`左下标尺：${units} 模型单位；同心圆半径为 50、100、150、200。视图缩放不改变实际距离。`);
+ assert.equal(reading(h),`${Math.abs(screenLeft-22)<1e-8?'左下':'右下'}标尺：${units} 模型单位；同心圆半径为 50、100、150、200。视图缩放不改变实际距离。`);
  const rings=marks.filter(row=>row[0]==='arc'&&row[1]===0&&row[2]===0&&[50,100,150,200].includes(row[3]));
  assert.deepEqual(rings.map(row=>row[3]),[50,100,150,200]);
  return {units,s,ops};
@@ -110,6 +117,9 @@ test('scale explanation is quiet wrapping text beside the existing measurement, 
 test('a dark ruler backing stays above crossing trails while every planet and marker remains above it',async()=>{
  const h=await setup('?experiment=orbit');h.resize(259,240);
  for(let n=0;n<190;n++)click(h,'step');
+ // Keep a no-preview launch selection so this separate layering regression
+ // continues to inspect the ruler backing itself, not endpoint omission.
+ h.el('orbit-target-x').value='0';h.el('orbit-target-y').value='0';click(h,'orbit-position-apply');
  const {s,ops}=check(h,259,240),marks=h.drawing();
  const plate=ops.find(row=>row[0]==='fillRect');assert.ok(plate);
  near(plate[1]*s+259/2,16);near(plate[2]*s+240/2,184);near(plate[3]*s,132);near(plate[4]*s,46);

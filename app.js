@@ -559,7 +559,16 @@ function drawOrbitScale(scale){
  if(!Number.isFinite(scale)||scale<=0){setReadingText($('#orbit-scale-reading'),'');return;}
  const capacity=80/scale,power=10**Math.floor(Math.log10(capacity));
  const units=Number(([5,2,1].map(n=>n*power).find(n=>n<=capacity)).toPrecision(6));
- const left=-width/(2*scale)+22/scale,bottom=height/(2*scale)-22/scale;
+ // The opaque ruler paints after the preview. Keep its complete endpoint
+ // square (including the stroke) visible; try the other bottom corner before
+ // omitting this duplicate scale drawing. Model geometry never moves.
+ const prediction=orbitPrediction(),end=prediction?.end;
+ const ex=end?width/2+end.x*scale:0,ey=end?height/2+end.y*scale:0;
+ const clear=x=>!end||!(ex+4.75>=x-6&&ex-4.75<=x+126&&ey+4.75>=height-56&&ey-4.75<=height-10);
+ const rulerX=[22,width-142].find(x=>x>=22&&x+126<=width-16&&clear(x));
+ const context='同心圆半径为 50、100、150、200。视图缩放不改变实际距离。';
+ if(rulerX===undefined){setReadingText($('#orbit-scale-reading'),'标尺暂隐以留出画面；'+context);return;}
+ const left=-width/(2*scale)+rulerX/scale,bottom=height/(2*scale)-22/scale;
  ctx.save();ctx.setLineDash([]);ctx.fillStyle='#122e29';
  ctx.fillRect(left-6/scale,bottom-34/scale,132/scale,46/scale);
  ctx.strokeStyle='#a9bfab';ctx.fillStyle='#a9bfab';ctx.lineWidth=1/scale;
@@ -567,7 +576,7 @@ function drawOrbitScale(scale){
  ctx.beginPath();ctx.moveTo(left,bottom);ctx.lineTo(left+units,bottom);
  ctx.moveTo(left,bottom-4/scale);ctx.lineTo(left,bottom+4/scale);
  ctx.moveTo(left+units,bottom-4/scale);ctx.lineTo(left+units,bottom+4/scale);ctx.stroke();ctx.restore();
- setReadingText($('#orbit-scale-reading'),`左下标尺：${units} 模型单位；同心圆半径为 50、100、150、200。视图缩放不改变实际距离。`);
+ setReadingText($('#orbit-scale-reading'),`${rulerX===22?'左下':'右下'}标尺：${units} 模型单位；`+context);
 }
 function drawOrbitLauncher(scale){
  const {x,y}=orbitPoint,launch=orbitLaunchState(orbitPoint,values.gravity*1000,values.speed);

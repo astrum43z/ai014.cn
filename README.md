@@ -18,6 +18,14 @@ Each exploration has an explicit paused start, a concrete action, and a model-ba
 
 Loading a preset or repeatedly pressing Check never completes a discovery. Current task state follows the corresponding experiment across tab switches; a different URL state ends that world's active task. Completed field notes are historical observations in page memory only: no storage, account, upload, or inclusion in shared links, and a refresh clears them. Repeating a completed task updates its one note without duplicating it.
 
+### Keep the Orbit ruler clear of the preview endpoint
+
+At exact launch target (−1000, 600), the lower-left ruler's opaque backing completely covered the ten-second preview endpoint. The public cloud browser reproduced the missing square in a 647 × 317.9375 CSS-pixel canvas; its full stroke lay inside the ruler panel even though the preview's HTML coordinates remained correct.
+
+The ruler now keeps its usual lower-left position when clear and tries the lower-right corner when the endpoint's complete 8-pixel square and 1.5-pixel stroke would overlap it. If neither corner has room, only the duplicate canvas ruler is omitted. The quiet HTML reading names the actual corner or explains the omission, and retains the concentric-circle distances. The ruler's scale interval, font size, tick lengths and dark backing are unchanged. The endpoint, preview path, launch cue, planets and all model coordinates stay fixed. Omission also applies to PNG captures, which do not include the separate HTML explanation.
+
+`tests/orbit-ruler-endpoint.test.js` covers the reproduced collision, inclusive stroke-edge boundaries, both-corner conflicts, width limits, independent preview integration, exact ruler geometry, parameters, running and paused states, recall and body limits, retained worlds, discoveries, capture requests, intentional batch repeats and simulated display/context recovery. Existing ruler tests retain their scale and marker-layering checks. No physics, seed, control, sharing, recovery, storage, dependency or domain change is introduced. Public cloud-browser interaction and zoomed reflow are checked separately; controlled checks do not establish physical touch, mobile keyboard/IME, screen-reader speech, rotation, actual layout collapse, hardware graphics loss, clipboard delivery or downloaded-file receipt.
+
 ### Read both Wave source names in a distant fitted view
 
 When a distant probe fits the Wave canvas around a larger area, the unchanged A and B source dots can become only a few pixels apart. At probe (10000, 0), separation 100 and the public 647 × 317.9375 CSS-pixel canvas, the sources are 3.055 pixels apart and their letters visibly overprint one another.
