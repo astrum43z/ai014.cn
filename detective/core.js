@@ -140,7 +140,7 @@ export function exportReport(leads, now = new Date()) {
   const generatedAt = new Date(now).toISOString();
   const clean = leads.map(lead => {
     const url = publicUrl(lead.url).href;
-    return { site: safeLabel(lead.site, new URL(url).hostname), url, username: safeLabel(lead.username), status: 'unverified', source: lead.source === 'sherlock-import' ? 'sherlock-import' : 'manual', ...(lead.source === 'sherlock-import' && lead.reported === true ? { reported: true } : {}) };
+    return { site: safeLabel(lead.site, new URL(url).hostname), url, username: safeLabel(lead.username), status: 'unverified', source: ['sherlock-import', 'platform-search'].includes(lead.source) ? lead.source : 'manual', ...(lead.source === 'platform-search' ? {searchType:['users','content','index','mixed'].includes(lead.searchType) ? lead.searchType : 'mixed'} : {}), ...(lead.source === 'sherlock-import' && lead.reported === true ? { reported: true } : {}) };
   });
   return JSON.stringify({ schemaVersion: 1, generatedAt, disclaimer: DISCLAIMER, leads: clean }, null, 2)
     .replace(/[<>&\u2028\u2029]/g, char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`);

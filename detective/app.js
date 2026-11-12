@@ -1,4 +1,6 @@
-import {buildLeads, sherlockCommand, parseSherlockReport, analyzeUrl, exportReport} from './core.js';
+import {buildLeads, sherlockCommand, parseSherlockReport, analyzeUrl, exportReport} from './core.js?v=3';
+
+import {buildDomesticLeads} from './accounts-core.js';
 
 const $ = id => document.getElementById(id);
 const tabs = [...document.querySelectorAll('[role=tab]')];
@@ -32,9 +34,10 @@ function renderLeads() {
   $('lead-empty').hidden = leads.length > 0; $('export-leads').disabled = !leads.length; $('clear-leads').disabled = !leads.length;
   for (const lead of leads) {
     const card = element('li', undefined, 'lead-card'), top = element('div', undefined, 'lead-top');
-    top.append(element('strong', lead.site), element('span', '待人工核验'));
-    const link = element('a', '打开外部主页 ↗'); link.href = lead.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.referrerPolicy = 'no-referrer';
-    card.append(top, element('span', lead.url, 'lead-url'), element('small', lead.source === 'sherlock-import' ? '来源：Sherlock 报告声称命中，不代表确认身份' : '来源：用户名拼接入口，尚未检查是否存在'), link);
+    const search = lead.source === 'platform-search';
+    top.append(element('strong', lead.site), element('span', search ? '搜索入口' : '待人工核验'));
+    const link = element('a', search ? (lead.linkLabel || '到平台查看候选结果 ↗') : '打开外部主页 ↗'); link.href = lead.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.referrerPolicy = 'no-referrer';
+    card.append(top, element('span', search ? `检索词：${lead.username}` : lead.url, 'lead-url'), element('small', search ? lead.note : lead.source === 'sherlock-import' ? '来源：Sherlock 报告声称命中，不代表确认身份' : '来源：用户名拼接入口，尚未检查是否存在'), link);
     $('leads').append(card);
   }
 }
@@ -44,15 +47,23 @@ function mergeLeads(incoming) {
   if (all.size > 1000) throw new Error('本次最多保留 1,000 条线索，请先导出并清空。');
   const before = leads.length; leads = [...all.values()]; renderLeads(); return leads.length - before;
 }
+function resetCommand() {
+  command = ''; $('copy-command').disabled = true;
+  $('command').textContent = $('account-mode').value === 'international' ? '先输入英文用户名，再准备查询入口。' : '中文昵称搜索无需运行命令。切换国际用户名模式后可生成 Sherlock 命令。';
+}
 $('username-form').addEventListener('submit', event => {
   event.preventDefault();
   try {
-    const input = $('username').value, generated = buildLeads(input); command = sherlockCommand(input);
-    const added = mergeLeads(generated); $('command').textContent = command; $('copy-command').disabled = false;
-    status('username-status', `生成 10 个核验入口，本次新增 ${added} 条。没有进行在线扫描。`);
-  } catch (error) { command = ''; $('command').textContent = '请更正用户名后重新生成命令。'; $('copy-command').disabled = true; status('username-status', error.message, true); }
+    const input = $('username').value, domestic = $('account-mode').value !== 'international';
+    const generated = domestic ? buildDomesticLeads(input) : buildLeads(input);
+    const added = mergeLeads(generated);
+    resetCommand();
+    if (!domestic) { command = sherlockCommand(input); $('command').textContent = command; $('copy-command').disabled = false; }
+    status('username-status', domestic ? `准备了 ${generated.length} 个大陆平台搜索入口，本次新增 ${added} 条。尚未搜索，没有确认账号或身份；点击后将昵称交给对应平台或搜索引擎。` : `生成 ${generated.length} 个国际平台主页入口，本次新增 ${added} 条。没有进行在线扫描。`);
+  } catch (error) { resetCommand(); status('username-status', error.message, true); }
 });
-$('username').addEventListener('input', () => { command = ''; $('copy-command').disabled = true; $('command').textContent = '用户名已修改，请重新生成命令。'; });
+$('username').addEventListener('input', () => { resetCommand(); status('username-status', '输入已修改，请重新准备查询入口；已有线索仍保留原检索词。'); });
+$('account-mode').addEventListener('change', () => { resetCommand(); status('username-status', '已切换查询方式。点击“准备查询入口”生成新入口；已有线索不会自动替换。'); });
 $('copy-command').addEventListener('click', async () => {
   if (!command) return;
   const captured = command;
